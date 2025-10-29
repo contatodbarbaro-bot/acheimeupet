@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel do Tutor - AcheiMeuPet</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f7f5f2;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: #1e1e1e;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 30px;
+    }
+    header h1 {
+      font-size: 20px;
+      font-weight: 600;
+      color: #f0b47a;
+    }
+    button {
+      background-color: #c28553;
+      border: none;
+      color: white;
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    button:hover { background-color: #b37445; }
+
+    .login-box {
+      max-width: 400px;
+      margin: 80px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    .login-box h2 {
+      color: #c28553;
+      margin-bottom: 15px;
+    }
+    .login-box input {
+      width: 90%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      font-size: 15px;
+    }
+
+    .table-container {
+      margin: 20px;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border-bottom: 1px solid #eee;
+      padding: 10px;
+      text-align: left;
+      font-size: 14px;
+    }
+    th {
+      background-color: #f2ede8;
+      color: #1e1e1e;
+    }
+    tr:hover { background-color: #faf6f2; }
+
+    a.qr-link {
+      color: #c28553;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    a.qr-link:hover { text-decoration: underline; }
+
+    #loading {
+      text-align: center;
+      margin-top: 40px;
+      font-weight: 500;
+      color: #c28553;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>🐾 AcheiMeuPet - Painel do Tutor</h1>
+    <button id="logoutBtn" style="display:none;">Sair</button>
+  </header>
+
+  <!-- Tela de login -->
+  <div id="loginArea" class="login-box">
+    <h2>Bem-vindo(a)!</h2>
+    <p>Digite o <strong>e-mail</strong> ou <strong>CPF</strong> cadastrado para acessar seus pets.</p>
+    <input type="text" id="inputLogin" placeholder="Seu e-mail ou CPF">
+    <button id="btnLogin">Entrar</button>
+  </div>
+
+  <!-- Painel do tutor -->
+  <div id="painelTutor" style="display:none;">
+    <div class="table-container">
+      <h2 style="color:#c28553;">🐶 Meus Pets</h2>
+      <div id="loading">Carregando seus pets...</div>
+      <table id="petsTable" style="display:none;">
+        <thead>
+          <tr>
+            <th>Nome</th>
+            <th>Espécie</th>
+            <th>Sexo</th>
+            <th>Cidade</th>
+            <th>Data Cadastro</th>
+            <th>QR Code</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const PLANILHA_URL = "https://docs.google.com/spreadsheets/d/1oae2KSslnsE_RTdtPh8B1p20fYo38IP751EjQjyKG6I/gviz/tq?tqx=out:json&sheet=Banco_de_dados_clientes";
+
+    document.getElementById("btnLogin").addEventListener("click", async () => {
+      const valor = document.getElementById("inputLogin").value.trim().toLowerCase();
+      if (!valor) {
+        alert("Digite seu e-mail ou CPF para continuar.");
+        return;
+      }
+
+      document.getElementById("loginArea").style.display = "none";
+      document.getElementById("painelTutor").style.display = "block";
+      document.getElementById("logoutBtn").style.display = "block";
+
+      await carregarPetsTutor(valor);
+    });
+
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      location.reload();
+    });
+
+    async function carregarPetsTutor(login) {
+      try {
+        const response = await fetch(PLANILHA_URL);
+        const text = await response.text();
+
+        const jsonStr = text.substring(text.indexOf("{"), text.lastIndexOf("}") + 1);
+        const data = JSON.parse(jsonStr);
+
+        const linhas = data.table.rows.map(row => {
+          const c = row.c.map(cell => cell ? cell.v : "");
+          // converter data
+          let dataCadastro = "";
+          if (typeof c[17] === "string" && c[17].includes("Date")) {
+            const match = c[17].match(/Date\((\d+),(\d+),(\d+)\)/);
+            if (match) {
+              const ano = match[1];
+              const mes = String(parseInt(match[2]) + 1).padStart(2, "0");
+              const dia = String(match[3]).padStart(2, "0");
+              dataCadastro = `${dia}/${mes}/${ano}`;
+            }
+          } else if (c[17]?.f) {
+            dataCadastro = c[17].f;
+          }
+
+          return {
+            nome: c[1],
+            especie: c[2],
+            sexo: c[4],
+            cidade: c[10],
+            email: (c[8] || "").toLowerCase(),
+            cpf: c[7] ? String(c[7]) : "",
+            data: dataCadastro,
+            qr: c[16] || ""
+          };
+        });
+
+        const filtrados = linhas.filter(p =>
+          p.email === login || p.cpf.replace(/\D/g, "") === login.replace(/\D/g, "")
+        );
+
+        if (filtrados.length === 0) {
+          document.getElementById("loading").innerText = "Nenhum pet encontrado para este tutor.";
+          return;
+        }
+
+        renderizarTabela(filtrados);
+        document.getElementById("loading").style.display = "none";
+        document.getElementById("petsTable").style.display = "table";
+
+      } catch (error) {
+        console.error("Erro ao carregar pets:", error);
+        document.getElementById("loading").innerText = "Erro ao carregar seus pets.";
+      }
+    }
+
+    function renderizarTabela(dados) {
+      const tbody = document.querySelector("#petsTable tbody");
+      tbody.innerHTML = "";
+      dados.forEach(pet => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${pet.nome}</td>
+          <td>${pet.especie}</td>
+          <td>${pet.sexo}</td>
+          <td>${pet.cidade}</td>
+          <td>${pet.data}</td>
+          <td><a href="${pet.qr}" target="_blank" class="qr-link">Abrir QR</a></td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+  </script>
+
+</body>
+</html>

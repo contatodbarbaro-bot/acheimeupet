@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://projetoacheimeupet.com.br/sitemap.xml

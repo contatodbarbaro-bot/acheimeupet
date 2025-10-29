@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Achei Meu Pet - Notificação Enviada</title>
+  <link rel="icon" href="../picole.png" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #fefaf5;
+      text-align: center;
+      padding: 50px;
+      color: #333;
+    }
+    .container {
+      max-width: 420px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      color: #e7a94c;
+    }
+    p {
+      line-height: 1.6;
+    }
+    .loading {
+      animation: pulse 1.2s infinite;
+    }
+    @keyframes pulse {
+      0% { opacity: 0.3; }
+      50% { opacity: 1; }
+      100% { opacity: 0.3; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🐾 Achei Meu Pet</h1>
+    <p id="status" class="loading">Carregando dados...</p>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const idPet = params.get("id");
+
+    async function enviarNotificacao() {
+      const statusEl = document.getElementById("status");
+
+      if (!idPet) {
+        statusEl.innerText = "❌ Nenhum identificador encontrado no link.";
+        statusEl.classList.remove("loading");
+        return;
+      }
+
+      statusEl.innerText = "🔄 Enviando notificação ao tutor...";
+
+      try {
+        const resposta = await fetch(
+          "https://webhook.fiqon.app/webhook/a02b8e45-cd21-44e0-a619-be0e64fd9a4b/b9ae07d8-e7af-4b1f-9b1c-a22cc15fb9cd",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ id_pet: idPet })
+          }
+        );
+
+        if (resposta.ok) {
+          statusEl.innerText =
+            "✅ O tutor foi notificado com sucesso! Obrigado por ajudar 💛";
+        } else {
+          statusEl.innerText =
+            "⚠️ Houve um problema ao enviar a notificação. Tente novamente mais tarde.";
+        }
+      } catch (erro) {
+        statusEl.innerText =
+          "⚠️ Erro de conexão. Tente novamente em instantes.";
+      } finally {
+        statusEl.classList.remove("loading");
+      }
+    }
+
+    enviarNotificacao();
+  </script>
+</body>
+</html>

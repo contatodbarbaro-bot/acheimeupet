@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel Administrativo AcheiMeuPet</title>
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f7f5f2;
+      margin: 0;
+      padding: 0;
+    }
+    header {
+      background-color: #1e1e1e;
+      color: white;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 30px;
+    }
+    header h1 {
+      font-size: 20px;
+      font-weight: 600;
+      color: #f0b47a;
+    }
+    button {
+      background-color: #c28553;
+      border: none;
+      color: white;
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+    }
+    button:hover { background-color: #b37445; }
+
+    .cards {
+      display: flex;
+      justify-content: space-around;
+      flex-wrap: wrap;
+      margin: 20px;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      padding: 20px;
+      width: 220px;
+      text-align: center;
+      margin: 10px;
+    }
+    .card h3 {
+      color: #1e1e1e;
+      font-size: 15px;
+      margin-bottom: 10px;
+    }
+    .card p {
+      font-size: 24px;
+      font-weight: 600;
+      color: #c28553;
+    }
+
+    .table-container {
+      margin: 20px;
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border-bottom: 1px solid #eee;
+      padding: 10px;
+      text-align: left;
+      font-size: 14px;
+    }
+    th {
+      background-color: #f2ede8;
+      color: #1e1e1e;
+    }
+    tr:hover { background-color: #faf6f2; }
+
+    .search-bar {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 15px;
+    }
+    input[type="text"] {
+      width: 250px;
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+
+    #loading {
+      text-align: center;
+      margin-top: 40px;
+      font-weight: 500;
+      color: #c28553;
+    }
+
+    a.qr-link {
+      color: #c28553;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    a.qr-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>🐾 Painel AcheiMeuPet</h1>
+    <button id="logoutBtn">Sair</button>
+  </header>
+
+  <div class="cards">
+    <div class="card">
+      <h3>Total de Pets</h3>
+      <p id="totalPets">0</p>
+    </div>
+    <div class="card">
+      <h3>Total de Tutores</h3>
+      <p id="totalTutores">0</p>
+    </div>
+    <div class="card">
+      <h3>Cidades Registradas</h3>
+      <p id="totalCidades">0</p>
+    </div>
+    <div class="card">
+      <h3>Assinaturas Ativas</h3>
+      <p id="totalAtivas">0</p>
+    </div>
+  </div>
+
+  <div class="table-container">
+    <div class="search-bar">
+      <input type="text" id="searchInput" placeholder="Buscar por nome, tutor ou ID...">
+      <button id="reloadBtn">🔄 Atualizar</button>
+    </div>
+
+    <div id="loading">Carregando dados...</div>
+    <table id="petsTable" style="display:none;">
+      <thead>
+        <tr>
+          <th>ID_Pet</th>
+          <th>Nome</th>
+          <th>Tutor</th>
+          <th>Cidade</th>
+          <th>UF</th>
+          <th>Data Cadastro</th>
+          <th>Plano</th>
+          <th>QR Code</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <script>
+    // ======= CONFIGURAÇÃO =======
+    const PLANILHA_URL = "https://docs.google.com/spreadsheets/d/1oae2KSslnsE_RTdtPh8B1p20fYo38IP751EjQjyKG6I/gviz/tq?tqx=out:json&sheet=Banco_de_dados_clientes";
+    const SENHA = "admin123";
+
+    // ======= AUTENTICAÇÃO =======
+    if (!sessionStorage.getItem("autenticado")) {
+      const senha = prompt("Digite a senha de acesso:");
+      if (senha !== SENHA) {
+        alert("Acesso negado!");
+        window.location.href = "https://projetoacheimeupet.com.br";
+      } else {
+        sessionStorage.setItem("autenticado", true);
+      }
+    }
+
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      sessionStorage.removeItem("autenticado");
+      location.reload();
+    });
+
+    // ======= FUNÇÃO DE LEITURA =======
+    async function carregarDados() {
+      document.getElementById("loading").style.display = "block";
+      document.getElementById("petsTable").style.display = "none";
+
+      try {
+        const response = await fetch(PLANILHA_URL);
+        const text = await response.text();
+
+        // Remove o "google.visualization..." para obter JSON puro
+        const jsonStr = text.substring(text.indexOf("{"), text.lastIndexOf("}") + 1);
+        const data = JSON.parse(jsonStr);
+
+        const linhas = data.table.rows.map(row => {
+          const c = row.c.map(cell => cell ? cell.v : "");
+          // Conversão da data do formato Date(YYYY,MM,DD)
+          let dataCadastro = "";
+          if (typeof c[17] === "string" && c[17].includes("Date")) {
+            const match = c[17].match(/Date\((\d+),(\d+),(\d+)\)/);
+            if (match) {
+              const ano = match[1];
+              const mes = String(parseInt(match[2]) + 1).padStart(2, "0");
+              const dia = String(match[3]).padStart(2, "0");
+              dataCadastro = `${dia}/${mes}/${ano}`;
+            }
+          } else if (c[17]?.f) {
+            dataCadastro = c[17].f;
+          }
+
+          return {
+            id: c[0],
+            nome: c[1],
+            tutor: c[6],
+            cidade: c[10],
+            uf: c[11],
+            data: dataCadastro,
+            plano: c[18] || "",
+            qr: c[16] || "" // url_qr_imagem
+          };
+        });
+
+        renderizarTabela(linhas);
+        atualizarResumo(linhas);
+
+        document.getElementById("loading").style.display = "none";
+        document.getElementById("petsTable").style.display = "table";
+
+      } catch (error) {
+        console.error("Erro ao carregar planilha:", error);
+        document.getElementById("loading").innerText = "Erro ao carregar dados.";
+      }
+    }
+
+    // ======= TABELA =======
+    function renderizarTabela(dados) {
+      const tbody = document.querySelector("#petsTable tbody");
+      tbody.innerHTML = "";
+      dados.forEach(pet => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${pet.id}</td>
+          <td>${pet.nome}</td>
+          <td>${pet.tutor}</td>
+          <td>${pet.cidade}</td>
+          <td>${pet.uf}</td>
+          <td>${pet.data}</td>
+          <td>${pet.plano}</td>
+          <td><a href="${pet.qr}" target="_blank" class="qr-link">Abrir QR</a></td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // Filtro em tempo real
+      const searchInput = document.getElementById("searchInput");
+      searchInput.addEventListener("keyup", e => {
+        const valor = e.target.value.toLowerCase();
+        const filtrados = dados.filter(p =>
+          p.nome.toLowerCase().includes(valor) ||
+          p.tutor.toLowerCase().includes(valor) ||
+          p.id.toLowerCase().includes(valor)
+        );
+        renderizarTabela(filtrados);
+      });
+    }
+
+    // ======= RESUMO =======
+    function atualizarResumo(dados) {
+      const totalPets = dados.length;
+      const totalTutores = new Set(dados.map(p => p.tutor)).size;
+      const totalCidades = new Set(dados.map(p => p.cidade)).size;
+      const totalAtivas = dados.filter(p => p.plano && p.plano.toLowerCase().includes("ativo")).length;
+
+      document.getElementById("totalPets").innerText = totalPets;
+      document.getElementById("totalTutores").innerText = totalTutores;
+      document.getElementById("totalCidades").innerText = totalCidades;
+      document.getElementById("totalAtivas").innerText = totalAtivas;
+    }
+
+    // ======= EVENTOS =======
+    document.getElementById("reloadBtn").addEventListener("click", carregarDados);
+
+    // ======= INICIALIZAÇÃO =======
+    carregarDados();
+  </script>
+</body>
+</html>

@@ -1,0 +1,143 @@
+/* Importa a fonte do Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+
+/* Paleta de Cores */
+:root {
+    --primary-color: #C98C54; /* Cor caramelo */
+    --primary-dark-color: #A16F42; /* Tom mais escuro para hover */
+    --secondary-color: #00C853; /* Verde para sucesso */
+    --background-color: #FDFBF8; /* Fundo suave com tom quente */
+    --text-color: #333;
+    --light-text-color: #777;
+    --white-color: #FFFFFF;
+    --error-color: #D32F2F; /* Vermelho para erros */
+}
+
+body { 
+    font-family: 'Poppins', sans-serif; 
+    margin: 0; 
+    padding: 20px; 
+    background-color: var(--background-color); 
+    display: flex; 
+    flex-direction: column; /* Permite alinhar o footer embaixo */
+    justify-content: center; 
+    align-items: center; 
+    min-height: 100vh; 
+}
+
+.container { 
+    text-align: center; 
+    background-color: var(--white-color); 
+    padding: 30px 40px; 
+    border-radius: 20px; 
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08); 
+    max-width: 420px; 
+    width: 100%;
+    margin-bottom: 20px; /* Espaço para o footer */
+}
+
+.logo-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.logo-header img { 
+    max-width: 60px; 
+    height: auto;
+}
+
+.logo-header h1 {
+    font-size: 2.2em;
+    color: var(--primary-color);
+    font-weight: 700;
+    margin: 0;
+}
+
+h2 {
+    font-size: 1.5em;
+    color: var(--text-color);
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+p { 
+    color: var(--light-text-color); 
+    line-height: 1.6; 
+    margin-bottom: 25px;
+}
+
+.form-group { 
+    margin-bottom: 20px; 
+    text-align: left; 
+}
+
+.form-group label { 
+    display: block; 
+    margin-bottom: 8px; 
+    font-weight: 600; 
+    color: #555; 
+}
+
+.form-group input { 
+    width: 100%; 
+    padding: 12px 15px; 
+    border-radius: 8px; 
+    border: 1px solid #ccc; 
+    box-sizing: border-box; 
+    font-family: 'Poppins', sans-serif;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(201, 140, 84, 0.2);
+}
+
+.button { 
+    display: block; 
+    width: 100%; 
+    padding: 15px; 
+    font-size: 1.1em; 
+    font-weight: 600; 
+    color: var(--white-color); 
+    background-color: var(--primary-color); 
+    border: none; 
+    border-radius: 10px; 
+    cursor: pointer; 
+    text-decoration: none; 
+    box-sizing: border-box; 
+    transition: background-color 0.3s, transform 0.2s; 
+}
+
+.button:hover { 
+    background-color: var(--primary-dark-color);
+    transform: translateY(-2px);
+}
+
+.button:disabled {
+    background-color: #BDBDBD;
+    cursor: not-allowed;
+}
+
+.status-message {
+    margin-top: 15px;
+    font-weight: 600;
+}
+
+/* Estilo do Rodapé */
+.footer {
+    text-align: center;
+    width: 100%;
+    padding: 10px 0;
+}
+
+.footer p {
+    color: var(--light-text-color);
+    font-size: 0.9em;
+    margin: 0;
+}
+
