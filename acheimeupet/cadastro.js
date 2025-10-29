@@ -1,4 +1,3 @@
-<script>
 document.addEventListener('DOMContentLoaded', function () {
   const form = document.getElementById('form-cadastro');
   const btn = document.getElementById('btn-enviar');
@@ -60,4 +59,3 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 });
-</script>
