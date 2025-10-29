@@ -12,8 +12,24 @@ if (formCadastro) {
     const formData = new FormData(formCadastro);
     const data = Object.fromEntries(formData.entries());
 
+    // Captura o arquivo de imagem (se existir)
+    const fotoPet = formData.get('foto_pet');
+
+    if (fotoPet && fotoPet.size > 0) {
+      // Converte a imagem para Base64
+      const base64 = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = (err) => reject(err);
+        reader.readAsDataURL(fotoPet);
+      });
+      data.foto_pet = base64; // adiciona ao JSON final
+    } else {
+      data.foto_pet = ''; // se não houver foto, envia vazio
+    }
+
     try {
-      // Envio dos dados para o Webhook do Fiqon
+      // Envia para o Webhook do Fiqon
       const response = await fetch('https://webhook.fiqon.app/webhook/a029be45-8a23-418e-93e3-33f9b620a944/3e1595ab-b587-499b-a640-a8fe46b2d0c6', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -22,11 +38,11 @@ if (formCadastro) {
 
       const resultado = await response.json();
 
-      // Remove qualquer mensagem anterior
+      // Remove mensagens antigas
       const mensagemAnterior = document.querySelector('#mensagem-status');
       if (mensagemAnterior) mensagemAnterior.remove();
 
-      // Cria o elemento de mensagem
+      // Cria elemento de mensagem
       const mensagem = document.createElement('p');
       mensagem.id = 'mensagem-status';
       mensagem.style.marginTop = '12px';
@@ -41,21 +57,18 @@ if (formCadastro) {
       const fadeOut = (el) => (el.style.opacity = '0');
 
       if (resultado.ok) {
-        // Mensagem de sucesso
         mensagem.textContent = '✅ Cadastro enviado com sucesso! Aguarde a confirmação do pagamento.';
         mensagem.style.color = '#2e7d32';
         formCadastro.appendChild(mensagem);
         fadeIn(mensagem);
 
-        // Desvanece antes do redirecionamento
         setTimeout(() => fadeOut(mensagem), 3500);
 
-        // Redireciona para a próxima etapa
+        // Redirecionamento para página de pagamento
         setTimeout(() => {
           window.location.href = 'https://www.projetoacheimeupet.com.br/pagamento';
         }, 4000);
       } else {
-        // Mensagem de erro tratável
         mensagem.textContent = '⚠️ Ocorreu um erro ao enviar o cadastro. Tente novamente em alguns instantes.';
         mensagem.style.color = '#c62828';
         formCadastro.appendChild(mensagem);
@@ -64,11 +77,9 @@ if (formCadastro) {
     } catch (erro) {
       console.error('Erro de conexão:', erro);
 
-      // Remove qualquer mensagem anterior
       const mensagemAnterior = document.querySelector('#mensagem-status');
       if (mensagemAnterior) mensagemAnterior.remove();
 
-      // Mensagem de erro de rede
       const mensagemErro = document.createElement('p');
       mensagemErro.id = 'mensagem-status';
       mensagemErro.textContent = '⚠️ Falha na conexão com o servidor. Verifique sua internet e tente novamente.';
