@@ -1,20 +1,25 @@
-// 1. Adicione esta linha no topo
-const fetch = require('node-fetch'); 
-
-exports.handler = async (event, context) => {
+export async function handler(event) {
   try {
-    // ... o resto do seu código ...
-    
-    // Onde você usa o fetch:
-    const response = await fetch(webhookUrl, {
+    const webhookUrl = "https://webhook.fiqon.app/webhook/SEU-ID/SEU-ID";
+    const resp = await fetch(webhookUrl, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body)
+      body: event.body,
     });
-    
-    // ... o resto do seu código ...
+    const text = await resp.text();
 
-  } catch (error) {
-    // ...
+    return {
+      statusCode: resp.status,
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+      },
+      body: text,
+    };
+  } catch (e) {
+    return {
+      statusCode: 500,
+      body: JSON.stringify({ error: "Erro interno no proxy." }),
+    };
   }
-};
+}
