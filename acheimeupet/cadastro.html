@@ -5,15 +5,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Cadastrar Pet | AcheiMeuPet</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    main { max-width: 700px; margin: 40px auto; padding: 20px; }
+    form { display: grid; gap: 10px; }
+    label { font-weight: 600; }
+    input, select, textarea {
+      width: 100%; padding: 8px; border-radius: 6px;
+      border: 1px solid #ccc; font-size: 14px;
+    }
+    button {
+      background-color: #c48a4d; color: white; font-weight: bold;
+      padding: 10px; border: none; border-radius: 6px; cursor: pointer;
+    }
+    button:hover { background-color: #b07c44; }
+    #mensagem-status { text-align: center; margin-top: 10px; font-weight: 600; }
+  </style>
 </head>
 
 <body>
-  <main style="max-width: 700px; margin: 50px auto; padding: 20px;">
-    <h1 style="text-align:center; margin-bottom: 20px;">Cadastrar Pet</h1>
+  <main>
+    <h1 style="text-align:center;">Cadastrar Pet</h1>
 
     <form id="form-cadastro">
 
-      <!-- Dados do pet -->
       <label for="nome_pet">Nome do pet *</label>
       <input type="text" id="nome_pet" name="nome_pet" required>
 
@@ -36,19 +50,11 @@
       </select>
 
       <label for="ano_nascimento">Ano de nascimento (AAAA)</label>
-      <input type="number" id="ano_nascimento" name="ano_nascimento" maxlength="4">
+      <input type="number" id="ano_nascimento" name="ano_nascimento">
 
-      <!-- Campo de upload da foto -->
       <label for="foto_pet">Foto do pet (opcional)</label>
-      <input 
-        type="file" 
-        id="foto_pet" 
-        name="foto_pet" 
-        accept="image/*" 
-        style="margin-bottom: 10px;"
-      >
+      <input type="file" id="foto_pet" name="foto_pet" accept="image/*">
 
-      <!-- Dados do tutor -->
       <label for="nome_tutor">Nome do tutor *</label>
       <input type="text" id="nome_tutor" name="nome_tutor" required>
 
@@ -73,18 +79,9 @@
       <label for="observacoes">Observações (opcional)</label>
       <textarea id="observacoes" name="observacoes" rows="3"></textarea>
 
-      <button type="submit" style="
-        background-color: #c48a4d;
-        color: white;
-        font-weight: bold;
-        padding: 10px 20px;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        margin-top: 15px;
-        width: 100%;
-      ">Enviar cadastro</button>
+      <button type="submit">Enviar cadastro</button>
     </form>
+    <p id="mensagem-status"></p>
   </main>
 
   <script src="cadastro.js"></script>
