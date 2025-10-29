@@ -3,94 +3,60 @@
 // ========================================
 
 const formCadastro = document.getElementById('form-cadastro');
+const mensagemStatus = document.getElementById('mensagem-status');
 
 if (formCadastro) {
   formCadastro.addEventListener('submit', async (e) => {
     e.preventDefault();
+    mensagemStatus.textContent = "Enviando cadastro...";
 
-    // Coleta os dados do formulário
+    // Coleta todos os campos do formulário
     const formData = new FormData(formCadastro);
-    const data = Object.fromEntries(formData.entries());
+    const dados = Object.fromEntries(formData.entries());
 
-    // Captura o arquivo de imagem (se existir)
-    const fotoPet = formData.get('foto_pet');
-
-    if (fotoPet && fotoPet.size > 0) {
-      // Converte a imagem para Base64
-      const base64 = await new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = (err) => reject(err);
-        reader.readAsDataURL(fotoPet);
-      });
-      data.foto_pet = base64; // adiciona ao JSON final
-    } else {
-      data.foto_pet = ''; // se não houver foto, envia vazio
+    // Se houver uma imagem, converte para Base64
+    const fotoInput = document.getElementById('foto_pet');
+    if (fotoInput.files.length > 0) {
+      const arquivo = fotoInput.files[0];
+      dados.foto_pet = await toBase64(arquivo);
     }
 
+    // Envia o cadastro ao Webhook do Fiqon
     try {
-      // Envia para o Webhook do Fiqon
-      const response = await fetch('https://webhook.fiqon.app/webhook/a029be45-8a23-418e-93e3-33f9b620a944/3e1595ab-b587-499b-a640-a8fe46b2d0c6', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+      const resposta = await fetch("https://webhook.fiqon.app/webhook/a029be45-8a23-418e-93e3-33f9b620a944/3e1595ab-b587-499b-a640-a8fe46b2d0c6", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(dados)
       });
 
-      const resultado = await response.json();
+      if (resposta.ok) {
+        mensagemStatus.textContent = "✅ Cadastro enviado com sucesso!";
+        mensagemStatus.style.color = "green";
 
-      // Remove mensagens antigas
-      const mensagemAnterior = document.querySelector('#mensagem-status');
-      if (mensagemAnterior) mensagemAnterior.remove();
-
-      // Cria elemento de mensagem
-      const mensagem = document.createElement('p');
-      mensagem.id = 'mensagem-status';
-      mensagem.style.marginTop = '12px';
-      mensagem.style.fontWeight = '600';
-      mensagem.style.fontSize = '15px';
-      mensagem.style.opacity = '0';
-      mensagem.style.transition = 'opacity 0.6s ease';
-      mensagem.style.textAlign = 'center';
-
-      // Funções de animação
-      const fadeIn = (el) => setTimeout(() => (el.style.opacity = '1'), 50);
-      const fadeOut = (el) => (el.style.opacity = '0');
-
-      if (resultado.ok) {
-        mensagem.textContent = '✅ Cadastro enviado com sucesso! Aguarde a confirmação do pagamento.';
-        mensagem.style.color = '#2e7d32';
-        formCadastro.appendChild(mensagem);
-        fadeIn(mensagem);
-
-        setTimeout(() => fadeOut(mensagem), 3500);
-
-        // Redirecionamento para página de pagamento
+        // Redireciona após 3 segundos
         setTimeout(() => {
-          window.location.href = 'https://www.projetoacheimeupet.com.br/pagamento';
-        }, 4000);
+          window.location.href = "https://projetoacheimeupet.com.br/sucesso.html";
+        }, 3000);
+
       } else {
-        mensagem.textContent = '⚠️ Ocorreu um erro ao enviar o cadastro. Tente novamente em alguns instantes.';
-        mensagem.style.color = '#c62828';
-        formCadastro.appendChild(mensagem);
-        fadeIn(mensagem);
+        mensagemStatus.textContent = "❌ Erro ao enviar cadastro. Tente novamente.";
+        mensagemStatus.style.color = "red";
       }
+
     } catch (erro) {
-      console.error('Erro de conexão:', erro);
-
-      const mensagemAnterior = document.querySelector('#mensagem-status');
-      if (mensagemAnterior) mensagemAnterior.remove();
-
-      const mensagemErro = document.createElement('p');
-      mensagemErro.id = 'mensagem-status';
-      mensagemErro.textContent = '⚠️ Falha na conexão com o servidor. Verifique sua internet e tente novamente.';
-      mensagemErro.style.color = '#c62828';
-      mensagemErro.style.marginTop = '12px';
-      mensagemErro.style.fontWeight = '600';
-      mensagemErro.style.opacity = '0';
-      mensagemErro.style.transition = 'opacity 0.6s ease';
-      mensagemErro.style.textAlign = 'center';
-      formCadastro.appendChild(mensagemErro);
-      setTimeout(() => (mensagemErro.style.opacity = '1'), 50);
+      mensagemStatus.textContent = "⚠️ Falha na conexão. Verifique sua internet.";
+      mensagemStatus.style.color = "red";
+      console.error("Erro:", erro);
     }
+  });
+}
+
+// Função auxiliar para converter arquivo em Base64
+function toBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = (error) => reject(error);
   });
 }
