@@ -1,3 +1,14 @@
 [build]
   publish = "."
   functions = "netlify/functions"
+
+[[redirects]]
+  from = "/cadastro.js"
+  to = "/cadastro.js"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
