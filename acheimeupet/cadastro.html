@@ -1,66 +1,92 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Cadastrar Pet — AcheiMeuPet</title>
-<link href="styles.css" rel="stylesheet">
-<style>
-  body{font-family:system-ui, Poppins, Arial; background:#f7f7f7; margin:0}
-  .wrap{max-width:860px; margin:40px auto; background:#fff; padding:24px; border-radius:12px; box-shadow:0 8px 28px #0001}
-  h1{margin:0 0 16px}
-  form{display:grid; grid-template-columns:1fr 1fr; gap:12px}
-  form .full{grid-column:1 / -1}
-  input, select, textarea{width:100%; padding:10px; border:1px solid #ddd; border-radius:8px}
-  button{padding:12px 18px; border:0; border-radius:10px; font-weight:600; cursor:pointer}
-  .primary{background:#C58B49; color:#fff}
-  #msg{margin-top:14px}
-  a{color:#0aa}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cadastrar Pet | AcheiMeuPet</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
-  <div class="wrap">
-    <h1>Cadastrar Pet</h1>
-    <p><a href="index.html">← Voltar ao site</a></p>
+  <main style="max-width: 700px; margin: 50px auto; padding: 20px;">
+    <h1 style="text-align:center; margin-bottom: 20px;">Cadastrar Pet</h1>
 
     <form id="form-cadastro">
-      <!-- PET -->
-      <input name="nome_pet" placeholder="Nome do pet *" required>
-      <select name="especie" required>
-        <option value="">Espécie *</option>
-        <option>Cachorro</option>
-        <option>Gato</option>
-        <option>Outro</option>
-      </select>
-      <input name="raca" placeholder="Raça">
-      <select name="sexo">
-        <option value="">Sexo</option>
-        <option>Macho</option>
-        <option>Fêmea</option>
-        <option>Indefinido</option>
-      </select>
-      <input name="ano_nascimento" placeholder="Ano de nascimento (AAAA)">
-      <input name="foto_pet" placeholder="URL da foto (opcional)" class="full">
 
-      <!-- TUTOR -->
-      <input name="nome_tutor" placeholder="Nome do tutor *" required>
-      <input name="cpf_tutor" placeholder="CPF do tutor (opcional)">
-      <input name="email_tutor" type="email" placeholder="Email do tutor *" required>
-      <input name="whatsapp_tutor" placeholder="WhatsApp do tutor *" required>
-      <input name="cidade" placeholder="Cidade *" required>
-      <input name="uf" maxlength="2" placeholder="UF *" required>
-      <input name="endereco" placeholder="Endereço (opcional)" class="full">
-      <textarea name="obs" placeholder="Observações (opcional)" rows="3" class="full"></textarea>
+      <!-- Dados do pet -->
+      <label for="nome_pet">Nome do pet *</label>
+      <input type="text" id="nome_pet" name="nome_pet" required>
 
-      <button class="primary full" type="submit">Enviar cadastro</button>
+      <label for="especie">Espécie *</label>
+      <select id="especie" name="especie" required>
+        <option value="">Selecione</option>
+        <option value="Cachorro">Cachorro</option>
+        <option value="Gato">Gato</option>
+        <option value="Outro">Outro</option>
+      </select>
+
+      <label for="raca">Raça</label>
+      <input type="text" id="raca" name="raca">
+
+      <label for="sexo">Sexo</label>
+      <select id="sexo" name="sexo">
+        <option value="">Selecione</option>
+        <option value="Macho">Macho</option>
+        <option value="Fêmea">Fêmea</option>
+      </select>
+
+      <label for="ano_nascimento">Ano de nascimento (AAAA)</label>
+      <input type="number" id="ano_nascimento" name="ano_nascimento" maxlength="4">
+
+      <!-- Campo de upload da foto -->
+      <label for="foto_pet">Foto do pet (opcional)</label>
+      <input 
+        type="file" 
+        id="foto_pet" 
+        name="foto_pet" 
+        accept="image/*" 
+        style="margin-bottom: 10px;"
+      >
+
+      <!-- Dados do tutor -->
+      <label for="nome_tutor">Nome do tutor *</label>
+      <input type="text" id="nome_tutor" name="nome_tutor" required>
+
+      <label for="cpf_tutor">CPF do tutor (opcional)</label>
+      <input type="text" id="cpf_tutor" name="cpf_tutor">
+
+      <label for="email_tutor">Email do tutor *</label>
+      <input type="email" id="email_tutor" name="email_tutor" required>
+
+      <label for="whatsapp_tutor">WhatsApp do tutor *</label>
+      <input type="tel" id="whatsapp_tutor" name="whatsapp_tutor" required>
+
+      <label for="cidade">Cidade *</label>
+      <input type="text" id="cidade" name="cidade" required>
+
+      <label for="uf">UF *</label>
+      <input type="text" id="uf" name="uf" maxlength="2" required>
+
+      <label for="endereco">Endereço (opcional)</label>
+      <input type="text" id="endereco" name="endereco">
+
+      <label for="observacoes">Observações (opcional)</label>
+      <textarea id="observacoes" name="observacoes" rows="3"></textarea>
+
+      <button type="submit" style="
+        background-color: #c48a4d;
+        color: white;
+        font-weight: bold;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        margin-top: 15px;
+        width: 100%;
+      ">Enviar cadastro</button>
     </form>
+  </main>
 
-    <div id="msg"></div>
-  </div>
-
-  <script src="/cadastro.js" type="text/javascript"></script>
-
+  <script src="cadastro.js"></script>
 </body>
 </html>
-
-
