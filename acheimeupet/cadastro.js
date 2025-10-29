@@ -1,7 +1,8 @@
+<script>
 document.addEventListener('DOMContentLoaded', function () {
   const form = document.getElementById('form-cadastro');
   const btn = document.getElementById('btn-enviar');
-  const msg = document.getElementById('mensagem'); // opcional: <div id="mensagem"></div>
+  const msg = document.getElementById('mensagem');
 
   function setLoading(loading, texto = 'Processando...') {
     if (!btn) return;
@@ -13,7 +14,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (!msg) return;
     msg.innerText = texto;
     msg.className = '';
-    msg.classList.add(tipo); // use classes .info .erro .sucesso no CSS se quiser
+    msg.classList.add(tipo);
   }
 
   if (!form) return;
@@ -33,7 +34,7 @@ document.addEventListener('DOMContentLoaded', function () {
       setLoading(true);
       showMessage('Enviando cadastro com segurança...', 'info');
 
-      // Envia via função Netlify
+      // Envio via função Netlify
       const resp = await fetch('/.netlify/functions/enviar-cadastro', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -42,11 +43,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
       const data = await resp.json().catch(() => ({}));
 
-      if (resp.ok && data.sucesso) {
-        showMessage('Cadastro enviado com sucesso! 🎉', 'sucesso');
-        form.reset(); // limpa campos
+      if (resp.ok && data.ok) {
+        console.log('Sucesso no retorno:', data);
+        showMessage('✅ Cadastro enviado com sucesso! Aguarde a confirmação do pagamento.', 'sucesso');
+        form.reset();
       } else {
-        console.error('Erro no retorno:', data);
+        console.error('Erro real no retorno:', data);
         showMessage('Não foi possível enviar o cadastro. Tente novamente.', 'erro');
       }
 
@@ -58,3 +60,4 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   });
 });
+</script>
