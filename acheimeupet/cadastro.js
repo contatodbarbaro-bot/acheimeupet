@@ -1,62 +1,73 @@
-// ========================================
-// ENVIO DO FORMULÁRIO DE CADASTRO DE PET
-// ========================================
-
 const formCadastro = document.getElementById('form-cadastro');
-const mensagemStatus = document.getElementById('mensagem-status');
+const msg = document.getElementById('mensagem');
 
-if (formCadastro) {
-  formCadastro.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    mensagemStatus.textContent = "Enviando cadastro...";
+formCadastro.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  msg.textContent = '⏳ Enviando dados...';
 
-    // Coleta todos os campos do formulário
-    const formData = new FormData(formCadastro);
-    const dados = Object.fromEntries(formData.entries());
+  const formData = new FormData(formCadastro);
+  const fileInput = document.getElementById('foto_pet');
+  let base64Image = null;
 
-    // Se houver uma imagem, converte para Base64
-    const fotoInput = document.getElementById('foto_pet');
-    if (fotoInput.files.length > 0) {
-      const arquivo = fotoInput.files[0];
-      dados.foto_pet = await toBase64(arquivo);
+  // Compressão leve antes de converter em Base64
+  if (fileInput.files.length > 0) {
+    const file = fileInput.files[0];
+    const compressed = await compressImage(file, 800, 0.7);
+    base64Image = await toBase64(compressed);
+  }
+
+  const data = Object.fromEntries(formData);
+  if (base64Image) data.foto_pet = base64Image;
+
+  try {
+    const response = await fetch('https://hooks.fiqon.app/YOUR_WEBHOOK_AQUI', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+
+    if (response.ok) {
+      msg.textContent = '✅ Cadastro enviado com sucesso!';
+      formCadastro.reset();
+    } else {
+      msg.textContent = '⚠️ Erro ao enviar cadastro. Tente novamente.';
     }
+  } catch (error) {
+    msg.textContent = '⚠️ Falha de conexão. Verifique sua internet.';
+  }
+});
 
-    // Envia o cadastro ao Webhook do Fiqon
-    try {
-      const resposta = await fetch("https://webhook.fiqon.app/webhook/a029be45-8a23-418e-93e3-33f9b620a944/3e1595ab-b587-499b-a640-a8fe46b2d0c6", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(dados)
-      });
-
-      if (resposta.ok) {
-        mensagemStatus.textContent = "✅ Cadastro enviado com sucesso!";
-        mensagemStatus.style.color = "green";
-
-        // Redireciona após 3 segundos
-        setTimeout(() => {
-          window.location.href = "https://projetoacheimeupet.com.br/sucesso.html";
-        }, 3000);
-
-      } else {
-        mensagemStatus.textContent = "❌ Erro ao enviar cadastro. Tente novamente.";
-        mensagemStatus.style.color = "red";
-      }
-
-    } catch (erro) {
-      mensagemStatus.textContent = "⚠️ Falha na conexão. Verifique sua internet.";
-      mensagemStatus.style.color = "red";
-      console.error("Erro:", erro);
-    }
-  });
-}
-
-// Função auxiliar para converter arquivo em Base64
+// Funções auxiliares
 function toBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
     reader.onload = () => resolve(reader.result);
-    reader.onerror = (error) => reject(error);
+    reader.onerror = reject;
+  });
+}
+
+function compressImage(file, maxSize, quality) {
+  return new Promise((resolve) => {
+    const img = document.createElement('img');
+    const canvas = document.createElement('canvas');
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      img.src = e.target.result;
+      img.onload = () => {
+        const scale = Math.min(maxSize / img.width, maxSize / img.height);
+        canvas.width = img.width * scale;
+        canvas.height = img.height * scale;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+        canvas.toBlob(
+          (blob) => resolve(new File([blob], file.name, { type: file.type })),
+          file.type,
+          quality
+        );
+      };
+    };
+    reader.readAsDataURL(file);
   });
 }
