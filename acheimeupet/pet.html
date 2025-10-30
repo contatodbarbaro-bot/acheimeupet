@@ -90,6 +90,33 @@
       margin-top: 40px;
       font-size: 14px;
     }
+
+    /* === NOVO BLOCO FORM === */
+    form {
+      margin-top: 20px;
+    }
+
+    input {
+      width: 90%;
+      padding: 10px;
+      margin: 6px 0;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 15px;
+    }
+
+    #msg-resultado {
+      margin-top: 12px;
+      font-weight: 600;
+    }
+
+    #msg-resultado.ok {
+      color: #2e7d32;
+    }
+
+    #msg-resultado.erro {
+      color: #c62828;
+    }
   </style>
 </head>
 <body>
@@ -106,9 +133,9 @@
     // === Lê o ID do pet pela URL ===
     const urlParams = new URLSearchParams(window.location.search);
     const idPet = urlParams.get('id');
-
     const container = document.getElementById('conteudo-pet');
 
+    // === Função para carregar dados do pet ===
     async function carregarPet() {
       if (!idPet) {
         container.innerHTML = '<p class="erro">❌ ID do pet não informado.</p>';
@@ -143,11 +170,72 @@
           <a class="botao-contato" href="https://wa.me/55${pet.whatsapp_tutor}?text=Olá! Encontrei o pet ${pet.nome_pet} através do AcheiMeuPet 🐾" target="_blank">
             📱 Entrar em contato com o tutor
           </a>
+
+          <hr style="margin:30px 0;">
+          <h3>🐾 Encontrei este pet!</h3>
+          <p>Preencha seus dados para que possamos avisar o tutor imediatamente.</p>
+          <form id="form-encontrador">
+            <input type="text" id="nome_encontrador" placeholder="Seu nome" required><br>
+            <input type="tel" id="telefone_encontrador" placeholder="Seu telefone" required><br>
+            <button type="submit" class="botao-contato">🚀 Avisar tutor agora</button>
+          </form>
+          <p id="msg-resultado"></p>
         `;
+
+        inicializarFormulario();
       } catch (erro) {
         console.error('Erro ao carregar ficha:', erro);
         container.innerHTML = '<p class="erro">❌ Erro ao carregar dados do pet.</p>';
       }
+    }
+
+    // === NOVO BLOCO: integração com fluxo Encontro_Pet_Fiqon ===
+    function inicializarFormulario() {
+      const form = document.getElementById('form-encontrador');
+      const msg = document.getElementById('msg-resultado');
+
+      let lat = null, lon = null;
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          pos => { lat = pos.coords.latitude; lon = pos.coords.longitude; },
+          () => console.warn("Localização não permitida.")
+        );
+      }
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        msg.textContent = '⏳ Enviando...';
+        msg.className = '';
+
+        const payload = {
+          id_pet: idPet,
+          nome_encontrador: document.getElementById('nome_encontrador').value,
+          telefone_encontrador: document.getElementById('telefone_encontrador').value,
+          latitude: lat,
+          longitude: lon
+        };
+
+        try {
+          const resp = await fetch('https://webhook.fiqon.app/webhook/a02b8e45-cd21-44e0-a619-be0e64fd9a4b', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+
+          if (resp.ok) {
+            msg.textContent = '✅ Notificação enviada ao tutor com sucesso!';
+            msg.className = 'ok';
+            form.reset();
+          } else {
+            msg.textContent = '⚠️ Falha ao enviar notificação. Tente novamente.';
+            msg.className = 'erro';
+          }
+        } catch (err) {
+          console.error('Erro:', err);
+          msg.textContent = '❌ Erro de conexão com o servidor.';
+          msg.className = 'erro';
+        }
+      });
     }
 
     carregarPet();
