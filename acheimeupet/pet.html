@@ -1,244 +1,49 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ficha do Pet | AcheiMeuPet</title>
-  <style>
-    body {
-      font-family: "Poppins", sans-serif;
-      margin: 0;
-      padding: 0;
-      background: linear-gradient(rgba(255,255,255,0.9), rgba(255,255,255,0.9)),
-                  url("https://images.unsplash.com/photo-1568572933382-74d440642117?q=80&w=1200&auto=format&fit=crop")
-                  no-repeat center center fixed;
-      background-size: cover;
+<script>
+  const urlParams = new URLSearchParams(window.location.search);
+  const idPet = urlParams.get('id');
+  const container = document.getElementById('conteudo-pet');
+
+  async function carregarPet() {
+    if (!idPet) {
+      container.innerHTML = '<p class="erro">❌ ID do pet não informado.</p>';
+      return;
     }
 
-    header {
-      background-color: #000;
-      color: #fff;
-      text-align: center;
-      padding: 18px 0;
-      font-size: 1.3em;
-    }
+    try {
+      const resp = await fetch(`https://webhook.fiqon.app/webhook/a02b8e45-cd21-44e0-a619-be0e64fd9a4b/b9ae07d8-e7af-4b1f-9b1c-a22cc15fb9cd?id_pet=${encodeURIComponent(idPet)}`);
+      if (!resp.ok) throw new Error('Erro HTTP: ' + resp.status);
 
-    .container {
-      max-width: 600px;
-      margin: 30px auto;
-      background: rgba(255, 255, 255, 0.96);
-      padding: 25px;
-      border-radius: 18px;
-      box-shadow: 0 5px 20px rgba(0,0,0,0.15);
-      text-align: center;
-    }
+      const pet = await resp.json();
 
-    .foto-pet {
-      width: 220px;
-      height: 220px;
-      object-fit: cover;
-      border-radius: 15px;
-      margin-bottom: 20px;
-      border: 3px solid #c69353;
-    }
-
-    h2 {
-      color: #222;
-      font-size: 1.8em;
-      margin-bottom: 10px;
-    }
-
-    .info {
-      text-align: left;
-      margin-top: 20px;
-      line-height: 1.6;
-      color: #444;
-    }
-
-    .info strong {
-      color: #000;
-    }
-
-    .botao-contato {
-      display: inline-block;
-      margin-top: 25px;
-      background-color: #c69353;
-      color: #fff;
-      padding: 12px 25px;
-      border-radius: 8px;
-      font-weight: 600;
-      text-decoration: none;
-      transition: background 0.3s ease, transform 0.2s ease;
-    }
-
-    .botao-contato:hover {
-      background-color: #a87632;
-      transform: scale(1.03);
-    }
-
-    .erro {
-      text-align: center;
-      color: #c62828;
-      font-weight: 600;
-    }
-
-    footer {
-      text-align: center;
-      background-color: #000;
-      color: #fff;
-      padding: 15px;
-      margin-top: 40px;
-      font-size: 14px;
-    }
-
-    /* === NOVO BLOCO FORM === */
-    form {
-      margin-top: 20px;
-    }
-
-    input {
-      width: 90%;
-      padding: 10px;
-      margin: 6px 0;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      font-size: 15px;
-    }
-
-    #msg-resultado {
-      margin-top: 12px;
-      font-weight: 600;
-    }
-
-    #msg-resultado.ok {
-      color: #2e7d32;
-    }
-
-    #msg-resultado.erro {
-      color: #c62828;
-    }
-  </style>
-</head>
-<body>
-
-  <header>🐾 Projeto AcheiMeuPet</header>
-
-  <div class="container" id="conteudo-pet">
-    <p class="erro">Carregando ficha do pet...</p>
-  </div>
-
-  <footer>© 2025 AcheiMeuPet — Conectando Pets e Tutores com Amor 🐾</footer>
-
-  <script>
-    // === Lê o ID do pet pela URL ===
-    const urlParams = new URLSearchParams(window.location.search);
-    const idPet = urlParams.get('id');
-    const container = document.getElementById('conteudo-pet');
-
-    // === Função para carregar dados do pet ===
-    async function carregarPet() {
-      if (!idPet) {
-        container.innerHTML = '<p class="erro">❌ ID do pet não informado.</p>';
+      if (!pet || !pet.nome_pet) {
+        container.innerHTML = '<p class="erro">⚠️ Pet não encontrado no sistema.</p>';
         return;
       }
 
-      try {
-        // === Busca dados na planilha via Fiqon ===
-        const webhook = 'https://webhook.fiqon.app/webhook/a029be45-8a23-418e-93e3-33f9b620a944/3e1595ab-b587-499b-a640-a8fe46b2d0c6';
-        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(webhook + '?id_pet=' + idPet)}`;
-
-        const resposta = await fetch(proxyUrl);
-        const pet = await resposta.json();
-
-        if (!pet || !pet.nome_pet) {
-          container.innerHTML = '<p class="erro">⚠️ Pet não encontrado no sistema.</p>';
-          return;
+      container.innerHTML = `
+        <img src="${pet.foto_pet || 'https://cdn-icons-png.flaticon.com/512/616/616408.png'}" class="foto-pet" alt="Foto do pet">
+        <h2>${pet.nome_pet}</h2>
+        <div class="info">
+          <p><strong>Espécie:</strong> ${pet.especie || '-'}</p>
+          <p><strong>Raça:</strong> ${pet.raca || '-'}</p>
+          <p><strong>Sexo:</strong> ${pet.sexo || '-'}</p>
+          <p><strong>Cidade:</strong> ${pet.cidade || '-'}</p>
+          <p><strong>Tutor:</strong> ${pet.nome_tutor || '-'}</p>
+          <p><strong>Contato:</strong> ${pet.whatsapp_tutor ? '+55 ' + pet.whatsapp_tutor : '-'}</p>
+        </div>
+        ${
+          pet.whatsapp_tutor
+            ? `<a class="botao-contato" href="https://wa.me/55${pet.whatsapp_tutor}?text=Olá! Encontrei o pet ${encodeURIComponent(pet.nome_pet)} através do AcheiMeuPet 🐾" target="_blank">
+                 📱 Entrar em contato com o tutor
+               </a>`
+            : ''
         }
-
-        // === Monta visual da ficha ===
-        container.innerHTML = `
-          <img src="${pet.foto_pet || 'https://cdn-icons-png.flaticon.com/512/616/616408.png'}" class="foto-pet" alt="Foto do pet">
-          <h2>${pet.nome_pet}</h2>
-          <div class="info">
-            <p><strong>Espécie:</strong> ${pet.especie || '-'}</p>
-            <p><strong>Raça:</strong> ${pet.raca || '-'}</p>
-            <p><strong>Sexo:</strong> ${pet.sexo || '-'}</p>
-            <p><strong>Cidade:</strong> ${pet.cidade || '-'}</p>
-            <p><strong>Tutor:</strong> ${pet.nome_tutor || '-'}</p>
-            <p><strong>Contato:</strong> ${pet.whatsapp_tutor ? '+55 ' + pet.whatsapp_tutor : '-'}</p>
-          </div>
-          <a class="botao-contato" href="https://wa.me/55${pet.whatsapp_tutor}?text=Olá! Encontrei o pet ${pet.nome_pet} através do AcheiMeuPet 🐾" target="_blank">
-            📱 Entrar em contato com o tutor
-          </a>
-
-          <hr style="margin:30px 0;">
-          <h3>🐾 Encontrei este pet!</h3>
-          <p>Preencha seus dados para que possamos avisar o tutor imediatamente.</p>
-          <form id="form-encontrador">
-            <input type="text" id="nome_encontrador" placeholder="Seu nome" required><br>
-            <input type="tel" id="telefone_encontrador" placeholder="Seu telefone" required><br>
-            <button type="submit" class="botao-contato">🚀 Avisar tutor agora</button>
-          </form>
-          <p id="msg-resultado"></p>
-        `;
-
-        inicializarFormulario();
-      } catch (erro) {
-        console.error('Erro ao carregar ficha:', erro);
-        container.innerHTML = '<p class="erro">❌ Erro ao carregar dados do pet.</p>';
-      }
+      `;
+    } catch (erro) {
+      console.error('Erro ao carregar ficha:', erro);
+      container.innerHTML = '<p class="erro">❌ Erro ao carregar dados do pet.</p>';
     }
+  }
 
-    // === NOVO BLOCO: integração com fluxo Encontro_Pet_Fiqon ===
-    function inicializarFormulario() {
-      const form = document.getElementById('form-encontrador');
-      const msg = document.getElementById('msg-resultado');
-
-      let lat = null, lon = null;
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          pos => { lat = pos.coords.latitude; lon = pos.coords.longitude; },
-          () => console.warn("Localização não permitida.")
-        );
-      }
-
-      form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        msg.textContent = '⏳ Enviando...';
-        msg.className = '';
-
-        const payload = {
-          id_pet: idPet,
-          nome_encontrador: document.getElementById('nome_encontrador').value,
-          telefone_encontrador: document.getElementById('telefone_encontrador').value,
-          latitude: lat,
-          longitude: lon
-        };
-
-        try {
-          const resp = await fetch('https://webhook.fiqon.app/webhook/a02b8e45-cd21-44e0-a619-be0e64fd9a4b', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-          });
-
-          if (resp.ok) {
-            msg.textContent = '✅ Notificação enviada ao tutor com sucesso!';
-            msg.className = 'ok';
-            form.reset();
-          } else {
-            msg.textContent = '⚠️ Falha ao enviar notificação. Tente novamente.';
-            msg.className = 'erro';
-          }
-        } catch (err) {
-          console.error('Erro:', err);
-          msg.textContent = '❌ Erro de conexão com o servidor.';
-          msg.className = 'erro';
-        }
-      });
-    }
-
-    carregarPet();
-  </script>
-</body>
-</html>
+  carregarPet();
+</script>
