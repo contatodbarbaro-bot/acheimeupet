@@ -1,73 +1,80 @@
+// ========================================
+// ENVIO DO FORMULÁRIO DE CADASTRO DE PET
+// ========================================
+
 const formCadastro = document.getElementById('form-cadastro');
-const msg = document.getElementById('mensagem');
 
-formCadastro.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  msg.textContent = '⏳ Enviando dados...';
+if (formCadastro) {
+  formCadastro.addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-  const formData = new FormData(formCadastro);
-  const fileInput = document.getElementById('foto_pet');
-  let base64Image = null;
+    // Captura os dados do formulário
+    const formData = new FormData(formCadastro);
+    const data = Object.fromEntries(formData.entries());
 
-  // Compressão leve antes de converter em Base64
-  if (fileInput.files.length > 0) {
-    const file = fileInput.files[0];
-    const compressed = await compressImage(file, 800, 0.7);
-    base64Image = await toBase64(compressed);
-  }
-
-  const data = Object.fromEntries(formData);
-  if (base64Image) data.foto_pet = base64Image;
-
-  try {
-    const response = await fetch('https://hooks.fiqon.app/YOUR_WEBHOOK_AQUI', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
-
-    if (response.ok) {
-      msg.textContent = '✅ Cadastro enviado com sucesso!';
-      formCadastro.reset();
-    } else {
-      msg.textContent = '⚠️ Erro ao enviar cadastro. Tente novamente.';
+    // Captura imagem (opcional)
+    const fotoInput = document.getElementById('foto_pet');
+    if (fotoInput && fotoInput.files.length > 0) {
+      const arquivo = fotoInput.files[0];
+      const leitor = new FileReader();
+      data.foto_pet = await new Promise((resolve) => {
+        leitor.onloadend = () => resolve(leitor.result);
+        leitor.readAsDataURL(arquivo);
+      });
     }
-  } catch (error) {
-    msg.textContent = '⚠️ Falha de conexão. Verifique sua internet.';
-  }
-});
 
-// Funções auxiliares
-function toBase64(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = reject;
-  });
-}
+    // Exibe mensagem de carregamento
+    const msg = document.createElement('p');
+    msg.id = 'mensagem-status';
+    msg.textContent = '⏳ Enviando cadastro... aguarde alguns segundos.';
+    msg.style.color = '#a87632';
+    msg.style.fontWeight = '600';
+    msg.style.textAlign = 'center';
+    formCadastro.appendChild(msg);
 
-function compressImage(file, maxSize, quality) {
-  return new Promise((resolve) => {
-    const img = document.createElement('img');
-    const canvas = document.createElement('canvas');
-    const reader = new FileReader();
+    try {
+      // === ENVIO PARA O FIQON via proxy seguro (evita CORS) ===
+      const webhook = 'https://webhook.fiqon.app/webhook/a029be45-8a23-418e-93e3-33f9b620a944/3e1595ab-b587-499b-a640-a8fe46b2d0c6';
+      const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(webhook)}`;
 
-    reader.onload = (e) => {
-      img.src = e.target.result;
-      img.onload = () => {
-        const scale = Math.min(maxSize / img.width, maxSize / img.height);
-        canvas.width = img.width * scale;
-        canvas.height = img.height * scale;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-        canvas.toBlob(
-          (blob) => resolve(new File([blob], file.name, { type: file.type })),
-          file.type,
-          quality
-        );
-      };
-    };
-    reader.readAsDataURL(file);
+      const response = await fetch(proxyUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+
+      const resultado = await response.json();
+
+      msg.remove(); // remove mensagem anterior
+
+      // === Resposta bem-sucedida ===
+      if (response.ok) {
+        const sucesso = document.createElement('p');
+        sucesso.textContent = '✅ Cadastro enviado com sucesso! Aguarde a confirmação.';
+        sucesso.style.color = '#2e7d32';
+        sucesso.style.fontWeight = '600';
+        sucesso.style.textAlign = 'center';
+        formCadastro.appendChild(sucesso);
+
+        // Redireciona após breve delay
+        setTimeout(() => {
+          window.location.href = 'https://www.projetoacheimeupet.com.br/pagamento';
+        }, 4000);
+      } else {
+        throw new Error('Erro ao enviar os dados. Retorno não OK.');
+      }
+    } catch (erro) {
+      console.error('Erro de conexão:', erro);
+
+      msg.remove();
+
+      const erroMsg = document.createElement('p');
+      erroMsg.id = 'mensagem-status';
+      erroMsg.textContent = '⚠️ Falha de conexão. Verifique sua internet ou tente novamente em alguns instantes.';
+      erroMsg.style.color = '#c62828';
+      erroMsg.style.fontWeight = '600';
+      erroMsg.style.textAlign = 'center';
+      formCadastro.appendChild(erroMsg);
+    }
   });
 }
