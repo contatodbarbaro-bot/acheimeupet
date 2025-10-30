@@ -1,61 +1,90 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AcheiMeuPet — Ficha do Pet</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ficha do Pet | AcheiMeuPet</title>
   <style>
     body {
       font-family: "Poppins", sans-serif;
-      background-color: #f8f9fa;
       margin: 0;
       padding: 0;
+      background: linear-gradient(rgba(255,255,255,0.9), rgba(255,255,255,0.9)),
+                  url("https://images.unsplash.com/photo-1568572933382-74d440642117?q=80&w=1200&auto=format&fit=crop")
+                  no-repeat center center fixed;
+      background-size: cover;
     }
 
     header {
-      background: #000;
+      background-color: #000;
       color: #fff;
       text-align: center;
-      padding: 16px 0;
+      padding: 18px 0;
       font-size: 1.3em;
-      letter-spacing: 1px;
     }
 
-    main {
+    .container {
       max-width: 600px;
-      background: #fff;
-      margin: 40px auto;
+      margin: 30px auto;
+      background: rgba(255, 255, 255, 0.96);
       padding: 25px;
-      border-radius: 15px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      border-radius: 18px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.15);
       text-align: center;
     }
 
-    img {
-      width: 200px;
-      height: 200px;
+    .foto-pet {
+      width: 220px;
+      height: 220px;
       object-fit: cover;
-      border-radius: 12px;
-      margin-bottom: 15px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      border-radius: 15px;
+      margin-bottom: 20px;
+      border: 3px solid #c69353;
     }
 
-    h2 { margin-bottom: 5px; color: #333; }
-    p { color: #555; margin: 4px 0; }
-    .btn-whatsapp {
+    h2 {
+      color: #222;
+      font-size: 1.8em;
+      margin-bottom: 10px;
+    }
+
+    .info {
+      text-align: left;
+      margin-top: 20px;
+      line-height: 1.6;
+      color: #444;
+    }
+
+    .info strong {
+      color: #000;
+    }
+
+    .botao-contato {
       display: inline-block;
-      background: #25d366;
+      margin-top: 25px;
+      background-color: #c69353;
       color: #fff;
-      padding: 12px 20px;
+      padding: 12px 25px;
       border-radius: 8px;
-      margin-top: 15px;
+      font-weight: 600;
       text-decoration: none;
+      transition: background 0.3s ease, transform 0.2s ease;
+    }
+
+    .botao-contato:hover {
+      background-color: #a87632;
+      transform: scale(1.03);
+    }
+
+    .erro {
+      text-align: center;
+      color: #c62828;
       font-weight: 600;
     }
 
     footer {
       text-align: center;
-      background: #000;
+      background-color: #000;
       color: #fff;
       padding: 15px;
       margin-top: 40px;
@@ -65,55 +94,63 @@
 </head>
 <body>
 
-<header>🐾 AcheiMeuPet</header>
+  <header>🐾 Projeto AcheiMeuPet</header>
 
-<main id="ficha">
-  <h2>Carregando informações...</h2>
-</main>
+  <div class="container" id="conteudo-pet">
+    <p class="erro">Carregando ficha do pet...</p>
+  </div>
 
-<footer>
-  © 2025 AcheiMeuPet — Conectando Pets e Tutores com Amor 🐾
-</footer>
+  <footer>© 2025 AcheiMeuPet — Conectando Pets e Tutores com Amor 🐾</footer>
 
-<script>
-  async function carregarFicha() {
-    const params = new URLSearchParams(window.location.search);
-    const idPet = params.get("id");
+  <script>
+    // === Lê o ID do pet pela URL ===
+    const urlParams = new URLSearchParams(window.location.search);
+    const idPet = urlParams.get('id');
 
-    if (!idPet) {
-      document.getElementById("ficha").innerHTML = "<p>Pet não encontrado.</p>";
-      return;
-    }
+    const container = document.getElementById('conteudo-pet');
 
-    const sheetId = "1oae2KSSlnsE_RtdPh8B1p20fYo38IP751EjQjyKG6I"; // ID real da sua planilha
-    const sheetName = "Banco_de_dados_clientes";
-    const url = `https://opensheet.elk.sh/${sheetId}/${sheetName}`;
-
-    try {
-      const res = await fetch(url);
-      const dados = await res.json();
-      const pet = dados.find((p) => p.id_pet === idPet);
-
-      if (!pet) {
-        document.getElementById("ficha").innerHTML = "<p>Ficha não encontrada.</p>";
+    async function carregarPet() {
+      if (!idPet) {
+        container.innerHTML = '<p class="erro">❌ ID do pet não informado.</p>';
         return;
       }
 
-      document.getElementById("ficha").innerHTML = `
-        <img src="${pet.foto_pet || 'https://cdn-icons-png.flaticon.com/512/616/616408.png'}" alt="Foto do Pet">
-        <h2>${pet.nome_pet}</h2>
-        <p><strong>Espécie:</strong> ${pet.especie || '—'}</p>
-        <p><strong>Raça:</strong> ${pet.raca || '—'}</p>
-        <p><strong>Cidade:</strong> ${pet.cidade || '—'} / ${pet.uf || ''}</p>
-        <p><strong>Tutor:</strong> ${pet.nome_tutor}</p>
-        <a class="btn-whatsapp" href="https://wa.me/55${pet.whatsapp_tutor}?text=Olá! Encontrei o ${pet.nome_pet || 'seu pet'} pelo AcheiMeuPet!" target="_blank">📞 Falar com o Tutor</a>
-      `;
-    } catch (e) {
-      document.getElementById("ficha").innerHTML = "<p>Erro ao carregar dados. Tente novamente.</p>";
-    }
-  }
+      try {
+        // === Busca dados na planilha via Fiqon ===
+        const webhook = 'https://webhook.fiqon.app/webhook/a029be45-8a23-418e-93e3-33f9b620a944/3e1595ab-b587-499b-a640-a8fe46b2d0c6';
+        const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(webhook + '?id_pet=' + idPet)}`;
 
-  carregarFicha();
-</script>
+        const resposta = await fetch(proxyUrl);
+        const pet = await resposta.json();
+
+        if (!pet || !pet.nome_pet) {
+          container.innerHTML = '<p class="erro">⚠️ Pet não encontrado no sistema.</p>';
+          return;
+        }
+
+        // === Monta visual da ficha ===
+        container.innerHTML = `
+          <img src="${pet.foto_pet || 'https://cdn-icons-png.flaticon.com/512/616/616408.png'}" class="foto-pet" alt="Foto do pet">
+          <h2>${pet.nome_pet}</h2>
+          <div class="info">
+            <p><strong>Espécie:</strong> ${pet.especie || '-'}</p>
+            <p><strong>Raça:</strong> ${pet.raca || '-'}</p>
+            <p><strong>Sexo:</strong> ${pet.sexo || '-'}</p>
+            <p><strong>Cidade:</strong> ${pet.cidade || '-'}</p>
+            <p><strong>Tutor:</strong> ${pet.nome_tutor || '-'}</p>
+            <p><strong>Contato:</strong> ${pet.whatsapp_tutor ? '+55 ' + pet.whatsapp_tutor : '-'}</p>
+          </div>
+          <a class="botao-contato" href="https://wa.me/55${pet.whatsapp_tutor}?text=Olá! Encontrei o pet ${pet.nome_pet} através do AcheiMeuPet 🐾" target="_blank">
+            📱 Entrar em contato com o tutor
+          </a>
+        `;
+      } catch (erro) {
+        console.error('Erro ao carregar ficha:', erro);
+        container.innerHTML = '<p class="erro">❌ Erro ao carregar dados do pet.</p>';
+      }
+    }
+
+    carregarPet();
+  </script>
 </body>
 </html>
