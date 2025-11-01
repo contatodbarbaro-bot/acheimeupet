@@ -42,7 +42,6 @@
       border-radius: 18px;
       box-shadow: 0 5px 20px rgba(0,0,0,0.15);
       text-align: center;
-      transition: all 0.3s ease;
     }
 
     .foto-pet {
@@ -52,6 +51,13 @@
       border-radius: 15px;
       margin-bottom: 20px;
       border: 3px solid #c69353;
+    }
+
+    h2#nome_pet {
+      margin-top: 0;
+      font-size: 1.8em;
+      font-weight: 700;
+      color: #c69353;
     }
 
     .info {
@@ -132,6 +138,7 @@
       padding: 8px;
       border-radius: 6px;
       font-size: 0.9em;
+      display: none;
     }
 
     footer {
@@ -179,18 +186,17 @@
     <h2 id="nome_pet">Carregando...</h2>
 
     <div class="info">
+      <p><strong>Nome Pet:</strong> <span id="nome_pet_label">-</span></p>
       <p><strong>Espécie:</strong> <span id="especie_pet">-</span></p>
       <p><strong>Raça:</strong> <span id="raca_pet">-</span></p>
       <p><strong>Sexo:</strong> <span id="sexo_pet">-</span></p>
       <p><strong>Cidade:</strong> <span id="cidade_pet">-</span></p>
-      <p><strong>Tutor:</strong> <span id="nome_tutor">-</span></p>
+      <p><strong>Nome Tutor:</strong> <span id="nome_tutor">-</span></p>
       <p><strong>WhatsApp:</strong> <span id="whatsapp_tutor">-</span></p>
-      <p><strong>Data de Cadastro:</strong> <span id="data_cadastro">-</span></p>
     </div>
 
     <a id="btn_contato" href="#" class="botao-contato">📞 Falar com o Tutor</a>
 
-    <!-- SEÇÃO DE AVISO DE ENCONTRO -->
     <form id="formAviso">
       <h3 style="margin-top:30px;">🐕 Avisar que encontrei este pet</h3>
 
@@ -205,7 +211,7 @@
 
       <button type="submit" class="botao-enviar">📍 Enviar aviso ao tutor</button>
 
-      <div class="mensagem-sucesso" id="mensagem_sucesso" style="display:none;">
+      <div class="mensagem-sucesso" id="mensagem_sucesso">
         ✅ Aviso enviado com sucesso ao tutor!
       </div>
     </form>
