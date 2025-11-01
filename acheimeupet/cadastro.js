@@ -96,11 +96,12 @@ if (formCadastro) {
         nome_tutor: data.nome_tutor,
         email_tutor: data.email_tutor,
         cpf_tutor: data.cpf_tutor,
-        whatsapp_tutor: data.whatsapp_tutor,
+        telefone_tutor: data.telefone_tutor, // 🔹 ALTERADO (mantém padrão do Fiqon)
         plano,
         periodo,
         qtd_pets: qtd,
         valor_total: valor,
+        forma_pagamento: "Boleto" // 🔹 NOVO (default, pode ser expandido no futuro)
       };
 
       const resFinanceiro = await fetch(WEBHOOK_FINANCEIRO, {
@@ -111,13 +112,17 @@ if (formCadastro) {
 
       const jsonFin = await resFinanceiro.json();
 
-      if (jsonFin && jsonFin.payment_link) {
-        msg.textContent = "Redirecionando para pagamento...";
-        window.open(jsonFin.payment_link, "_blank");
+      // 🔹 ALTERADO — lógica mais robusta para validar e abrir link
+      if (jsonFin?.body?.payment_link || jsonFin?.payment_link) {
+        const linkPagamento = jsonFin.body?.payment_link || jsonFin.payment_link;
+        msg.textContent = "Redirecionando para o pagamento...";
+        window.open(linkPagamento, "_blank");
       } else {
-        alert("Cadastro feito, mas o link de pagamento não foi gerado.");
+        console.warn("Retorno financeiro:", jsonFin);
+        alert("Cadastro concluído, mas o link de pagamento não foi gerado automaticamente.");
       }
 
+      // restaura interface
       btn.innerText = "Cadastrar Pet";
       formCadastro.reset();
       atualizarValor();
