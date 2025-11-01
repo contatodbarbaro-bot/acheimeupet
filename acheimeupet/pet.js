@@ -1,16 +1,18 @@
 // ====== ENDPOINTS ======
-const WEBHOOK_FIQON = "https://webhook.fiqon.app/webhook/a02b8e45-cd21-44e0-a619-be0e64fd9a4b/b9ae07d8-e7af-4b1f-9b1c-a22cc15fb9cd";
-const APPS_SCRIPT_URL = "https://script.googleusercontent.com/macros/echo?user_content_key=AehSKLhSNe6DjuNyNHkfQyJjaUxdVRqkA9q6zFHGQ7KgqlQysWMc8AlZTdIaLKQcfBKRS1duL0xKcxSJHjkaA0A679uJAialDfJ7ONX4oy0aRVASqXEo5NDt3wzVZFYilSXnEo3yZ9IPPrcmfXEA_cwv0DoCaQr-4efwi6lXrb2eeyhD1pklDvsxr4Pui59ZUXHRnnzHZeZtXWJXdyjpCBjRDYUEv_VWKKzmRg4s2ewwVBHmRgHAYBwnr5japl-BKBwBwaQmYBJeiqpzEFuimUJ7Lq5y9aZUQBTza1kjV05MG1KDaM7YLi5fr4F2NNnaUg&lib=MQiqCA17Ib0wi-00uGNEuiSEBzuG_wEVr";
+const WEBHOOK_FIQON =
+  "https://webhook.fiqon.app/webhook/a02b8e45-cd21-44e0-a619-be0e64fd9a4b/b9ae07d8-e7af-4b1f-9b1c-a22cc15fb9cd";
+const APPS_SCRIPT_URL =
+  "https://script.googleusercontent.com/macros/echo?user_content_key=AehSKLhSNe6DjuNyNHkfQyJjaUxdVRqkA9q6zFHGQ7KgqlQysWMc8AlZTdIaLKQcfBKRS1duL0xKcxSJHjkaA0A679uJAialDfJ7ONX4oy0aRVASqXEo5NDt3wzVZFYilSXnEo3yZ9IPPrcmfXEA_cwv0DoCaQr-4efwi6lXrb2eeyhD1pklDvsxr4Pui59ZUXHRnnzHZeZtXWJXdyjpCBjRDYUEv_VWKKzmRg4s2ewwVBHmRgHAYBwnr5japl-BKBwBwaQmYBJeiqpzEFuimUJ7Lq5y9aZUQBTza1kjV05MG1KDaM7YLi5fr4F2NNnaUg&lib=MQiqCA17Ib0wi-00uGNEuiSEBzuG_wEVr";
 
-// === Função para obter ID do pet da URL ===
+// === Obter ID do pet da URL ===
 function obterIdPet() {
   const params = new URLSearchParams(window.location.search);
   return params.get("id");
 }
 
-// === Busca dados do pet na planilha (Apps Script) ===
+// === Buscar dados do pet (Apps Script → Fiqon) ===
 async function buscarDadosPet(id_pet) {
-  const url = `${APPS_SCRIPT_URL}&id_pet=${id_pet}`;
+  const url = `${APPS_SCRIPT_URL}&id_pet=${encodeURIComponent(id_pet)}`;
   try {
     const resposta = await fetch(url);
     const json = await resposta.json();
@@ -22,25 +24,31 @@ async function buscarDadosPet(id_pet) {
   }
 }
 
-// === Preenche a UI ===
+// === Preencher dados na interface ===
 function preencherDadosPet(d) {
-  document.getElementById("foto_pet").src = d.foto_pet || "https://cdn-icons-png.flaticon.com/512/616/616408.png";
-  document.getElementById("nome_pet").textContent = d.nome_pet || "Pet não identificado";
+  const nomePet = d.nome_pet || "Pet não identificado";
+  const nomeTutor = d.nome_tutor || "Tutor não identificado";
+
+  document.getElementById("foto_pet").src =
+    d.foto_pet || "https://cdn-icons-png.flaticon.com/512/616/616408.png";
+
+  document.getElementById("nome_pet").textContent = nomePet;
+  document.getElementById("nome_pet_label").textContent = nomePet;
+  document.getElementById("especie_pet").textContent = d.especie || "-";
   document.getElementById("raca_pet").textContent = d.raca || "-";
   document.getElementById("sexo_pet").textContent = d.sexo || "-";
-  document.getElementById("especie_pet").textContent = d.especie || "-";
   document.getElementById("cidade_pet").textContent = d.cidade || "-";
-  document.getElementById("nome_tutor").textContent = d.nome_tutor || "-";
+  document.getElementById("nome_tutor").textContent = nomeTutor;
   document.getElementById("whatsapp_tutor").textContent = d.whatsapp_tutor || "-";
-  document.getElementById("data_cadastro").textContent = d.data_cadastro || "-";
 
-  const contatoLink = `https://wa.me/55${(d.whatsapp_tutor || "").replace(/\D/g,'')}?text=${encodeURIComponent(
-    `Olá! Encontrei o pet ${d.nome_pet} através do AcheiMeuPet 🐾`
+  // Botão WhatsApp
+  const contatoLink = `https://wa.me/55${(d.whatsapp_tutor || "").replace(/\D/g, "")}?text=${encodeURIComponent(
+    `Olá! Encontrei o pet ${nomePet} através do AcheiMeuPet 🐾`
   )}`;
   document.getElementById("btn_contato").href = contatoLink;
 }
 
-// === Envia formulário "Avisar que encontrei" para Fiqon ===
+// === Enviar aviso para o tutor via Fiqon ===
 async function enviarAviso(formData) {
   const r = await fetch(WEBHOOK_FIQON, {
     method: "POST",
@@ -50,7 +58,7 @@ async function enviarAviso(formData) {
   return r.json();
 }
 
-// === On load ===
+// === Execução ao carregar página ===
 document.addEventListener("DOMContentLoaded", async () => {
   const id_pet = obterIdPet();
   if (!id_pet) {
@@ -68,12 +76,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   preencherDadosPet(dados);
 
-  // Submit do formulário
+  // Envio do formulário “Avisar que encontrei”
   const form = document.getElementById("formAviso");
   const msgOk = document.getElementById("mensagem_sucesso");
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
+
     const payload = {
       id_pet,
       nome_encontrador: document.getElementById("nome_encontrador").value.trim(),
@@ -87,7 +96,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     try {
       const resp = await enviarAviso(payload);
-      if (resp && resp.ok) {
+      if (resp && (resp.ok || resp.success)) {
         msgOk.style.display = "block";
         setTimeout(() => (msgOk.style.display = "none"), 4000);
         form.reset();
