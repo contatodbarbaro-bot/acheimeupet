@@ -19,9 +19,19 @@
       background-color: #000;
       color: #fff;
       text-align: center;
-      padding: 18px 0;
-      font-size: 1.3em;
+      padding: 16px 0;
       letter-spacing: 0.5px;
+    }
+
+    header div:first-child {
+      font-size: 1.4em;
+      font-weight: 600;
+    }
+
+    header div:last-child {
+      font-size: 0.9em;
+      color: #c69353;
+      margin-top: 3px;
     }
 
     .container {
@@ -35,11 +45,6 @@
       transition: all 0.3s ease;
     }
 
-    .container:hover {
-      box-shadow: 0 8px 25px rgba(0,0,0,0.25);
-      transform: scale(1.01);
-    }
-
     .foto-pet {
       width: 220px;
       height: 220px;
@@ -47,12 +52,6 @@
       border-radius: 15px;
       margin-bottom: 20px;
       border: 3px solid #c69353;
-    }
-
-    h2 {
-      color: #222;
-      font-size: 1.9em;
-      margin-bottom: 5px;
     }
 
     .info {
@@ -83,14 +82,56 @@
       transform: scale(1.03);
     }
 
-    .qr-code {
-      margin-top: 20px;
+    form {
+      text-align: left;
+      margin-top: 25px;
     }
 
-    .erro {
-      text-align: center;
-      color: #c62828;
+    form label {
       font-weight: 600;
+      color: #000;
+    }
+
+    form input, form textarea {
+      width: 100%;
+      padding: 10px;
+      margin: 6px 0 15px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 14px;
+      box-sizing: border-box;
+      font-family: inherit;
+    }
+
+    form textarea {
+      resize: vertical;
+      height: 80px;
+    }
+
+    .botao-enviar {
+      display: block;
+      width: 100%;
+      background-color: #000;
+      color: #fff;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .botao-enviar:hover {
+      background-color: #333;
+    }
+
+    .mensagem-sucesso {
+      margin-top: 10px;
+      background: #e8f5e9;
+      color: #2e7d32;
+      padding: 8px;
+      border-radius: 6px;
+      font-size: 0.9em;
     }
 
     footer {
@@ -101,13 +142,39 @@
       margin-top: 40px;
       font-size: 14px;
     }
+
+    footer span {
+      color: #ff6666;
+      font-weight: 600;
+      margin-right: 6px;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        margin: 20px;
+        padding: 20px;
+      }
+
+      .foto-pet {
+        width: 180px;
+        height: 180px;
+      }
+    }
   </style>
 </head>
-<body>
 
-  <header>🐾 Projeto AcheiMeuPet</header>
+<body>
+  <header>
+    <div>🐾 Projeto AcheiMeuPet</div>
+    <div>em memória do Picolé ❤️</div>
+  </header>
 
   <div class="container" id="conteudo-pet">
+    <p style="font-size:1.1em; color:#333; font-weight:500; margin-bottom:15px; margin-top:10px;">
+      🐾 Você encontrou um pet que pode estar sendo procurado. <br>
+      <strong>Aja agora e avise o tutor!</strong>
+    </p>
+
     <img id="foto_pet" src="https://cdn-icons-png.flaticon.com/512/616/616408.png" class="foto-pet" alt="Foto do pet">
     <h2 id="nome_pet">Carregando...</h2>
 
@@ -119,4 +186,35 @@
       <p><strong>Tutor:</strong> <span id="nome_tutor">-</span></p>
       <p><strong>WhatsApp:</strong> <span id="whatsapp_tutor">-</span></p>
       <p><strong>Data de Cadastro:</strong> <span id="data_cadastro">-</span></p>
-    </div
+    </div>
+
+    <a id="btn_contato" href="#" class="botao-contato">📞 Falar com o Tutor</a>
+
+    <!-- SEÇÃO DE AVISO DE ENCONTRO -->
+    <form id="formAviso">
+      <h3 style="margin-top:30px;">🐕 Avisar que encontrei este pet</h3>
+
+      <label for="nome_encontrador">Seu nome</label>
+      <input type="text" id="nome_encontrador" placeholder="Digite seu nome" required>
+
+      <label for="telefone_encontrador">Telefone/WhatsApp</label>
+      <input type="tel" id="telefone_encontrador" placeholder="(DDD) 99999-9999" required>
+
+      <label for="observacoes">Observações</label>
+      <textarea id="observacoes" placeholder="Ex: encontrei próximo à padaria..."></textarea>
+
+      <button type="submit" class="botao-enviar">📍 Enviar aviso ao tutor</button>
+
+      <div class="mensagem-sucesso" id="mensagem_sucesso" style="display:none;">
+        ✅ Aviso enviado com sucesso ao tutor!
+      </div>
+    </form>
+  </div>
+
+  <footer>
+    <span>❤️</span> Equipe AcheiMeuPet
+  </footer>
+
+  <script src="pet.js"></script>
+</body>
+</html>
