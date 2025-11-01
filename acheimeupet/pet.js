@@ -1,8 +1,8 @@
 // ====== ENDPOINTS ======
-const WEBHOOK_FIQON =
-  "https://webhook.fiqon.app/webhook/a02b8e45-cd21-44e0-a619-be0e64fd9a4b/b9ae07d8-e7af-4b1f-9b1c-a22cc15fb9cd";
-const APPS_SCRIPT_URL =
-  "https://script.googleusercontent.com/macros/echo?user_content_key=AehSKLhSNe6DjuNyNHkfQyJjaUxdVRqkA9q6zFHGQ7KgqlQysWMc8AlZTdIaLKQcfBKRS1duL0xKcxSJHjkaA0A679uJAialDfJ7ONX4oy0aRVASqXEo5NDt3wzVZFYilSXnEo3yZ9IPPrcmfXEA_cwv0DoCaQr-4efwi6lXrb2eeyhD1pklDvsxr4Pui59ZUXHRnnzHZeZtXWJXdyjpCBjRDYUEv_VWKKzmRg4s2ewwVBHmRgHAYBwnr5japl-BKBwBwaQmYBJeiqpzEFuimUJ7Lq5y9aZUQBTza1kjV05MG1KDaM7YLi5fr4F2NNnaUg&lib=MQiqCA17Ib0wi-00uGNEuiSEBzuG_wEVr";
+const WEBHOOK_AVISO =
+  "https://webhook.fiqon.app/webhook/a02b8e45-cd21-44e0-a619-be0e64fd9a4b/b9ae07d8-e7af-4b1f-9b1c-a22cc15fb9cd"; // Encontro (aviso tutor)
+const FIQON_API_PET =
+  "https://webhook.fiqon.app/webhook/a02b8e45-cd21-44e0-a619-be0e64fd9a4b/b9ae07d8-e7af-4b1f-9b1c-a22cc15fb9cd"; // Buscar dados do pet
 
 // === Obter ID do pet da URL ===
 function obterIdPet() {
@@ -10,12 +10,16 @@ function obterIdPet() {
   return params.get("id");
 }
 
-// === Buscar dados do pet (Apps Script → Fiqon) ===
+// === Buscar dados do pet (direto do Fiqon) ===
 async function buscarDadosPet(id_pet) {
-  const url = `${APPS_SCRIPT_URL}&id_pet=${encodeURIComponent(id_pet)}`;
   try {
-    const resposta = await fetch(url);
+    const resposta = await fetch(FIQON_API_PET, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id_pet }),
+    });
     const json = await resposta.json();
+
     if (!json || json.status !== "sucesso") throw new Error("Pet não encontrado");
     return json.pet;
   } catch (e) {
@@ -48,9 +52,9 @@ function preencherDadosPet(d) {
   document.getElementById("btn_contato").href = contatoLink;
 }
 
-// === Enviar aviso para o tutor via Fiqon ===
+// === Enviar aviso para o tutor ===
 async function enviarAviso(formData) {
-  const r = await fetch(WEBHOOK_FIQON, {
+  const r = await fetch(WEBHOOK_AVISO, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(formData),
@@ -76,7 +80,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   preencherDadosPet(dados);
 
-  // Envio do formulário “Avisar que encontrei”
+  // === Formulário “Avisar que encontrei” ===
   const form = document.getElementById("formAviso");
   const msgOk = document.getElementById("mensagem_sucesso");
 
