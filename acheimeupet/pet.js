@@ -1,5 +1,5 @@
 // ====================================================
-// MÓDULO: pet.js — AcheiMeuPet (versão conectada ao Fiqon)
+// MÓDULO: pet.js — AcheiMeuPet (versão corrigida e funcional)
 // ====================================================
 
 // === Função para obter o ID do pet da URL ===
@@ -20,12 +20,22 @@ async function buscarDadosPet(id_pet) {
     const resposta = await fetch(proxyUrl);
     const dados = await resposta.json();
 
-    // Se não encontrou ou veio vazio
-    if (!dados || !dados.nome_pet) {
-      throw new Error("Pet não encontrado");
+    // Ajuste: se vier dentro de objetos (pet, tutor, dados)
+    if (!dados.pet || !dados.tutor) {
+      throw new Error("Pet não encontrado ou resposta inválida");
     }
 
-    return dados;
+    return {
+      nome_pet: dados.pet.nome,
+      especie: dados.pet.especie,
+      raca: dados.pet.raca,
+      sexo: dados.pet.sexo,
+      cidade: dados.tutor.cidade,
+      nome_tutor: dados.tutor.nome,
+      whatsapp_tutor: dados.tutor.whatsapp,
+      data_cadastro: dados.dados?.data_cadastro,
+      foto_pet: dados.pet.foto || "https://cdn-icons-png.flaticon.com/512/616/616408.png"
+    };
   } catch (erro) {
     console.error("Erro ao buscar dados do pet:", erro);
     return null;
@@ -34,22 +44,23 @@ async function buscarDadosPet(id_pet) {
 
 // === Função para preencher os dados na página ===
 function preencherDadosPet(dados) {
-  document.getElementById("foto_pet").src = dados.foto_pet || "https://cdn-icons-png.flaticon.com/512/616/616408.png";
+  document.getElementById("foto_pet").src = dados.foto_pet;
   document.getElementById("nome_pet").textContent = dados.nome_pet || "Pet não identificado";
+  document.getElementById("especie_pet").textContent = dados.especie || "-";
   document.getElementById("raca_pet").textContent = dados.raca || "-";
   document.getElementById("sexo_pet").textContent = dados.sexo || "-";
-  document.getElementById("especie_pet").textContent = dados.especie || "-";
   document.getElementById("cidade_pet").textContent = dados.cidade || "-";
   document.getElementById("nome_tutor").textContent = dados.nome_tutor || "-";
   document.getElementById("whatsapp_tutor").textContent = dados.whatsapp_tutor || "-";
   document.getElementById("data_cadastro").textContent = dados.data_cadastro || "-";
 
-  // Atualiza o botão e o QR code
+  // Atualiza o botão e o QR code (se existir)
   const contatoLink = `https://wa.me/55${dados.whatsapp_tutor}?text=Olá! Encontrei o pet ${dados.nome_pet} através do AcheiMeuPet 🐾`;
-  document.getElementById("btn_contato").href = contatoLink;
+  const btn = document.getElementById("btn_contato");
+  if (btn) btn.href = contatoLink;
 
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(contatoLink)}`;
-  document.getElementById("qr_code").src = qrUrl;
+  const qr = document.getElementById("qr_code");
+  if (qr) qr.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(contatoLink)}`;
 }
 
 // === Execução automática ao carregar a página ===
