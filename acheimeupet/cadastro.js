@@ -11,17 +11,22 @@ const campoQtdPets = document.getElementById("campo_qtd_pets");
 const inputQtdPets = document.getElementById("qtd_pets");
 const valorExibido = document.getElementById("valor_exibido");
 
-campoPlano.addEventListener("change", atualizarValor);
-campoPeriodo.addEventListener("change", atualizarValor);
-inputQtdPets.addEventListener("input", atualizarValor);
+// === MONITORAMENTO DOS CAMPOS ===
+if (campoPlano) campoPlano.addEventListener("change", atualizarValor);
+if (campoPeriodo) campoPeriodo.addEventListener("change", atualizarValor);
+if (inputQtdPets) inputQtdPets.addEventListener("input", atualizarValor);
 
+// === FUNÇÃO DE ATUALIZAÇÃO DO VALOR ===
 function atualizarValor() {
-  const plano = campoPlano.value;
-  const periodo = campoPeriodo.value;
-  const qtd = parseInt(inputQtdPets.value) || 1;
+  const plano = campoPlano?.value || "";
+  const periodo = campoPeriodo?.value || "";
+  const qtd = parseInt(inputQtdPets?.value) || 1;
 
-  if (plano === "familia") campoQtdPets.style.display = "block";
-  else campoQtdPets.style.display = "none";
+  if (plano === "familia") {
+    campoQtdPets.style.display = "block";
+  } else {
+    campoQtdPets.style.display = "none";
+  }
 
   let valor = 0;
   if (plano && periodo) {
@@ -36,6 +41,111 @@ function atualizarValor() {
   }
 }
 
-// ============ ENVIO DO CADASTRO ============
+// === ENVIO DO CADASTRO ===
 if (formCadastro) {
   formCadastro.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const btn = formCadastro.querySelector('button[type="submit"]');
+    const msg = document.getElementById("mensagem");
+
+    btn.disabled = true;
+    btn.innerText = "Enviando...";
+    msg.textContent = "";
+
+    try {
+      const formData = new FormData(formCadastro);
+      const data = Object.fromEntries(formData.entries());
+
+      const plano = campoPlano.value;
+      const periodo = campoPeriodo.value;
+      const qtd = parseInt(inputQtdPets.value) || 1;
+      let valor = 0;
+
+      if (plano === "individual") {
+        valor = periodo === "mensal" ? 24.9 : 249.9;
+      } else if (plano === "familia") {
+        valor = periodo === "mensal" ? 19.9 * qtd : 199.0 * qtd;
+      }
+
+      data.plano = plano;
+      data.periodo = periodo;
+      data.qtd_pets = qtd;
+      data.valor_total = valor;
+
+      // foto em base64
+      const fileInput = document.getElementById("foto_pet");
+      if (fileInput && fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        data.foto_pet = await toBase64(file);
+      }
+
+      // === 1️⃣ Envio ao FIQON (Cadastro Pet) ===
+      const resCadastro = await fetch(WEBHOOK_CADASTRO, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      const jsonCadastro = await resCadastro.json();
+      if (!resCadastro.ok || !jsonCadastro.result) {
+        throw new Error("Erro no cadastro do pet.");
+      }
+
+      const { id_pet } = jsonCadastro.result;
+
+      // === 2️⃣ Envio ao FIQON (Financeiro) ===
+      const payloadFinanceiro = {
+        id_pet,
+        nome_tutor: data.nome_tutor,
+        email_tutor: data.email_tutor,
+        cpf_tutor: data.cpf_tutor,
+        telefone_tutor: data.telefone, // ✅ Corrigido — campo real do formulário
+        plano,
+        periodo,
+        qtd_pets: qtd,
+        valor_total: valor,
+        forma_pagamento: "Boleto"
+      };
+
+      const resFinanceiro = await fetch(WEBHOOK_FINANCEIRO, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payloadFinanceiro),
+      });
+
+      const jsonFin = await resFinanceiro.json();
+
+      if (jsonFin?.body?.payment_link || jsonFin?.payment_link) {
+        const linkPagamento = jsonFin.body?.payment_link || jsonFin.payment_link;
+        msg.textContent = "Redirecionando para o pagamento...";
+        window.open(linkPagamento, "_blank");
+      } else {
+        console.warn("Retorno financeiro:", jsonFin);
+        alert("Cadastro concluído, mas o link de pagamento não foi gerado automaticamente.");
+      }
+
+      // === RESET ===
+      btn.innerText = "Cadastrar Pet";
+      formCadastro.reset();
+      atualizarValor();
+      msg.textContent = "✅ Cadastro enviado com sucesso!";
+    } catch (erro) {
+      console.error("Erro no envio:", erro);
+      msg.textContent = "❌ Ocorreu um erro ao enviar o cadastro.";
+    } finally {
+      btn.disabled = false;
+      btn.innerText = "Cadastrar Pet";
+    }
+  });
+}
+
+// === FUNÇÃO AUXILIAR ===
+function toBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = (error) => reject(error);
+  });
+}
