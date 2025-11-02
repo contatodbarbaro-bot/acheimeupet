@@ -11,12 +11,11 @@ const campoQtdPets = document.getElementById("campo_qtd_pets");
 const inputQtdPets = document.getElementById("qtd_pets");
 const valorExibido = document.getElementById("valor_exibido");
 
-// === MONITORAMENTO DOS CAMPOS ===
 if (campoPlano) campoPlano.addEventListener("change", atualizarValor);
 if (campoPeriodo) campoPeriodo.addEventListener("change", atualizarValor);
 if (inputQtdPets) inputQtdPets.addEventListener("input", atualizarValor);
 
-// === FUNÇÃO DE ATUALIZAÇÃO DO VALOR ===
+// === FUNÇÃO PARA ATUALIZAR O VALOR ===
 function atualizarValor() {
   const plano = campoPlano?.value || "";
   const periodo = campoPeriodo?.value || "";
@@ -41,14 +40,13 @@ function atualizarValor() {
   }
 }
 
-// === ENVIO DO CADASTRO ===
+// === ENVIO DO FORMULÁRIO ===
 if (formCadastro) {
   formCadastro.addEventListener("submit", async (e) => {
     e.preventDefault();
 
     const btn = formCadastro.querySelector('button[type="submit"]');
     const msg = document.getElementById("mensagem");
-
     btn.disabled = true;
     btn.innerText = "Enviando...";
     msg.textContent = "";
@@ -80,7 +78,7 @@ if (formCadastro) {
         data.foto_pet = await toBase64(file);
       }
 
-      // === 1️⃣ Envio ao FIQON (Cadastro Pet) ===
+      // === 1️⃣ Envio ao FIQON — Cadastro Pet ===
       const resCadastro = await fetch(WEBHOOK_CADASTRO, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -94,13 +92,13 @@ if (formCadastro) {
 
       const { id_pet } = jsonCadastro.result;
 
-      // === 2️⃣ Envio ao FIQON (Financeiro) ===
+      // === 2️⃣ Envio ao FIQON — Financeiro (Asaas) ===
       const payloadFinanceiro = {
         id_pet,
         nome_tutor: data.nome_tutor,
         email_tutor: data.email_tutor,
         cpf_tutor: data.cpf_tutor,
-        telefone_tutor: data.telefone, // ✅ Corrigido — campo real do formulário
+        telefone_tutor: data.whatsapp_tutor, // ✅ CORRETO — conforme o HTML
         plano,
         periodo,
         qtd_pets: qtd,
@@ -126,7 +124,7 @@ if (formCadastro) {
       }
 
       // === RESET ===
-      btn.innerText = "Cadastrar Pet";
+      btn.innerText = "🐾 Enviar cadastro";
       formCadastro.reset();
       atualizarValor();
       msg.textContent = "✅ Cadastro enviado com sucesso!";
@@ -135,7 +133,7 @@ if (formCadastro) {
       msg.textContent = "❌ Ocorreu um erro ao enviar o cadastro.";
     } finally {
       btn.disabled = false;
-      btn.innerText = "Cadastrar Pet";
+      btn.innerText = "🐾 Enviar cadastro";
     }
   });
 }
