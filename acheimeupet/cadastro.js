@@ -86,11 +86,18 @@ if (formCadastro) {
       });
 
       const jsonCadastro = await resCadastro.json();
-      if (!resCadastro.ok || !jsonCadastro.result) {
+
+      // ✅ Correção: aceitar diferentes formatos de retorno do Fiqon
+      const id_pet =
+        jsonCadastro.body?.id_pet ||
+        jsonCadastro.id_pet ||
+        jsonCadastro.result?.id_pet ||
+        null;
+
+      if (!resCadastro.ok || !id_pet) {
+        console.error("Retorno cadastro:", jsonCadastro);
         throw new Error("Erro no cadastro do pet.");
       }
-
-      const { id_pet } = jsonCadastro.result;
 
       // === 2️⃣ Envio ao FIQON — Financeiro (Asaas) ===
       const payloadFinanceiro = {
@@ -98,7 +105,7 @@ if (formCadastro) {
         nome_tutor: data.nome_tutor,
         email_tutor: data.email_tutor,
         cpf_tutor: data.cpf_tutor,
-        telefone_tutor: data.whatsapp_tutor, // ✅ CORRETO — conforme o HTML
+        telefone_tutor: data.whatsapp_tutor,
         plano,
         periodo,
         qtd_pets: qtd,
