@@ -87,7 +87,7 @@ if (formCadastro) {
 
       const jsonCadastro = await resCadastro.json();
 
-      // ✅ Correção: aceitar diferentes formatos de retorno do Fiqon
+      // aceita diferentes formatos de retorno
       const id_pet =
         jsonCadastro.body?.id_pet ||
         jsonCadastro.id_pet ||
@@ -99,13 +99,14 @@ if (formCadastro) {
         throw new Error("Erro no cadastro do pet.");
       }
 
-      // === 2️⃣ Envio ao FIQON — Financeiro (Asaas) ===
+      // === 2️⃣ Envio ao FIQON — Financeiro (Asaas)
       const payloadFinanceiro = {
         id_pet,
         nome_tutor: data.nome_tutor,
         email_tutor: data.email_tutor,
         cpf_tutor: data.cpf_tutor,
-        telefone_tutor: data.whatsapp_tutor,
+        // 🔧 ALTERAÇÃO ÚNICA: alinhar com o Fiqon (whatsapp_tutor)
+        whatsapp_tutor: data.whatsapp_tutor,
         plano,
         periodo,
         qtd_pets: qtd,
