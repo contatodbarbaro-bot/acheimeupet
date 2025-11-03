@@ -10,6 +10,7 @@ const campoPeriodo = document.getElementById("periodo");
 const campoQtdPets = document.getElementById("campo_qtd_pets");
 const inputQtdPets = document.getElementById("qtd_pets");
 const valorExibido = document.getElementById("valor_exibido");
+const loading = document.getElementById("loading");
 
 if (campoPlano) campoPlano.addEventListener("change", atualizarValor);
 if (campoPeriodo) campoPeriodo.addEventListener("change", atualizarValor);
@@ -45,10 +46,11 @@ if (formCadastro) {
   formCadastro.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const btn = formCadastro.querySelector('button[type="submit"]');
+    const btn = document.getElementById("botao-enviar");
     const msg = document.getElementById("mensagem");
+
     btn.disabled = true;
-    btn.innerText = "Enviando...";
+    loading.style.display = "block";
     msg.textContent = "";
 
     try {
@@ -71,12 +73,10 @@ if (formCadastro) {
       data.qtd_pets = qtd;
       data.valor_total = valor;
 
-      // foto em base64
+      // foto em base64 (obrigatória)
       const fileInput = document.getElementById("foto_pet");
-      if (fileInput && fileInput.files.length > 0) {
-        const file = fileInput.files[0];
-        data.foto_pet = await toBase64(file);
-      }
+      const file = fileInput.files[0];
+      data.foto_pet = await toBase64(file);
 
       // === 1️⃣ Envio ao FIQON — Cadastro Pet ===
       const resCadastro = await fetch(WEBHOOK_CADASTRO, {
@@ -87,11 +87,10 @@ if (formCadastro) {
 
       const jsonCadastro = await resCadastro.json();
 
-      // aceita diferentes formatos de retorno
       const id_pet =
+        jsonCadastro.result?.id_pet ||
         jsonCadastro.body?.id_pet ||
         jsonCadastro.id_pet ||
-        jsonCadastro.result?.id_pet ||
         null;
 
       if (!resCadastro.ok || !id_pet) {
@@ -99,14 +98,13 @@ if (formCadastro) {
         throw new Error("Erro no cadastro do pet.");
       }
 
-      // === 2️⃣ Envio ao FIQON — Financeiro (Asaas)
+      // === 2️⃣ Envio ao FIQON — Financeiro (Asaas) ===
       const payloadFinanceiro = {
         id_pet,
         nome_tutor: data.nome_tutor,
         email_tutor: data.email_tutor,
         cpf_tutor: data.cpf_tutor,
-        // 🔧 ALTERAÇÃO ÚNICA: alinhar com o Fiqon (whatsapp_tutor)
-        whatsapp_tutor: data.whatsapp_tutor,
+        telefone_tutor: data.whatsapp_tutor,
         plano,
         periodo,
         qtd_pets: qtd,
@@ -132,16 +130,17 @@ if (formCadastro) {
       }
 
       // === RESET ===
-      btn.innerText = "🐾 Enviar cadastro";
+      msg.textContent = "✅ Cadastro enviado com sucesso!";
       formCadastro.reset();
       atualizarValor();
-      msg.textContent = "✅ Cadastro enviado com sucesso!";
+
     } catch (erro) {
       console.error("Erro no envio:", erro);
       msg.textContent = "❌ Ocorreu um erro ao enviar o cadastro.";
     } finally {
+      loading.style.display = "none";
       btn.disabled = false;
-      btn.innerText = "🐾 Enviar cadastro";
+      btn.innerHTML = "🐾 Enviar cadastro";
     }
   });
 }
