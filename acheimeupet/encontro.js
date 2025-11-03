@@ -2,8 +2,8 @@
 // AcheiMeuPet — Encontro (Front)
 // =============================
 
-// ✅ URL oficial da API (Apps Script Web App)
-const API_URL = "https://script.google.com/macros/s/AKfycbxsZs-E-vKCELEQShvFR6GEewmUM8S__GmwztyuVFA81tczCw8TQizgA77gwFtvTzFg/exec";
+// ✅ URL oficial da API (Biblioteca Pública JSONP)
+const API_URL = "https://script.googleusercontent.com/macros/echo?user_content_key=AehSKLj9nHQCb9vRxC1YME2I2o9QNle8ZP3A_i3Qj61zE0VekihZ4Klb1G7pLu9wDnOXosR22ijJYQovtKGu6L_CbOCq-2hSm5_BxDmHgYdK4XfkaN2FK0iwupUuK5S01zMwI1E4Q&lib=1PgOK1JLEe4Stp12QIO1R9YcaLG7JmzFbPy-unJPm1hjzycOxHZJULg7v";
 
 // 🔧 Função auxiliar para chamadas JSONP (resolve bloqueio de CORS)
 function jsonp(url) {
@@ -42,7 +42,7 @@ async function buscarDadosPet() {
   }
 
   try {
-    const data = await jsonp(`${API_URL}?id_pet=${encodeURIComponent(id)}`);
+    const data = await jsonp(`${API_URL}&id_pet=${encodeURIComponent(id)}`);
     if (!data || data.status !== "sucesso") {
       throw new Error(data && data.mensagem ? data.mensagem : "Erro desconhecido");
     }
