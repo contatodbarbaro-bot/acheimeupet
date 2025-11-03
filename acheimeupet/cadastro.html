@@ -97,6 +97,21 @@
       font-weight: 600;
       margin-top: 10px;
     }
+
+    #loading {
+      display: none;
+      text-align: center;
+      color: #a87632;
+      font-weight: 600;
+      margin-top: 10px;
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.4; }
+      50% { opacity: 1; }
+      100% { opacity: 0.4; }
+    }
   </style>
 </head>
 <body>
@@ -117,21 +132,21 @@
       <option value="Outros">Outros</option>
     </select>
 
-    <label>Raça</label>
-    <input type="text" name="raca" />
+    <label>Raça *</label>
+    <input type="text" name="raca" required />
 
-    <label>Sexo</label>
-    <select name="sexo">
+    <label>Sexo *</label>
+    <select name="sexo" required>
       <option value="">Selecione</option>
       <option value="Macho">Macho</option>
       <option value="Fêmea">Fêmea</option>
     </select>
 
-    <label>Ano de nascimento (AAAA)</label>
-    <input type="text" name="ano_nasc" maxlength="4" />
+    <label>Ano de nascimento (AAAA) *</label>
+    <input type="text" name="ano_nasc" maxlength="4" required />
 
-    <label>Foto do pet (opcional)</label>
-    <input type="file" id="foto_pet" accept="image/*" />
+    <label>Foto do pet *</label>
+    <input type="file" id="foto_pet" accept="image/*" required />
 
     <label>Nome do tutor *</label>
     <input type="text" name="nome_tutor" required />
@@ -151,11 +166,11 @@
     <label>UF *</label>
     <input type="text" name="uf" maxlength="2" required />
 
-    <label>Endereço (opcional)</label>
-    <input type="text" name="endereco" />
+    <label>Endereço *</label>
+    <input type="text" name="endereco" required />
 
-    <label>Observações (opcional)</label>
-    <textarea name="obs" rows="3"></textarea>
+    <label>Observações *</label>
+    <textarea name="obs" rows="3" required></textarea>
 
     <hr>
     <h3>💳 Escolha seu plano</h3>
@@ -181,7 +196,9 @@
 
     <p class="valor" id="valor_exibido">Selecione o plano para ver o valor</p>
 
-    <button type="submit">🐾 Enviar cadastro</button>
+    <button type="submit" id="botao-enviar">🐾 Enviar cadastro</button>
+
+    <div id="loading">⏳ Enviando dados, por favor aguarde...</div>
     <div id="mensagem" class="loading"></div>
   </form>
 
