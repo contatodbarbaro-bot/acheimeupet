@@ -1,9 +1,14 @@
+// =============================================
+// CADASTRO ACHEIMEUPET — FINAL COM REDIRECIONAMENTO AUTOMÁTICO
+// =============================================
+
 // ====== ENDPOINTS ======
 const WEBHOOK_CADASTRO =
   "https://webhook.fiqon.app/webhook/a029be45-8a23-418e-93e3-33f9b620a944/3e1595ab-b587-499b-a640-a8fe46b2d0c6";
 const WEBHOOK_FINANCEIRO =
   "https://webhook.fiqon.app/webhook/a037678d-0bd4-48a8-886a-d75537cfb146/4befe9a8-596a-41c2-8b27-b1ba57d0b130";
 
+// ====== ELEMENTOS DO FORMULÁRIO ======
 const formCadastro = document.getElementById("form-cadastro");
 const campoPlano = document.getElementById("tipo_plano");
 const campoPeriodo = document.getElementById("periodo");
@@ -12,6 +17,7 @@ const inputQtdPets = document.getElementById("qtd_pets");
 const valorExibido = document.getElementById("valor_exibido");
 const loading = document.getElementById("loading");
 
+// ====== EVENTOS ======
 if (campoPlano) campoPlano.addEventListener("change", atualizarValor);
 if (campoPeriodo) campoPeriodo.addEventListener("change", atualizarValor);
 if (inputQtdPets) inputQtdPets.addEventListener("input", atualizarValor);
@@ -49,11 +55,14 @@ if (formCadastro) {
     const btn = document.getElementById("botao-enviar");
     const msg = document.getElementById("mensagem");
 
+    // Desativa botão e mostra loading
     btn.disabled = true;
+    btn.innerHTML = `<span class="spinner"></span> Enviando...`;
     loading.style.display = "block";
     msg.textContent = "";
 
     try {
+      // === COLETA DOS DADOS ===
       const formData = new FormData(formCadastro);
       const data = Object.fromEntries(formData.entries());
 
@@ -73,9 +82,29 @@ if (formCadastro) {
       data.qtd_pets = qtd;
       data.valor_total = valor;
 
-      // foto em base64 (obrigatória)
+      // === Validação obrigatória ===
+      for (const [campo, valorCampo] of Object.entries(data)) {
+        if (!valorCampo.trim()) {
+          msg.textContent = `⚠️ O campo "${campo}" é obrigatório.`;
+          msg.style.color = "red";
+          btn.disabled = false;
+          btn.innerHTML = "🐾 Enviar cadastro";
+          loading.style.display = "none";
+          return;
+        }
+      }
+
+      // === Foto obrigatória em base64 ===
       const fileInput = document.getElementById("foto_pet");
       const file = fileInput.files[0];
+      if (!file) {
+        msg.textContent = "⚠️ A foto do pet é obrigatória.";
+        msg.style.color = "red";
+        btn.disabled = false;
+        btn.innerHTML = "🐾 Enviar cadastro";
+        loading.style.display = "none";
+        return;
+      }
       data.foto_pet = await toBase64(file);
 
       // === 1️⃣ Envio ao FIQON — Cadastro Pet ===
@@ -86,6 +115,7 @@ if (formCadastro) {
       });
 
       const jsonCadastro = await resCadastro.json();
+      console.log("Retorno cadastro:", jsonCadastro);
 
       const id_pet =
         jsonCadastro.result?.id_pet ||
@@ -104,12 +134,12 @@ if (formCadastro) {
         nome_tutor: data.nome_tutor,
         email_tutor: data.email_tutor,
         cpf_tutor: data.cpf_tutor,
-        telefone_tutor: data.whatsapp_tutor,
+        whatsapp_tutor: data.whatsapp_tutor,
         plano,
         periodo,
         qtd_pets: qtd,
         valor_total: valor,
-        forma_pagamento: "Boleto"
+        forma_pagamento: "Boleto",
       };
 
       const resFinanceiro = await fetch(WEBHOOK_FINANCEIRO, {
@@ -119,24 +149,34 @@ if (formCadastro) {
       });
 
       const jsonFin = await resFinanceiro.json();
+      console.log("Retorno financeiro:", jsonFin);
 
-      if (jsonFin?.body?.payment_link || jsonFin?.payment_link) {
-        const linkPagamento = jsonFin.body?.payment_link || jsonFin.payment_link;
-        msg.textContent = "Redirecionando para o pagamento...";
-        window.open(linkPagamento, "_blank");
+      // === 3️⃣ Redirecionamento Automático ===
+      const linkPagamento =
+        jsonFin?.body?.payment_link || jsonFin?.payment_link || null;
+
+      if (linkPagamento) {
+        msg.textContent =
+          "✅ Cadastro concluído! Redirecionando para o pagamento...";
+        msg.style.color = "green";
+        setTimeout(() => {
+          window.location.href = linkPagamento;
+        }, 1500);
       } else {
         console.warn("Retorno financeiro:", jsonFin);
-        alert("Cadastro concluído, mas o link de pagamento não foi gerado automaticamente.");
+        msg.textContent =
+          "⚠️ Cadastro concluído, mas o link de pagamento não foi gerado automaticamente.";
+        msg.style.color = "orange";
       }
 
-      // === RESET ===
-      msg.textContent = "✅ Cadastro enviado com sucesso!";
+      // === RESET VISUAL ===
       formCadastro.reset();
       atualizarValor();
 
     } catch (erro) {
       console.error("Erro no envio:", erro);
-      msg.textContent = "❌ Ocorreu um erro ao enviar o cadastro.";
+      msg.textContent = "❌ Ocorreu um erro ao enviar o cadastro. Tente novamente.";
+      msg.style.color = "red";
     } finally {
       loading.style.display = "none";
       btn.disabled = false;
@@ -145,7 +185,7 @@ if (formCadastro) {
   });
 }
 
-// === FUNÇÃO AUXILIAR ===
+// === FUNÇÃO AUXILIAR PARA BASE64 ===
 function toBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -154,3 +194,23 @@ function toBase64(file) {
     reader.onerror = (error) => reject(error);
   });
 }
+
+// === ESTILO DO LOADING GIRATÓRIO (spinner inline) ===
+const style = document.createElement("style");
+style.innerHTML = `
+.spinner {
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #c38e3d;
+  border-radius: 50%;
+  width: 16px;
+  height: 16px;
+  animation: spin 1s linear infinite;
+  display: inline-block;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}`;
+document.head.appendChild(style);
