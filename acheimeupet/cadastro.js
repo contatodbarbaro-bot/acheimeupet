@@ -1,5 +1,5 @@
 // =============================================
-// CADASTRO ACHEIMEUPET — FINAL COM REDIRECIONAMENTO AUTOMÁTICO
+// CADASTRO ACHEIMEUPET — FINAL COM REDIRECIONAMENTO AUTOMÁTICO (CORRIGIDO)
 // =============================================
 
 // ====== ENDPOINTS ======
@@ -82,15 +82,24 @@ if (formCadastro) {
       data.qtd_pets = qtd;
       data.valor_total = valor;
 
-      // === Validação obrigatória ===
+      // === Validação obrigatória (CORRIGIDA) ===
       for (const [campo, valorCampo] of Object.entries(data)) {
-        if (!valorCampo.trim()) {
-          msg.textContent = `⚠️ O campo "${campo}" é obrigatório.`;
-          msg.style.color = "red";
-          btn.disabled = false;
-          btn.innerHTML = "🐾 Enviar cadastro";
-          loading.style.display = "none";
-          return;
+        // Ignora campos que não precisam ser texto (ex: qtd_pets, valor_total, plano, periodo)
+        const deveVerificar = !["qtd_pets", "valor_total", "periodo", "plano"].includes(campo);
+
+        if (deveVerificar) {
+          if (
+            valorCampo === undefined ||
+            valorCampo === null ||
+            (typeof valorCampo === "string" && !valorCampo.trim())
+          ) {
+            msg.textContent = `⚠️ O campo "${campo}" é obrigatório.`;
+            msg.style.color = "red";
+            btn.disabled = false;
+            btn.innerHTML = "🐾 Enviar cadastro";
+            loading.style.display = "none";
+            return;
+          }
         }
       }
 
