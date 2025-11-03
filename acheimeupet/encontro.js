@@ -6,7 +6,7 @@
 // A URL correta para execução do App da Web é a que termina em /exec ou /echo.
 const API_URL = "https://script.google.com/macros/s/AKfycbxsZs-E-vKCELEQShvFR6GEewmUM8S__GmwztyuVFA81tczCw8TQizgA77gwFtvTzFg/exec";
 
-// 🔧 Função auxiliar para chamadas JSONP (resolve bloqueio de CORS )
+// 🔧 Função auxiliar para chamadas JSONP (resolve bloqueio de CORS  )
 function jsonp(url) {
   return new Promise((resolve, reject) => {
     const cb = "__jsonp_cb_" + Date.now() + "_" + Math.floor(Math.random() * 1e6);
