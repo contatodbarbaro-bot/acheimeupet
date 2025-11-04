@@ -1,33 +1,9 @@
 // =============================
-// AcheiMeuPet — Encontro (Front)
+// AcheiMeuPet — Encontro (Front, versão Fetch moderna)
 // =============================
 
-// ✅ URL oficial da API (App da Web - VINCULADA E CORRIGIDA)
+// ✅ URL pública da sua App Web (Google Apps Script)
 const API_URL = "https://script.google.com/macros/s/AKfycbz5pxePvVWe6zYI6hqIAXT1mMO0-0NNViyA2PfkFWvdsmD55bFBNT5tlwqxQdsOyEnq7w/exec";
-
-// 🔧 Função auxiliar para chamadas JSONP (resolve bloqueio de CORS)
-function jsonp(url) {
-  return new Promise((resolve, reject) => {
-    const cb = "__jsonp_cb_" + Date.now() + "_" + Math.floor(Math.random() * 1e6);
-    const script = document.createElement("script");
-    window[cb] = (data) => {
-      try {
-        resolve(data);
-      } finally {
-        delete window[cb];
-        script.remove();
-      }
-    };
-    script.onerror = () => {
-      delete window[cb];
-      script.remove();
-      reject(new Error("Falha ao carregar JSONP"));
-    };
-    const sep = url.includes("?") ? "&" : "?";
-    script.src = `${url}${sep}callback=${cb}`;
-    document.body.appendChild(script);
-  });
-}
 
 // 🧩 Captura o parâmetro "id" da URL
 function getParam(name) {
@@ -35,7 +11,7 @@ function getParam(name) {
   return u.searchParams.get(name);
 }
 
-// 🔍 Busca os dados do pet na API
+// 🔍 Busca os dados do pet na API (via Fetch)
 async function buscarDadosPet() {
   const id = getParam("id");
   if (!id) {
@@ -44,11 +20,12 @@ async function buscarDadosPet() {
   }
 
   try {
-    const data = await jsonp(`${API_URL}?id=${encodeURIComponent(id)}`);
+    const response = await fetch(`${API_URL}?id=${encodeURIComponent(id)}`);
+    const data = await response.json();
     console.log("📡 Resposta da API:", data);
 
     if (!data || data.status !== "sucesso") {
-      throw new Error(data && data.mensagem ? data.mensagem : "Pet não encontrado ou dados inválidos.");
+      throw new Error(data.mensagem || "Pet não encontrado ou dados inválidos.");
     }
 
     preencherFicha(data.pet);
