@@ -43,10 +43,7 @@
       border: 4px solid #f3b04d;
     }
 
-    h2 {
-      margin: 10px 0;
-      color: #222;
-    }
+    h2 { margin: 10px 0; color: #222; }
 
     .info {
       text-align: left;
@@ -55,9 +52,21 @@
       margin: 15px 0;
     }
 
-    .info strong {
-      color: #f3b04d;
+    .info strong { color: #f3b04d; }
+
+    .cta-whats {
+      background: #25d366;
+      color: white;
+      font-weight: bold;
+      text-decoration: none;
+      display: block;
+      padding: 12px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      transition: 0.3s;
     }
+
+    .cta-whats:hover { background: #1ebe5d; }
 
     form {
       margin-top: 25px;
@@ -87,9 +96,7 @@
       transition: 0.3s;
     }
 
-    button:hover {
-      background-color: #d6993e;
-    }
+    button:hover { background-color: #d6993e; }
 
     footer {
       margin-top: 25px;
@@ -114,16 +121,20 @@
       <p><strong>Cidade:</strong> <span id="cidadePet">-</span></p>
     </div>
 
+    <a id="btnWhatsTutor" class="cta-whats" href="#" target="_blank" style="display:none;">
+      💬 Falar com o tutor no WhatsApp
+    </a>
+
     <hr style="margin: 25px 0;">
 
     <h3>📩 Informe seus dados para avisar o tutor</h3>
 
     <form id="formEncontrador">
       <label>Seu nome:</label>
-      <input type="text" id="nomeEncontrador" placeholder="Ex: João da Silva">
+      <input type="text" id="nomeEncontrador" placeholder="Ex: João da Silva" required>
 
       <label>Seu telefone:</label>
-      <input type="tel" id="telefoneEncontrador" placeholder="Ex: (16) 99999-0000">
+      <input type="tel" id="telefoneEncontrador" placeholder="Ex: (16) 99999-0000" required>
 
       <label>Mensagem (opcional):</label>
       <textarea id="mensagem" rows="3" placeholder="Ex: Encontrei seu pet próximo à Av. Paulista"></textarea>
