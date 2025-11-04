@@ -11,7 +11,9 @@ function jsonp(url) {
     const cb = "__jsonp_cb_" + Date.now() + "_" + Math.floor(Math.random() * 1e6);
     const script = document.createElement("script");
     window[cb] = (data) => {
-      try { resolve(data); } finally {
+      try {
+        resolve(data);
+      } finally {
         delete window[cb];
         script.remove();
       }
@@ -58,12 +60,17 @@ async function buscarDadosPet() {
 
 // 🐾 Preenche as informações na ficha
 function preencherFicha(pet) {
-  const el = (id) => document.getElementById(id);
-  if (el("sp_especie")) el("sp_especie").textContent = pet.especie || "-";
-  if (el("sp_raca"))    el("sp_raca").textContent    = pet.raca || "-";
-  if (el("sp_sexo"))    el("sp_sexo").textContent    = pet.sexo || "-";
-  if (el("sp_tutor"))   el("sp_tutor").textContent   = pet.nome_tutor || "-";
-  if (el("sp_cidade"))  el("sp_cidade").textContent  = pet.cidade || "-";
+  document.getElementById("nomePet").textContent = pet.nome_pet || "Pet encontrado!";
+  document.getElementById("especiePet").textContent = pet.especie || "-";
+  document.getElementById("racaPet").textContent = pet.raca || "-";
+  document.getElementById("sexoPet").textContent = pet.sexo || "-";
+  document.getElementById("tutorPet").textContent = pet.nome_tutor || "-";
+  document.getElementById("cidadePet").textContent = pet.cidade || "-";
+
+  // Atualiza a foto se houver
+  if (pet.foto_pet && pet.foto_pet.startsWith("http")) {
+    document.getElementById("fotoPet").src = pet.foto_pet;
+  }
 }
 
 // 🚀 Executa automaticamente ao abrir a página
