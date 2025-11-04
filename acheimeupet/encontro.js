@@ -1,82 +1,119 @@
 // =============================
-// AcheiMeuPet — Encontro (Front, versão Fetch moderna)
+// AcheiMeuPet — Encontro (Front completo)
 // =============================
 
-// ✅ URL pública da sua App Web (Google Apps Script)
+// ✅ Apps Script (API pública)
 const API_URL = "https://script.google.com/macros/s/AKfycbz5pxePvVWe6zYI6hqIAXT1mMO0-0NNViyA2PfkFWvdsmD55bFBNT5tlwqxQdsOyEnq7w/exec";
 
-// 🧩 Captura o parâmetro "id" da URL
+// ✅ Webhook do Fiqon — Fluxo Encontro_Pet_Fiqon
+const WEBHOOK_FIQON = "https://SEU_WEBHOOK_DO_FIQON_AQUI"; // 👈 cole aqui
+
+// 🔍 Pega ID do pet na URL
 function getParam(name) {
   const u = new URL(window.location.href);
   return u.searchParams.get(name);
 }
 
-// 🔍 Busca os dados do pet na API (via Fetch)
+// 🟢 Busca dados do pet
 async function buscarDadosPet() {
   const id = getParam("id");
-  if (!id) {
-    mostrarErro("ID do pet não informado.");
-    return;
-  }
+  if (!id) return mostrarErro("ID do pet não informado.");
 
   try {
     const response = await fetch(`${API_URL}?id=${encodeURIComponent(id)}`);
     const data = await response.json();
-    console.log("📡 Resposta da API:", data);
 
-    if (!data || data.status !== "sucesso") {
-      throw new Error(data.mensagem || "Pet não encontrado ou dados inválidos.");
-    }
-
+    if (!data || data.status !== "sucesso") throw new Error("Pet não encontrado.");
     preencherFicha(data.pet);
   } catch (e) {
-    console.error("❌ Erro ao carregar informações:", e);
-    mostrarErro("⚠️ Ops! Não foi possível carregar as informações deste pet.<br><br>Isso pode acontecer se o QR Code ainda não estiver vinculado corretamente ao cadastro.<br><br>Tente novamente mais tarde ou entre em contato com o suporte AcheiMeuPet.");
+    console.error("❌ Erro:", e);
+    mostrarErro("⚠️ Não foi possível carregar as informações deste pet.");
   }
 }
 
-// 🐾 Preenche as informações na ficha
+// 🐾 Preenche ficha
 function preencherFicha(pet) {
-  document.getElementById("nomePet").textContent = pet.nome_pet || "Pet encontrado!";
+  document.getElementById("nomePet").textContent = pet.nome_pet || "-";
   document.getElementById("especiePet").textContent = pet.especie || "-";
   document.getElementById("racaPet").textContent = pet.raca || "-";
   document.getElementById("sexoPet").textContent = pet.sexo || "-";
   document.getElementById("tutorPet").textContent = pet.nome_tutor || "-";
   document.getElementById("cidadePet").textContent = pet.cidade || "-";
 
-  // Atualiza a foto se houver
-  if (pet.foto_pet && pet.foto_pet.startsWith("http")) {
+  if (pet.foto_pet && pet.foto_pet.startsWith("http"))
     document.getElementById("fotoPet").src = pet.foto_pet;
-  }
 
-  // Remove mensagens de erro se existirem
-  const avisoErro = document.querySelector(".erro-pet");
-  if (avisoErro) avisoErro.remove();
+  // 🔗 WhatsApp do tutor
+  const telTutor = (pet.whatsapp_tutor || pet.telefone_tutor || "").replace(/\D/g, "");
+  if (telTutor.length >= 10) {
+    const msg = `Olá ${pet.nome_tutor}, encontrei seu pet ${pet.nome_pet}!`;
+    const link = `https://wa.me/55${telTutor}?text=${encodeURIComponent(msg)}`;
+    const btn = document.getElementById("btnWhatsTutor");
+    btn.href = link;
+    btn.style.display = "block";
+  }
 }
 
-// ⚠️ Exibe mensagem de erro visual na página
+// ⚠️ Exibe erro visual
 function mostrarErro(msg) {
   const container = document.querySelector(".container");
-  container.innerHTML = `
-    <div class="erro-pet" style="
-      background-color: #fff5e5;
-      border: 2px solid #f3b04d;
-      color: #5a4100;
-      border-radius: 12px;
-      padding: 25px;
-      margin-top: 30px;
-      font-size: 1em;
-      line-height: 1.6em;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-    ">
-      <h3 style="margin-top: 0;">⚠️ Oops! Algo deu errado</h3>
-      <p>${msg}</p>
-      <p style="margin-top:20px; font-size:0.9em; color:#777;">
-        Sistema AcheiMeuPet 🐾 — em memória do Picolé ❤️
-      </p>
-    </div>
-  `;
+  container.innerHTML = `<div style="
+    background:#fff3cd; border:1px solid #ffe69c; color:#664d03;
+    padding:20px; border-radius:10px; line-height:1.6em;">
+    <strong>Oops!</strong> ${msg}<br><br>
+    <small>Sistema AcheiMeuPet 🐾 — em memória do Picolé ❤️</small>
+  </div>`;
 }
 
-// 🚀 Executa automaticamente ao abrir a página
-document.addEventListener("DOMContentLoaded", buscarDadosPet);
+// 🚀 Envia formulário ao Fiqon
+async function enviarAoTutor() {
+  const nome = document.getElementById("nomeEncontrador").value.trim();
+  const telefone = document.getElementById("telefoneEncontrador").value.replace(/\D/g, "");
+  const mensagem = document.getElementById("mensagem").value.trim();
+  const id = getParam("id");
+
+  if (!nome || telefone.length < 10) {
+    alert("Por favor, preencha seu nome e telefone corretamente.");
+    return;
+  }
+
+  const payload = {
+    id_pet: id,
+    nome_encontrador: nome,
+    telefone_encontrador: telefone,
+    mensagem: mensagem,
+    origem: "pagina_encontro",
+    timestamp: new Date().toISOString()
+  };
+
+  const btn = document.getElementById("btnEnviar");
+  btn.disabled = true;
+  btn.textContent = "Enviando...";
+
+  try {
+    const res = await fetch(WEBHOOK_FIQON, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    if (res.ok) {
+      alert("Mensagem enviada! O tutor será avisado automaticamente.");
+      document.getElementById("formEncontrador").reset();
+    } else {
+      alert("Erro ao enviar. Tente novamente mais tarde.");
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Falha de conexão ao enviar mensagem.");
+  } finally {
+    btn.disabled = false;
+    btn.textContent = "Enviar Mensagem ao Tutor";
+  }
+}
+
+// 🧩 Inicialização
+document.addEventListener("DOMContentLoaded", () => {
+  buscarDadosPet();
+  document.getElementById("btnEnviar").addEventListener("click", enviarAoTutor);
+});
