@@ -44,9 +44,9 @@ function preencherFicha(pet) {
   if (pet.foto_pet && pet.foto_pet.startsWith("http"))
     document.getElementById("fotoPet").src = pet.foto_pet;
 
-  // 🔗 WhatsApp do tutor (com correção segura)
+  // 🔗 WhatsApp do tutor
   const rawTutorPhone = pet.whatsapp_tutor || pet.telefone_tutor || "";
-  const telTutor = String(rawTutorPhone).replace(/\D/g, ""); // 👈 Corrigido
+  const telTutor = String(rawTutorPhone).replace(/\D/g, "");
 
   if (telTutor.length >= 10) {
     const msg = `Olá ${pet.nome_tutor}, encontrei seu pet ${pet.nome_pet} pelo sistema AcheiMeuPet 🐾`;
@@ -73,7 +73,7 @@ function mostrarErro(msg) {
     </div>`;
 }
 
-// 🚀 Enviar formulário ao Fiqon
+// 🚀 Enviar formulário ao Fiqon (com IP público)
 async function enviarAoTutor() {
   const nome = document.getElementById("nomeEncontrador").value.trim();
   const telefone = document.getElementById("telefoneEncontrador").value.replace(/\D/g, "");
@@ -85,20 +85,26 @@ async function enviarAoTutor() {
     return;
   }
 
-  const payload = {
-    id_pet: id,
-    nome_encontrador: nome,
-    telefone_encontrador: telefone,
-    mensagem: mensagem,
-    origem: "pagina_encontro",
-    timestamp: new Date().toISOString()
-  };
-
   const btn = document.getElementById("btnEnviar");
   btn.disabled = true;
   btn.textContent = "Enviando...";
 
   try {
+    // 🟢 Captura do IP público real do encontrador
+    const ipRes = await fetch("https://api.ipify.org?format=json");
+    const ipData = await ipRes.json();
+    const ipPublico = ipData.ip || "indisponível";
+
+    const payload = {
+      id_pet: id,
+      nome_encontrador: nome,
+      telefone_encontrador: telefone,
+      mensagem: mensagem,
+      origem: "pagina_encontro",
+      ip_publico: ipPublico,
+      timestamp: new Date().toISOString()
+    };
+
     const res = await fetch(WEBHOOK_FIQON, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
