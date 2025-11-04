@@ -39,7 +39,7 @@ function getParam(name) {
 async function buscarDadosPet() {
   const id = getParam("id");
   if (!id) {
-    alert("ID do pet não informado.");
+    mostrarErro("ID do pet não informado.");
     return;
   }
 
@@ -48,13 +48,13 @@ async function buscarDadosPet() {
     console.log("📡 Resposta da API:", data);
 
     if (!data || data.status !== "sucesso") {
-      throw new Error(data && data.mensagem ? data.mensagem : "Erro desconhecido");
+      throw new Error(data && data.mensagem ? data.mensagem : "Pet não encontrado ou dados inválidos.");
     }
 
     preencherFicha(data.pet);
   } catch (e) {
     console.error("❌ Erro ao carregar informações:", e);
-    alert("Erro ao carregar informações do pet.");
+    mostrarErro("⚠️ Ops! Não foi possível carregar as informações deste pet.<br><br>Isso pode acontecer se o QR Code ainda não estiver vinculado corretamente ao cadastro.<br><br>Tente novamente mais tarde ou entre em contato com o suporte AcheiMeuPet.");
   }
 }
 
@@ -71,6 +71,34 @@ function preencherFicha(pet) {
   if (pet.foto_pet && pet.foto_pet.startsWith("http")) {
     document.getElementById("fotoPet").src = pet.foto_pet;
   }
+
+  // Remove mensagens de erro se existirem
+  const avisoErro = document.querySelector(".erro-pet");
+  if (avisoErro) avisoErro.remove();
+}
+
+// ⚠️ Exibe mensagem de erro visual na página
+function mostrarErro(msg) {
+  const container = document.querySelector(".container");
+  container.innerHTML = `
+    <div class="erro-pet" style="
+      background-color: #fff5e5;
+      border: 2px solid #f3b04d;
+      color: #5a4100;
+      border-radius: 12px;
+      padding: 25px;
+      margin-top: 30px;
+      font-size: 1em;
+      line-height: 1.6em;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    ">
+      <h3 style="margin-top: 0;">⚠️ Oops! Algo deu errado</h3>
+      <p>${msg}</p>
+      <p style="margin-top:20px; font-size:0.9em; color:#777;">
+        Sistema AcheiMeuPet 🐾 — em memória do Picolé ❤️
+      </p>
+    </div>
+  `;
 }
 
 // 🚀 Executa automaticamente ao abrir a página
