@@ -44,8 +44,10 @@ function preencherFicha(pet) {
   if (pet.foto_pet && pet.foto_pet.startsWith("http"))
     document.getElementById("fotoPet").src = pet.foto_pet;
 
-  // WhatsApp do tutor
-  const telTutor = (pet.whatsapp_tutor || pet.telefone_tutor || "").replace(/\D/g, "");
+  // 🔗 WhatsApp do tutor (com correção segura)
+  const rawTutorPhone = pet.whatsapp_tutor || pet.telefone_tutor || "";
+  const telTutor = String(rawTutorPhone).replace(/\D/g, ""); // 👈 Corrigido
+
   if (telTutor.length >= 10) {
     const msg = `Olá ${pet.nome_tutor}, encontrei seu pet ${pet.nome_pet} pelo sistema AcheiMeuPet 🐾`;
     const link = `https://wa.me/55${telTutor}?text=${encodeURIComponent(msg)}`;
