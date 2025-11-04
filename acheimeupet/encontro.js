@@ -1,20 +1,20 @@
 // =============================
-// AcheiMeuPet — Encontro (Front completo)
+// AcheiMeuPet — Encontro (Front)
 // =============================
 
-// ✅ Apps Script (API pública)
+// 🔗 API pública (Apps Script)
 const API_URL = "https://script.google.com/macros/s/AKfycbz5pxePvVWe6zYI6hqIAXT1mMO0-0NNViyA2PfkFWvdsmD55bFBNT5tlwqxQdsOyEnq7w/exec";
 
-// ✅ Webhook do Fiqon — Fluxo Encontro_Pet_Fiqon
-const WEBHOOK_FIQON = "https://SEU_WEBHOOK_DO_FIQON_AQUI"; // 👈 cole aqui
+// 🔗 Webhook oficial do Fiqon — fluxo Encontro_Pet_Fiqon
+const WEBHOOK_FIQON = "https://webhook.fiqon.app/webhook/a02b8e45-cd21-44e0-a619-be0e64fd9a4b/b9ae07d8-e7af-4b1f-9b1c-a22cc15fb9cd";
 
-// 🔍 Pega ID do pet na URL
+// Utilitário
 function getParam(name) {
   const u = new URL(window.location.href);
   return u.searchParams.get(name);
 }
 
-// 🟢 Busca dados do pet
+// 🟢 Buscar dados do pet
 async function buscarDadosPet() {
   const id = getParam("id");
   if (!id) return mostrarErro("ID do pet não informado.");
@@ -27,11 +27,11 @@ async function buscarDadosPet() {
     preencherFicha(data.pet);
   } catch (e) {
     console.error("❌ Erro:", e);
-    mostrarErro("⚠️ Não foi possível carregar as informações deste pet.");
+    mostrarErro("⚠️ Não foi possível carregar as informações deste pet. Tente novamente mais tarde.");
   }
 }
 
-// 🐾 Preenche ficha
+// 🐾 Preencher ficha
 function preencherFicha(pet) {
   document.getElementById("nomePet").textContent = pet.nome_pet || "-";
   document.getElementById("especiePet").textContent = pet.especie || "-";
@@ -40,13 +40,14 @@ function preencherFicha(pet) {
   document.getElementById("tutorPet").textContent = pet.nome_tutor || "-";
   document.getElementById("cidadePet").textContent = pet.cidade || "-";
 
+  // Foto
   if (pet.foto_pet && pet.foto_pet.startsWith("http"))
     document.getElementById("fotoPet").src = pet.foto_pet;
 
-  // 🔗 WhatsApp do tutor
+  // WhatsApp do tutor
   const telTutor = (pet.whatsapp_tutor || pet.telefone_tutor || "").replace(/\D/g, "");
   if (telTutor.length >= 10) {
-    const msg = `Olá ${pet.nome_tutor}, encontrei seu pet ${pet.nome_pet}!`;
+    const msg = `Olá ${pet.nome_tutor}, encontrei seu pet ${pet.nome_pet} pelo sistema AcheiMeuPet 🐾`;
     const link = `https://wa.me/55${telTutor}?text=${encodeURIComponent(msg)}`;
     const btn = document.getElementById("btnWhatsTutor");
     btn.href = link;
@@ -54,18 +55,23 @@ function preencherFicha(pet) {
   }
 }
 
-// ⚠️ Exibe erro visual
+// ⚠️ Exibir erro visual
 function mostrarErro(msg) {
   const container = document.querySelector(".container");
-  container.innerHTML = `<div style="
-    background:#fff3cd; border:1px solid #ffe69c; color:#664d03;
-    padding:20px; border-radius:10px; line-height:1.6em;">
-    <strong>Oops!</strong> ${msg}<br><br>
-    <small>Sistema AcheiMeuPet 🐾 — em memória do Picolé ❤️</small>
-  </div>`;
+  container.innerHTML = `
+    <div style="
+      background:#fff3cd;
+      border:1px solid #ffe69c;
+      color:#664d03;
+      padding:20px;
+      border-radius:10px;
+      line-height:1.6em;">
+      <strong>Oops!</strong> ${msg}<br><br>
+      <small>Sistema AcheiMeuPet 🐾 — em memória do Picolé ❤️</small>
+    </div>`;
 }
 
-// 🚀 Envia formulário ao Fiqon
+// 🚀 Enviar formulário ao Fiqon
 async function enviarAoTutor() {
   const nome = document.getElementById("nomeEncontrador").value.trim();
   const telefone = document.getElementById("telefoneEncontrador").value.replace(/\D/g, "");
@@ -98,14 +104,14 @@ async function enviarAoTutor() {
     });
 
     if (res.ok) {
-      alert("Mensagem enviada! O tutor será avisado automaticamente.");
+      alert("Mensagem enviada! O tutor será avisado automaticamente 🐶❤️");
       document.getElementById("formEncontrador").reset();
     } else {
       alert("Erro ao enviar. Tente novamente mais tarde.");
     }
   } catch (err) {
     console.error(err);
-    alert("Falha de conexão ao enviar mensagem.");
+    alert("Falha de conexão. Verifique sua internet e tente novamente.");
   } finally {
     btn.disabled = false;
     btn.textContent = "Enviar Mensagem ao Tutor";
