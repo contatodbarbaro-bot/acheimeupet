@@ -73,7 +73,53 @@ function mostrarErro(msg) {
     </div>`;
 }
 
-// 🚀 Enviar formulário ao Fiqon (com IP público)
+// 📍 Capturar localização GPS/IP automaticamente
+async function capturarLocalizacao() {
+  const latInput = document.getElementById("latitude");
+  const lngInput = document.getElementById("longitude");
+  const srcInput = document.getElementById("loc_source");
+
+  const setValores = (lat, lng, src) => {
+    latInput.value = lat || "";
+    lngInput.value = lng || "";
+    srcInput.value = src || "ip";
+  };
+
+  // Tentativa de GPS
+  if ("geolocation" in navigator) {
+    try {
+      const pos = await new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {
+          enableHighAccuracy: true,
+          timeout: 7000,
+          maximumAge: 0
+        });
+      });
+      const { latitude, longitude } = pos.coords;
+      if (latitude && longitude) {
+        setValores(latitude.toFixed(6), longitude.toFixed(6), "gps");
+        return;
+      }
+    } catch {
+      // ignora e cai pro IP
+    }
+  }
+
+  // Fallback: localização aproximada por IP
+  try {
+    const ipRes = await fetch("https://ipapi.co/json/");
+    const ipData = await ipRes.json();
+    if (ipData && ipData.latitude && ipData.longitude) {
+      setValores(ipData.latitude.toFixed(6), ipData.longitude.toFixed(6), "ip");
+    } else {
+      setValores("", "", "indefinido");
+    }
+  } catch {
+    setValores("", "", "indefinido");
+  }
+}
+
+// 🚀 Enviar formulário ao Fiqon (com IP público e localização)
 async function enviarAoTutor() {
   const nome = document.getElementById("nomeEncontrador").value.trim();
   const telefone = document.getElementById("telefoneEncontrador").value.replace(/\D/g, "");
@@ -90,11 +136,17 @@ async function enviarAoTutor() {
   btn.textContent = "Enviando...";
 
   try {
-    // 🟢 Captura do IP público real do encontrador
+    // Captura IP público
     const ipRes = await fetch("https://api.ipify.org?format=json");
     const ipData = await ipRes.json();
     const ipPublico = ipData.ip || "indisponível";
 
+    // Captura localização (GPS/IP)
+    const lat = document.getElementById("latitude").value || "";
+    const lng = document.getElementById("longitude").value || "";
+    const locSrc = document.getElementById("loc_source").value || "indefinido";
+
+    // Payload completo
     const payload = {
       id_pet: id,
       nome_encontrador: nome,
@@ -102,6 +154,9 @@ async function enviarAoTutor() {
       mensagem: mensagem,
       origem: "pagina_encontro",
       ip_publico: ipPublico,
+      latitude: lat,
+      longitude: lng,
+      loc_source: locSrc,
       timestamp: new Date().toISOString()
     };
 
@@ -129,5 +184,6 @@ async function enviarAoTutor() {
 // 🧩 Inicialização
 document.addEventListener("DOMContentLoaded", () => {
   buscarDadosPet();
+  capturarLocalizacao(); // <- nova função automática
   document.getElementById("btnEnviar").addEventListener("click", enviarAoTutor);
 });
