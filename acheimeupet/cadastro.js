@@ -1,5 +1,5 @@
 // =============================================
-// CADASTRO ACHEIMEUPET — FINAL COM REDIRECIONAMENTO AUTOMÁTICO (CORRIGIDO)
+// CADASTRO ACHEIMEUPET — FINAL COM REDIRECIONAMENTO AUTOMÁTICO (CORRIGIDO DEFINITIVO)
 // =============================================
 
 // ====== ENDPOINTS ======
@@ -84,9 +84,7 @@ if (formCadastro) {
 
       // === Validação obrigatória (CORRIGIDA) ===
       for (const [campo, valorCampo] of Object.entries(data)) {
-        // Ignora campos que não precisam ser texto (ex: qtd_pets, valor_total, plano, periodo)
         const deveVerificar = !["qtd_pets", "valor_total", "periodo", "plano"].includes(campo);
-
         if (deveVerificar) {
           if (
             valorCampo === undefined ||
@@ -126,10 +124,12 @@ if (formCadastro) {
       const jsonCadastro = await resCadastro.json();
       console.log("Retorno cadastro:", jsonCadastro);
 
+      // ✅ CAPTURA CORRIGIDA DO ID_PET
       const id_pet =
-        jsonCadastro.result?.id_pet ||
-        jsonCadastro.body?.id_pet ||
-        jsonCadastro.id_pet ||
+        jsonCadastro?.result?.id_pet ||
+        jsonCadastro?.body?.result?.id_pet ||
+        jsonCadastro?.data?.result?.id_pet ||
+        jsonCadastro?.id_pet ||
         null;
 
       if (!resCadastro.ok || !id_pet) {
