@@ -220,7 +220,7 @@
       areaPets.innerHTML = "";
       for (let i = 1; i <= qtd; i++) {
         areaPets.innerHTML += `
-        <div class="pet-group">
+        <div class="pet-group" id="bloco_pet_${i}">
           <h4>🐾 Pet ${i}</h4>
           <label>Nome do pet *</label>
           <input type="text" name="nome_pet_${i}" required />
