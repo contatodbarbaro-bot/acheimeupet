@@ -202,19 +202,25 @@
 
   <footer>© 2025 AcheiMeuPet — Conectando Pets e Tutores com Amor 🐾</footer>
 
+  <!-- SCRIPT DE GERAÇÃO DOS BLOCOS DE PET -->
   <script>
     const qtdInput = document.getElementById('qtd_pets');
     const tipoPlano = document.getElementById('tipo_plano');
     const areaPets = document.getElementById('area-pets');
+    const campoQtdPets = document.getElementById('campo_qtd_pets');
 
     function atualizarBlocosPets() {
       const plano = tipoPlano.value;
-      const qtd = parseInt(qtdInput.value) || 1;
+      let qtd = 1; // padrão: 1 pet
 
       if (plano === "familia") {
-        document.getElementById("campo_qtd_pets").style.display = "block";
+        campoQtdPets.style.display = "block";
+        qtd = parseInt(qtdInput.value) || 2;
+        if (qtd < 2) qtd = 2;
       } else {
-        document.getElementById("campo_qtd_pets").style.display = "none";
+        campoQtdPets.style.display = "none";
+        qtd = 1;
+        qtdInput.value = 1;
       }
 
       areaPets.innerHTML = "";
@@ -256,6 +262,7 @@
     qtdInput.addEventListener("input", atualizarBlocosPets);
   </script>
 
+  <!-- SCRIPT PRINCIPAL DE CADASTRO -->
   <script src="cadastro.js"></script>
 </body>
 </html>
