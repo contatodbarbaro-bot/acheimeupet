@@ -207,18 +207,20 @@
     const qtdInput = document.getElementById('qtd_pets');
     const tipoPlano = document.getElementById('tipo_plano');
     const areaPets = document.getElementById('area-pets');
-    const campoQtdPets = document.getElementById('campo_qtd_pets');
+    // 🔥 removida duplicação de campoQtdPets — agora só o cadastro.js usa esse nome
 
     function atualizarBlocosPets() {
       const plano = tipoPlano.value;
       let qtd = 1; // padrão: 1 pet
 
+      const campoQtd = document.getElementById('campo_qtd_pets');
+
       if (plano === "familia") {
-        campoQtdPets.style.display = "block";
+        campoQtd.style.display = "block";
         qtd = parseInt(qtdInput.value) || 2;
         if (qtd < 2) qtd = 2;
       } else {
-        campoQtdPets.style.display = "none";
+        campoQtd.style.display = "none";
         qtd = 1;
         qtdInput.value = 1;
       }
