@@ -45,7 +45,30 @@ function atualizarValor() {
   } else {
     valorExibido.textContent = "Selecione o plano para ver o valor";
   }
+
+  atualizarExibicaoPets(); // atualiza pets conforme plano
 }
+
+// === CONTROLE DINÂMICO DE EXIBIÇÃO DOS PETS ===
+const blocosPets = document.querySelectorAll("[id^='bloco_pet_']");
+
+function atualizarExibicaoPets() {
+  const plano = campoPlano?.value || "";
+  const qtd = plano === "familia" ? parseInt(inputQtdPets?.value) || 2 : 1;
+
+  blocosPets.forEach((bloco, index) => {
+    if (index < qtd) {
+      bloco.style.display = "block";
+      bloco.querySelectorAll("input, select").forEach((el) => (el.disabled = false));
+    } else {
+      bloco.style.display = "none";
+      bloco.querySelectorAll("input, select").forEach((el) => (el.disabled = true));
+    }
+  });
+}
+
+if (campoPlano) campoPlano.addEventListener("change", atualizarExibicaoPets);
+if (inputQtdPets) inputQtdPets.addEventListener("input", atualizarExibicaoPets);
 
 // === FUNÇÃO AUXILIAR PARA BASE64 ===
 function toBase64(file) {
@@ -65,7 +88,6 @@ if (formCadastro) {
     const btn = document.getElementById("botao-enviar");
     const msg = document.getElementById("mensagem");
 
-    // Desativa botão e mostra loading
     btn.disabled = true;
     btn.innerHTML = `<span class="spinner"></span> Enviando...`;
     loading.style.display = "block";
@@ -88,7 +110,7 @@ if (formCadastro) {
 
       const plano = campoPlano.value;
       const periodo = campoPeriodo.value;
-      const qtd = parseInt(inputQtdPets.value) || 1;
+      const qtd = plano === "familia" ? parseInt(inputQtdPets.value) || 2 : 1;
       let valor = 0;
 
       if (plano === "individual") {
@@ -97,7 +119,6 @@ if (formCadastro) {
         valor = periodo === "mensal" ? 19.9 * qtd : 199.0 * qtd;
       }
 
-      // === LOOP PARA CADA PET ===
       const petsCadastrados = [];
       for (let i = 1; i <= qtd; i++) {
         const nome_pet = formData.get(`nome_pet_${i}`);
@@ -118,7 +139,6 @@ if (formCadastro) {
 
         const foto_pet = await toBase64(file);
 
-        // === Corpo completo para o FIQON ===
         const payloadPet = {
           nome_pet,
           especie,
@@ -133,7 +153,6 @@ if (formCadastro) {
           valor_total: valor,
         };
 
-        // === Envio ao FIQON — Cadastro Pet ===
         const resCadastro = await fetch(WEBHOOK_CADASTRO, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -157,11 +176,9 @@ if (formCadastro) {
 
         petsCadastrados.push(id_pet);
 
-        // 🕒 Delay de 1 segundo entre pets para evitar sobrecarga no ImgBB
         await new Promise((resolve) => setTimeout(resolve, 1000));
       }
 
-      // === Envio ao FIQON — Financeiro (após todos os pets)
       const payloadFinanceiro = {
         id_pet: petsCadastrados[0],
         nome_tutor: dadosTutor.nome_tutor,
@@ -201,10 +218,8 @@ if (formCadastro) {
         msg.style.color = "orange";
       }
 
-      // === RESET FINAL ===
       formCadastro.reset();
       atualizarValor();
-
     } catch (erro) {
       console.error("Erro no envio:", erro);
       const msg = document.getElementById("mensagem");
