@@ -1,5 +1,5 @@
 // =============================================
-// CADASTRO ACHEIMEUPET — SUPORTE MULTIPETS + CAMPO CEP (VERSÃO FINAL)
+// CADASTRO ACHEIMEUPET — SUPORTE MULTIPETS + CAMPO CEP + DELAY ENTRE PETS
 // =============================================
 
 // ====== ENDPOINTS ======
@@ -156,6 +156,9 @@ if (formCadastro) {
         }
 
         petsCadastrados.push(id_pet);
+
+        // 🕒 Delay de 1 segundo entre pets para evitar sobrecarga no ImgBB
+        await new Promise((resolve) => setTimeout(resolve, 1000));
       }
 
       // === Envio ao FIQON — Financeiro (após todos os pets)
@@ -205,7 +208,8 @@ if (formCadastro) {
     } catch (erro) {
       console.error("Erro no envio:", erro);
       const msg = document.getElementById("mensagem");
-      msg.textContent = "❌ Ocorreu um erro ao enviar o cadastro. Tente novamente.";
+      msg.textContent =
+        "❌ Ocorreu um erro ao enviar o cadastro. Tente novamente.";
       msg.style.color = "red";
     } finally {
       loading.style.display = "none";
