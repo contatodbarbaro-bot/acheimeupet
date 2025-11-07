@@ -1,5 +1,5 @@
 // =============================================
-// CADASTRO ACHEIMEUPET — FINAL COM REDIRECIONAMENTO AUTOMÁTICO (CORRIGIDO DEFINITIVO)
+// CADASTRO ACHEIMEUPET — SUPORTE MULTIPETS + CAMPO CEP (VERSÃO FINAL)
 // =============================================
 
 // ====== ENDPOINTS ======
@@ -47,6 +47,16 @@ function atualizarValor() {
   }
 }
 
+// === FUNÇÃO AUXILIAR PARA BASE64 ===
+function toBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = (error) => reject(error);
+  });
+}
+
 // === ENVIO DO FORMULÁRIO ===
 if (formCadastro) {
   formCadastro.addEventListener("submit", async (e) => {
@@ -62,9 +72,19 @@ if (formCadastro) {
     msg.textContent = "";
 
     try {
-      // === COLETA DOS DADOS ===
+      // === COLETA DOS DADOS DO FORMULÁRIO ===
       const formData = new FormData(formCadastro);
-      const data = Object.fromEntries(formData.entries());
+      const dadosTutor = {
+        nome_tutor: formData.get("nome_tutor"),
+        cpf_tutor: formData.get("cpf_tutor"),
+        email_tutor: formData.get("email_tutor"),
+        whatsapp_tutor: formData.get("whatsapp_tutor"),
+        cidade: formData.get("cidade"),
+        uf: formData.get("uf"),
+        endereco: formData.get("endereco"),
+        cep: formData.get("cep"),
+        obs: formData.get("obs"),
+      };
 
       const plano = campoPlano.value;
       const periodo = campoPeriodo.value;
@@ -77,73 +97,74 @@ if (formCadastro) {
         valor = periodo === "mensal" ? 19.9 * qtd : 199.0 * qtd;
       }
 
-      data.plano = plano;
-      data.periodo = periodo;
-      data.qtd_pets = qtd;
-      data.valor_total = valor;
+      // === LOOP PARA CADA PET ===
+      const petsCadastrados = [];
+      for (let i = 1; i <= qtd; i++) {
+        const nome_pet = formData.get(`nome_pet_${i}`);
+        const especie = formData.get(`especie_${i}`);
+        const raca = formData.get(`raca_${i}`);
+        const sexo = formData.get(`sexo_${i}`);
+        const ano_nasc = formData.get(`ano_nasc_${i}`);
+        const file = formData.get(`foto_pet_${i}`);
 
-      // === Validação obrigatória (CORRIGIDA) ===
-      for (const [campo, valorCampo] of Object.entries(data)) {
-        const deveVerificar = !["qtd_pets", "valor_total", "periodo", "plano"].includes(campo);
-        if (deveVerificar) {
-          if (
-            valorCampo === undefined ||
-            valorCampo === null ||
-            (typeof valorCampo === "string" && !valorCampo.trim())
-          ) {
-            msg.textContent = `⚠️ O campo "${campo}" é obrigatório.`;
-            msg.style.color = "red";
-            btn.disabled = false;
-            btn.innerHTML = "🐾 Enviar cadastro";
-            loading.style.display = "none";
-            return;
-          }
+        if (!nome_pet || !especie || !raca || !sexo || !ano_nasc || !file) {
+          msg.textContent = `⚠️ Preencha todos os campos do Pet ${i}.`;
+          msg.style.color = "red";
+          btn.disabled = false;
+          btn.innerHTML = "🐾 Enviar cadastro";
+          loading.style.display = "none";
+          return;
         }
+
+        const foto_pet = await toBase64(file);
+
+        // === Corpo completo para o FIQON ===
+        const payloadPet = {
+          nome_pet,
+          especie,
+          raca,
+          sexo,
+          ano_nascimento: ano_nasc,
+          foto_pet,
+          ...dadosTutor,
+          plano,
+          periodo,
+          qtd_pets: qtd,
+          valor_total: valor,
+        };
+
+        // === Envio ao FIQON — Cadastro Pet ===
+        const resCadastro = await fetch(WEBHOOK_CADASTRO, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payloadPet),
+        });
+
+        const jsonCadastro = await resCadastro.json();
+        console.log(`📦 Retorno cadastro Pet ${i}:`, jsonCadastro);
+
+        const id_pet =
+          jsonCadastro?.result?.id_pet ||
+          jsonCadastro?.body?.result?.id_pet ||
+          jsonCadastro?.data?.result?.id_pet ||
+          jsonCadastro?.id_pet ||
+          null;
+
+        if (!resCadastro.ok || !id_pet) {
+          console.error("Retorno cadastro:", jsonCadastro);
+          throw new Error(`Erro ao cadastrar o Pet ${i}.`);
+        }
+
+        petsCadastrados.push(id_pet);
       }
 
-      // === Foto obrigatória em base64 ===
-      const fileInput = document.getElementById("foto_pet");
-      const file = fileInput.files[0];
-      if (!file) {
-        msg.textContent = "⚠️ A foto do pet é obrigatória.";
-        msg.style.color = "red";
-        btn.disabled = false;
-        btn.innerHTML = "🐾 Enviar cadastro";
-        loading.style.display = "none";
-        return;
-      }
-      data.foto_pet = await toBase64(file);
-
-      // === 1️⃣ Envio ao FIQON — Cadastro Pet ===
-      const resCadastro = await fetch(WEBHOOK_CADASTRO, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-
-      const jsonCadastro = await resCadastro.json();
-      console.log("Retorno cadastro:", jsonCadastro);
-
-      // ✅ CAPTURA CORRIGIDA DO ID_PET
-      const id_pet =
-        jsonCadastro?.result?.id_pet ||
-        jsonCadastro?.body?.result?.id_pet ||
-        jsonCadastro?.data?.result?.id_pet ||
-        jsonCadastro?.id_pet ||
-        null;
-
-      if (!resCadastro.ok || !id_pet) {
-        console.error("Retorno cadastro:", jsonCadastro);
-        throw new Error("Erro no cadastro do pet.");
-      }
-
-      // === 2️⃣ Envio ao FIQON — Financeiro (Asaas) ===
+      // === Envio ao FIQON — Financeiro (após todos os pets)
       const payloadFinanceiro = {
-        id_pet,
-        nome_tutor: data.nome_tutor,
-        email_tutor: data.email_tutor,
-        cpf_tutor: data.cpf_tutor,
-        whatsapp_tutor: data.whatsapp_tutor,
+        id_pet: petsCadastrados[0],
+        nome_tutor: dadosTutor.nome_tutor,
+        email_tutor: dadosTutor.email_tutor,
+        cpf_tutor: dadosTutor.cpf_tutor,
+        whatsapp_tutor: dadosTutor.whatsapp_tutor,
         plano,
         periodo,
         qtd_pets: qtd,
@@ -158,9 +179,8 @@ if (formCadastro) {
       });
 
       const jsonFin = await resFinanceiro.json();
-      console.log("Retorno financeiro:", jsonFin);
+      console.log("💰 Retorno financeiro:", jsonFin);
 
-      // === 3️⃣ Redirecionamento Automático ===
       const linkPagamento =
         jsonFin?.body?.payment_link || jsonFin?.payment_link || null;
 
@@ -178,29 +198,21 @@ if (formCadastro) {
         msg.style.color = "orange";
       }
 
-      // === RESET VISUAL ===
+      // === RESET FINAL ===
       formCadastro.reset();
       atualizarValor();
 
     } catch (erro) {
       console.error("Erro no envio:", erro);
+      const msg = document.getElementById("mensagem");
       msg.textContent = "❌ Ocorreu um erro ao enviar o cadastro. Tente novamente.";
       msg.style.color = "red";
     } finally {
       loading.style.display = "none";
+      const btn = document.getElementById("botao-enviar");
       btn.disabled = false;
       btn.innerHTML = "🐾 Enviar cadastro";
     }
-  });
-}
-
-// === FUNÇÃO AUXILIAR PARA BASE64 ===
-function toBase64(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = (error) => reject(error);
   });
 }
 
