@@ -112,6 +112,19 @@
       50% { opacity: 1; }
       100% { opacity: 0.4; }
     }
+
+    .pet-group {
+      background: #fafafa;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #ddd;
+    }
+
+    .pet-group h4 {
+      color: #a87632;
+      margin-top: 0;
+    }
   </style>
 </head>
 <body>
@@ -121,32 +134,43 @@
   <h1>Cadastrar Pet</h1>
 
   <form id="form-cadastro">
-    <label>Nome do pet *</label>
-    <input type="text" name="nome_pet" required />
 
-    <label>Espécie *</label>
-    <select name="especie" required>
-      <option value="">Selecione</option>
-      <option value="Cachorro">Cachorro</option>
-      <option value="Gato">Gato</option>
-      <option value="Outros">Outros</option>
-    </select>
+    <!-- Bloco dinâmico de pets -->
+    <div id="area-pets">
+      <div class="pet-group">
+        <h4>🐾 Pet 1</h4>
+        <label>Nome do pet *</label>
+        <input type="text" name="nome_pet_1" required />
 
-    <label>Raça *</label>
-    <input type="text" name="raca" required />
+        <label>Espécie *</label>
+        <select name="especie_1" required>
+          <option value="">Selecione</option>
+          <option value="Cachorro">Cachorro</option>
+          <option value="Gato">Gato</option>
+          <option value="Outros">Outros</option>
+        </select>
 
-    <label>Sexo *</label>
-    <select name="sexo" required>
-      <option value="">Selecione</option>
-      <option value="Macho">Macho</option>
-      <option value="Fêmea">Fêmea</option>
-    </select>
+        <label>Raça *</label>
+        <input type="text" name="raca_1" required />
 
-    <label>Ano de nascimento (AAAA) *</label>
-    <input type="text" name="ano_nasc" maxlength="4" required />
+        <label>Sexo *</label>
+        <select name="sexo_1" required>
+          <option value="">Selecione</option>
+          <option value="Macho">Macho</option>
+          <option value="Fêmea">Fêmea</option>
+        </select>
 
-    <label>Foto do pet *</label>
-    <input type="file" id="foto_pet" accept="image/*" required />
+        <label>Ano de nascimento (AAAA) *</label>
+        <input type="text" name="ano_nasc_1" maxlength="4" required />
+
+        <label>Foto do pet *</label>
+        <input type="file" name="foto_pet_1" accept="image/*" required />
+      </div>
+    </div>
+
+    <hr>
+
+    <h3>👤 Dados do Tutor</h3>
 
     <label>Nome do tutor *</label>
     <input type="text" name="nome_tutor" required />
@@ -168,6 +192,9 @@
 
     <label>Endereço *</label>
     <input type="text" name="endereco" required />
+
+    <label>CEP *</label>
+    <input type="text" name="cep" maxlength="9" required />
 
     <label>Observações *</label>
     <textarea name="obs" rows="3" required></textarea>
@@ -205,6 +232,61 @@
   <footer>
     © 2025 AcheiMeuPet — Conectando Pets e Tutores com Amor 🐾
   </footer>
+
+  <!-- Script para duplicar blocos de pets dinamicamente -->
+  <script>
+    const qtdInput = document.getElementById('qtd_pets');
+    const tipoPlano = document.getElementById('tipo_plano');
+    const areaPets = document.getElementById('area-pets');
+
+    function atualizarBlocosPets() {
+      const plano = tipoPlano.value;
+      const qtd = parseInt(qtdInput.value) || 1;
+
+      if (plano === "familia") {
+        document.getElementById("campo_qtd_pets").style.display = "block";
+      } else {
+        document.getElementById("campo_qtd_pets").style.display = "none";
+      }
+
+      areaPets.innerHTML = "";
+      for (let i = 1; i <= qtd; i++) {
+        areaPets.innerHTML += `
+        <div class="pet-group">
+          <h4>🐾 Pet ${i}</h4>
+          <label>Nome do pet *</label>
+          <input type="text" name="nome_pet_${i}" required />
+
+          <label>Espécie *</label>
+          <select name="especie_${i}" required>
+            <option value="">Selecione</option>
+            <option value="Cachorro">Cachorro</option>
+            <option value="Gato">Gato</option>
+            <option value="Outros">Outros</option>
+          </select>
+
+          <label>Raça *</label>
+          <input type="text" name="raca_${i}" required />
+
+          <label>Sexo *</label>
+          <select name="sexo_${i}" required>
+            <option value="">Selecione</option>
+            <option value="Macho">Macho</option>
+            <option value="Fêmea">Fêmea</option>
+          </select>
+
+          <label>Ano de nascimento (AAAA) *</label>
+          <input type="text" name="ano_nasc_${i}" maxlength="4" required />
+
+          <label>Foto do pet *</label>
+          <input type="file" name="foto_pet_${i}" accept="image/*" required />
+        </div>`;
+      }
+    }
+
+    tipoPlano.addEventListener("change", atualizarBlocosPets);
+    qtdInput.addEventListener("input", atualizarBlocosPets);
+  </script>
 
   <script src="cadastro.js"></script>
 </body>
