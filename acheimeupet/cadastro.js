@@ -31,10 +31,14 @@ document.addEventListener("DOMContentLoaded", () => {
       campoQtdPets.style.display = "block";
       qtd = parseInt(inputQtdPets.value) || 2;
       if (qtd < 2) qtd = 2;
+      inputQtdPets.setAttribute("min", "2"); // Garante que o min está setado para validação
+      inputQtdPets.setAttribute("required", "required"); // Garante que o required está setado para validação
     } else {
       campoQtdPets.style.display = "none";
       qtd = 1;
       inputQtdPets.value = 1;
+      inputQtdPets.removeAttribute("min"); // Remove o min para não falhar a validação com value=1
+      inputQtdPets.removeAttribute("required"); // Remove o required para não falhar a validação quando oculto
     }
 
     areaPets.innerHTML = "";
@@ -80,8 +84,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (plano === "familia") {
       campoQtdPets.style.display = "block";
+      inputQtdPets.setAttribute("min", "2"); // Garante que o min está setado para validação
+      inputQtdPets.setAttribute("required", "required"); // Garante que o required está setado para validação
     } else {
       campoQtdPets.style.display = "none";
+      inputQtdPets.removeAttribute("min"); // Remove o min para não falhar a validação com value=1
+      inputQtdPets.removeAttribute("required"); // Remove o required para não falhar a validação quando oculto
     }
 
     let valor = 0;
@@ -170,6 +178,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
           if (!nome_pet || !especie || !raca || !sexo || !ano_nasc || !file) {
             msg.textContent = `⚠️ Preencha todos os campos do Pet ${i}.`;
+            msg.style.color = "red";
+            btn.disabled = false;
+            btn.innerHTML = "🐾 Enviar cadastro";
+            loading.style.display = "none";
+            return;
+          }
+          
+          // === VERIFICAÇÃO DE TAMANHO DO ARQUIVO (MAX 1MB) ===
+          const MAX_FILE_SIZE = 1024 * 1024; // 1MB
+          if (file.size > MAX_FILE_SIZE) {
+            msg.textContent = `⚠️ A foto do Pet ${i} é muito grande. O limite é 1MB.`;
             msg.style.color = "red";
             btn.disabled = false;
             btn.innerHTML = "🐾 Enviar cadastro";
