@@ -1,6 +1,6 @@
+<script>
 // =============================================
-// CADASTRO ACHEIMEUPET — VERSÃO FINAL 2025-11-08
-// Compatível com multipets + campo CEP + Fiqon + Asaas
+// CADASTRO ACHEIMEUPET — VERSÃO ROBUSTA (multipets + CEP)
 // =============================================
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -13,16 +13,16 @@ document.addEventListener("DOMContentLoaded", () => {
     "https://webhook.fiqon.app/webhook/a037678d-0bd4-48a8-886a-d75537cfb146/4befe9a8-596a-41c2-8b27-b1ba57d0b130";
 
   // ====== ELEMENTOS DO FORMULÁRIO ======
-  const formCadastro = document.getElementById("form-cadastro");
-  const campoPlano = document.getElementById("tipo_plano");
-  const campoPeriodo = document.getElementById("periodo");
-  const campoQtdPets = document.getElementById("campo_qtd_pets");
-  const inputQtdPets = document.getElementById("qtd_pets");
-  const valorExibido = document.getElementById("valor_exibido");
-  const loading = document.getElementById("loading");
-  const areaPets = document.getElementById("area-pets");
+  const formCadastro   = document.getElementById("form-cadastro");
+  const campoPlano     = document.getElementById("tipo_plano");
+  const campoPeriodo   = document.getElementById("periodo");
+  const campoQtdPets   = document.getElementById("campo_qtd_pets");
+  const inputQtdPets   = document.getElementById("qtd_pets");
+  const valorExibido   = document.getElementById("valor_exibido");
+  const loading        = document.getElementById("loading");
+  const areaPets       = document.getElementById("area-pets");
 
-  // ====== GERAÇÃO DINÂMICA DE BLOCOS DE PET ======
+  // ====== BLOCOS DE PET DINÂMICOS ======
   function atualizarBlocosPets() {
     const plano = campoPlano.value;
     let qtd = 1;
@@ -76,11 +76,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // ====== FUNÇÃO PARA ATUALIZAR VALOR ======
+  // ====== VALOR DO PLANO ======
   function atualizarValor() {
-    const plano = campoPlano?.value || "";
+    const plano   = campoPlano?.value || "";
     const periodo = campoPeriodo?.value || "";
-    const qtd = parseInt(inputQtdPets?.value) || 1;
+    const qtd     = parseInt(inputQtdPets?.value) || 1;
 
     if (plano === "familia") {
       campoQtdPets.style.display = "block";
@@ -107,22 +107,54 @@ document.addEventListener("DOMContentLoaded", () => {
     atualizarBlocosPets();
   }
 
-  // ====== EVENTOS ======
-  if (campoPlano) campoPlano.addEventListener("change", atualizarValor);
+  if (campoPlano)   campoPlano.addEventListener("change", atualizarValor);
   if (campoPeriodo) campoPeriodo.addEventListener("change", atualizarValor);
   if (inputQtdPets) inputQtdPets.addEventListener("input", atualizarValor);
 
-  // ====== FUNÇÃO BASE64 ======
+  // ====== HELPER: FILE → BASE64 ======
   function toBase64(file) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result);
+      reader.onload  = () => resolve(reader.result);
       reader.onerror = (error) => reject(error);
     });
   }
 
-  // ====== ENVIO DO FORMULÁRIO ======
+  // ====== HELPER: TENTAR PEGAR id_pet EM QUALQUER FORMATO ======
+  function extrairIdPetDoLink(link) {
+    try {
+      const url = new URL(link);
+      return url.searchParams.get("id"); // "P1234567"
+    } catch {
+      return null;
+    }
+  }
+
+  function pegarIdPetDaResposta(json) {
+    // tenta todas as formas comuns…
+    return (
+      json?.id_pet ||
+      json?.result?.id_pet ||
+      json?.body?.id_pet ||
+      json?.body?.result?.id_pet ||
+      json?.data?.result?.id_pet ||
+      null
+    );
+  }
+
+  function pegarLinkDaResposta(json) {
+    return (
+      json?.link_pet ||
+      json?.result?.link_pet ||
+      json?.body?.link_pet ||
+      json?.body?.result?.link_pet ||
+      json?.data?.result?.link_pet ||
+      null
+    );
+  }
+
+  // ====== SUBMIT ======
   if (formCadastro) {
     formCadastro.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -142,22 +174,22 @@ document.addEventListener("DOMContentLoaded", () => {
         // === COLETA DOS DADOS ===
         const formData = new FormData(formCadastro);
         const dadosTutor = {
-          nome_tutor: formData.get("nome_tutor"),
-          cpf_tutor: formData.get("cpf_tutor"),
-          email_tutor: formData.get("email_tutor"),
+          nome_tutor:     formData.get("nome_tutor"),
+          cpf_tutor:      formData.get("cpf_tutor"),
+          email_tutor:    formData.get("email_tutor"),
           whatsapp_tutor: formData.get("whatsapp_tutor"),
-          cidade: formData.get("cidade"),
-          uf: formData.get("uf"),
-          endereco: formData.get("endereco"),
-          cep: formData.get("cep"),
-          obs: formData.get("obs"),
+          cidade:         formData.get("cidade"),
+          uf:             formData.get("uf"),
+          endereco:       formData.get("endereco"),
+          cep:            formData.get("cep"),
+          obs:            formData.get("obs"),
         };
 
-        const plano = campoPlano.value;
+        const plano   = campoPlano.value;
         const periodo = campoPeriodo.value;
-        const qtd = plano === "familia" ? parseInt(inputQtdPets.value) || 2 : 1;
-        let valor = 0;
+        const qtd     = plano === "familia" ? (parseInt(inputQtdPets.value) || 2) : 1;
 
+        let valor = 0;
         if (plano === "individual") {
           valor = periodo === "mensal" ? 24.9 : 249.9;
         } else if (plano === "familia") {
@@ -166,15 +198,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const petsCadastrados = [];
 
-        // === LOOP DOS PETS ===
         for (let i = 1; i <= qtd; i++) {
           console.log(`📦 Preparando envio do Pet ${i}`);
           const nome_pet = formData.get(`nome_pet_${i}`);
-          const especie = formData.get(`especie_${i}`);
-          const raca = formData.get(`raca_${i}`);
-          const sexo = formData.get(`sexo_${i}`);
+          const especie  = formData.get(`especie_${i}`);
+          const raca     = formData.get(`raca_${i}`);
+          const sexo     = formData.get(`sexo_${i}`);
           const ano_nasc = formData.get(`ano_nasc_${i}`);
-          const file = formData.get(`foto_pet_${i}`);
+          const file     = formData.get(`foto_pet_${i}`);
 
           if (!nome_pet || !especie || !raca || !sexo || !ano_nasc || !file) {
             msg.textContent = `⚠️ Preencha todos os campos do Pet ${i}.`;
@@ -185,8 +216,8 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
           }
 
-          // === VERIFICAÇÃO DE TAMANHO DO ARQUIVO (MAX 1MB) ===
-          const MAX_FILE_SIZE = 1024 * 1024; // 1MB
+          // limite de 1MB (evita falha no ImgBB)
+          const MAX_FILE_SIZE = 1024 * 1024;
           if (file.size > MAX_FILE_SIZE) {
             msg.textContent = `⚠️ A foto do Pet ${i} é muito grande. O limite é 1MB.`;
             msg.style.color = "red";
@@ -199,66 +230,64 @@ document.addEventListener("DOMContentLoaded", () => {
           const foto_pet = await toBase64(file);
 
           const payloadPet = {
-            nome_pet,
-            especie,
-            raca,
-            sexo,
+            nome_pet, especie, raca, sexo,
             ano_nascimento: ano_nasc,
             foto_pet,
             ...dadosTutor,
-            plano,
-            periodo,
+            plano, periodo,
             qtd_pets: qtd,
             valor_total: valor,
           };
 
           console.log("📤 Enviando cadastro ao Fiqon:", payloadPet);
-
           const resCadastro = await fetch(WEBHOOK_CADASTRO, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payloadPet),
           });
 
-          // --- Trata resposta com segurança ---
-          let jsonCadastro = {};
-          try {
-            jsonCadastro = await resCadastro.json();
-          } catch (e) {
-            console.warn("⚠️ Retorno não-JSON do Fiqon:", e);
+          // Se o servidor realmente falhou (>=400), aí sim aborta
+          if (!resCadastro.ok) {
+            const txt = await resCadastro.text().catch(() => "");
+            console.error("⚠️ HTTP falhou:", resCadastro.status, txt);
+            throw new Error(`Falha HTTP ao cadastrar o Pet ${i}.`);
           }
 
+          const jsonCadastro = await resCadastro.json().catch(() => ({}));
           console.log(`📦 Retorno cadastro Pet ${i}:`, jsonCadastro);
 
-          const id_pet =
-            jsonCadastro?.id_pet ||
-            jsonCadastro?.result?.id_pet ||
-            jsonCadastro?.body?.result?.id_pet ||
-            null;
+          // — pega id em qualquer lugar —
+          let id_pet  = pegarIdPetDaResposta(jsonCadastro);
+          let linkPet = pegarLinkDaResposta(jsonCadastro);
 
-          if (!resCadastro.ok || jsonCadastro?.status !== "ok" || !id_pet) {
-            console.error("⚠️ Erro no retorno do cadastro:", jsonCadastro);
+          // se não veio id, tenta extrair do link (?id=Pxxxxx)
+          if (!id_pet && linkPet) {
+            id_pet = extrairIdPetDoLink(linkPet);
+          }
+
+          // se ainda não veio, mas o server disse "ok", não derruba o fluxo:
+          const statusOk =
+            (jsonCadastro?.status || jsonCadastro?.result?.status || jsonCadastro?.body?.status) === "ok";
+
+          if (!id_pet && !statusOk) {
+            console.error("⚠️ Resposta sem id_pet e sem status=ok:", jsonCadastro);
             throw new Error(`Erro ao cadastrar o Pet ${i}.`);
           }
 
-          console.log(`✅ Pet ${i} cadastrado com sucesso (ID: ${id_pet})`);
-          petsCadastrados.push(id_pet);
+          if (id_pet) petsCadastrados.push(id_pet);
 
-          // --- Delay curto entre cadastros múltiplos ---
-          await new Promise((resolve) => setTimeout(resolve, 1000));
+          // espaçamento entre pets (evita rate limit no ImgBB)
+          await new Promise((r) => setTimeout(r, 1000));
         }
 
-        // === ENVIO AO FINANCEIRO ===
+        // === FINANCEIRO (usa o 1º pet) ===
         const payloadFinanceiro = {
-          id_pet: petsCadastrados[0],
+          id_pet: petsCadastrados[0] || null,
           nome_tutor: dadosTutor.nome_tutor,
           email_tutor: dadosTutor.email_tutor,
           cpf_tutor: dadosTutor.cpf_tutor,
           whatsapp_tutor: dadosTutor.whatsapp_tutor,
-          plano,
-          periodo,
-          qtd_pets: qtd,
-          valor_total: valor,
+          plano, periodo, qtd_pets: qtd, valor_total: valor,
           forma_pagamento: "Boleto",
         };
 
@@ -270,7 +299,7 @@ document.addEventListener("DOMContentLoaded", () => {
           body: JSON.stringify(payloadFinanceiro),
         });
 
-        const jsonFin = await resFinanceiro.json();
+        const jsonFin = await resFinanceiro.json().catch(() => ({}));
         console.log("💰 Retorno financeiro:", jsonFin);
 
         const linkPagamento =
@@ -280,9 +309,7 @@ document.addEventListener("DOMContentLoaded", () => {
           msg.textContent =
             "✅ Cadastro concluído! Redirecionando para o pagamento...";
           msg.style.color = "green";
-          setTimeout(() => {
-            window.location.href = linkPagamento;
-          }, 1500);
+          setTimeout(() => { window.location.href = linkPagamento; }, 1500);
         } else {
           msg.textContent =
             "⚠️ Cadastro concluído, mas o link de pagamento não foi gerado automaticamente.";
@@ -299,13 +326,14 @@ document.addEventListener("DOMContentLoaded", () => {
         msg.style.color = "red";
       } finally {
         loading.style.display = "none";
+        const btn = document.getElementById("botao-enviar");
         btn.disabled = false;
         btn.innerHTML = "🐾 Enviar cadastro";
       }
     });
   }
 
-  // ====== ESTILO DO LOADING GIRATÓRIO ======
+  // ====== ESTILO DO LOADING ======
   const style = document.createElement("style");
   style.innerHTML = `
     .spinner {
@@ -319,11 +347,10 @@ document.addEventListener("DOMContentLoaded", () => {
       margin-right: 6px;
       vertical-align: middle;
     }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }`;
+    @keyframes spin { 0% {transform: rotate(0)} 100% {transform: rotate(360deg)} }
+  `;
   document.head.appendChild(style);
 
   console.log("✅ AcheiMeuPet — cadastro.js carregado com sucesso.");
 });
+</script>
