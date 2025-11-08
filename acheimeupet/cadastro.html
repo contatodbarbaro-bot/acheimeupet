@@ -204,16 +204,16 @@
 
   <!-- SCRIPT DE GERAÇÃO DOS BLOCOS DE PET -->
   <script>
-    const qtdInput = document.getElementById('qtd_pets');
-    const tipoPlano = document.getElementById('tipo_plano');
-    const areaPets = document.getElementById('area-pets');
-    // 🔥 removida duplicação de campoQtdPets — agora só o cadastro.js usa esse nome
+    // Este script controla apenas a criação visual dos blocos de pets.
+    // A lógica de envio, valores e integração está no arquivo cadastro.js.
+    const tipoPlano  = document.getElementById("tipo_plano");
+    const qtdInput   = document.getElementById("qtd_pets");
+    const campoQtd   = document.getElementById("campo_qtd_pets");
+    const areaPets   = document.getElementById("area-pets");
 
     function atualizarBlocosPets() {
       const plano = tipoPlano.value;
-      let qtd = 1; // padrão: 1 pet
-
-      const campoQtd = document.getElementById('campo_qtd_pets');
+      let qtd = 1;
 
       if (plano === "familia") {
         campoQtd.style.display = "block";
@@ -228,35 +228,35 @@
       areaPets.innerHTML = "";
       for (let i = 1; i <= qtd; i++) {
         areaPets.innerHTML += `
-        <div class="pet-group" id="bloco_pet_${i}">
-          <h4>🐾 Pet ${i}</h4>
-          <label>Nome do pet *</label>
-          <input type="text" name="nome_pet_${i}" required />
+          <div class="pet-group" id="bloco_pet_${i}">
+            <h4>🐾 Pet ${i}</h4>
+            <label>Nome do pet *</label>
+            <input type="text" name="nome_pet_${i}" required />
 
-          <label>Espécie *</label>
-          <select name="especie_${i}" required>
-            <option value="">Selecione</option>
-            <option value="Cachorro">Cachorro</option>
-            <option value="Gato">Gato</option>
-            <option value="Outros">Outros</option>
-          </select>
+            <label>Espécie *</label>
+            <select name="especie_${i}" required>
+              <option value="">Selecione</option>
+              <option value="Cachorro">Cachorro</option>
+              <option value="Gato">Gato</option>
+              <option value="Outros">Outros</option>
+            </select>
 
-          <label>Raça *</label>
-          <input type="text" name="raca_${i}" required />
+            <label>Raça *</label>
+            <input type="text" name="raca_${i}" required />
 
-          <label>Sexo *</label>
-          <select name="sexo_${i}" required>
-            <option value="">Selecione</option>
-            <option value="Macho">Macho</option>
-            <option value="Fêmea">Fêmea</option>
-          </select>
+            <label>Sexo *</label>
+            <select name="sexo_${i}" required>
+              <option value="">Selecione</option>
+              <option value="Macho">Macho</option>
+              <option value="Fêmea">Fêmea</option>
+            </select>
 
-          <label>Ano de nascimento (AAAA) *</label>
-          <input type="text" name="ano_nasc_${i}" maxlength="4" required />
+            <label>Ano de nascimento (AAAA) *</label>
+            <input type="text" name="ano_nasc_${i}" maxlength="4" required />
 
-          <label>Foto do pet *</label>
-          <input type="file" name="foto_pet_${i}" accept="image/*" required />
-        </div>`;
+            <label>Foto do pet *</label>
+            <input type="file" name="foto_pet_${i}" accept="image/*" required />
+          </div>`;
       }
     }
 
