@@ -1,5 +1,5 @@
 // =============================================
-// CADASTRO ACHEIMEUPET — VERSÃO FINAL INTEGRADA
+// CADASTRO ACHEIMEUPET — VERSÃO FINAL 2025-11-08
 // Compatível com multipets + campo CEP + Fiqon + Asaas
 // =============================================
 
@@ -31,14 +31,14 @@ document.addEventListener("DOMContentLoaded", () => {
       campoQtdPets.style.display = "block";
       qtd = parseInt(inputQtdPets.value) || 2;
       if (qtd < 2) qtd = 2;
-      inputQtdPets.setAttribute("min", "2"); // Garante que o min está setado para validação
-      inputQtdPets.setAttribute("required", "required"); // Garante que o required está setado para validação
+      inputQtdPets.setAttribute("min", "2");
+      inputQtdPets.setAttribute("required", "required");
     } else {
       campoQtdPets.style.display = "none";
       qtd = 1;
       inputQtdPets.value = 1;
-      inputQtdPets.removeAttribute("min"); // Remove o min para não falhar a validação com value=1
-      inputQtdPets.removeAttribute("required"); // Remove o required para não falhar a validação quando oculto
+      inputQtdPets.removeAttribute("min");
+      inputQtdPets.removeAttribute("required");
     }
 
     areaPets.innerHTML = "";
@@ -84,12 +84,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (plano === "familia") {
       campoQtdPets.style.display = "block";
-      inputQtdPets.setAttribute("min", "2"); // Garante que o min está setado para validação
-      inputQtdPets.setAttribute("required", "required"); // Garante que o required está setado para validação
+      inputQtdPets.setAttribute("min", "2");
+      inputQtdPets.setAttribute("required", "required");
     } else {
       campoQtdPets.style.display = "none";
-      inputQtdPets.removeAttribute("min"); // Remove o min para não falhar a validação com value=1
-      inputQtdPets.removeAttribute("required"); // Remove o required para não falhar a validação quando oculto
+      inputQtdPets.removeAttribute("min");
+      inputQtdPets.removeAttribute("required");
     }
 
     let valor = 0;
@@ -184,7 +184,7 @@ document.addEventListener("DOMContentLoaded", () => {
             loading.style.display = "none";
             return;
           }
-          
+
           // === VERIFICAÇÃO DE TAMANHO DO ARQUIVO (MAX 1MB) ===
           const MAX_FILE_SIZE = 1024 * 1024; // 1MB
           if (file.size > MAX_FILE_SIZE) {
@@ -220,22 +220,31 @@ document.addEventListener("DOMContentLoaded", () => {
             body: JSON.stringify(payloadPet),
           });
 
-          const jsonCadastro = await resCadastro.json();
+          // --- Trata resposta com segurança ---
+          let jsonCadastro = {};
+          try {
+            jsonCadastro = await resCadastro.json();
+          } catch (e) {
+            console.warn("⚠️ Retorno não-JSON do Fiqon:", e);
+          }
+
           console.log(`📦 Retorno cadastro Pet ${i}:`, jsonCadastro);
 
           const id_pet =
+            jsonCadastro?.id_pet ||
             jsonCadastro?.result?.id_pet ||
             jsonCadastro?.body?.result?.id_pet ||
-            jsonCadastro?.data?.result?.id_pet ||
-            jsonCadastro?.id_pet ||
             null;
 
-          if (!resCadastro.ok || !id_pet) {
+          if (!resCadastro.ok || jsonCadastro?.status !== "ok" || !id_pet) {
             console.error("⚠️ Erro no retorno do cadastro:", jsonCadastro);
             throw new Error(`Erro ao cadastrar o Pet ${i}.`);
           }
 
+          console.log(`✅ Pet ${i} cadastrado com sucesso (ID: ${id_pet})`);
           petsCadastrados.push(id_pet);
+
+          // --- Delay curto entre cadastros múltiplos ---
           await new Promise((resolve) => setTimeout(resolve, 1000));
         }
 
