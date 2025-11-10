@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const WEBHOOK_FINANCEIRO = "https://webhook.fiqon.app/webhook/a037678d-0bd4-48a8-886a-d75537cfb146/4befe9a8-596a-41c2-8b27-b1ba57d0b130";
 
   // ====== ELEMENTOS DO FORMULÁRIO ======
-  const formCadastro = document.getElementById("form-cadastro" );
+  const formCadastro = document.getElementById("form-cadastro");
   const campoPlano = document.getElementById("tipo_plano");
   const campoPeriodo = document.getElementById("periodo");
   const inputQtdPets = document.getElementById("qtd_pets");
@@ -100,7 +100,7 @@ document.addEventListener("DOMContentLoaded", () => {
           };
 
           console.log("📤 Enviando cadastro ao Fiqon...");
-          
+
           // Requisição com Content-Type: application/json
           const resCadastro = await fetch(WEBHOOK_CADASTRO, {
             method: "POST",
@@ -119,8 +119,15 @@ document.addEventListener("DOMContentLoaded", () => {
           const jsonCadastro = await resCadastro.json().catch(() => ({}));
           console.log(`📦 Retorno cadastro Pet ${i}:`, jsonCadastro);
 
-          // Extração do ID do Pet (ajustado para a estrutura de resposta do Fiqon)
-          const id_pet = jsonCadastro?.result?.id_pet || jsonCadastro?.body?.result?.id_pet || null;
+          // ✅ AJUSTE: leitura ampliada do retorno JSON (corrige 1 pet)
+          const id_pet =
+            jsonCadastro?.id_pet ||
+            jsonCadastro?.result?.id_pet ||
+            jsonCadastro?.body?.id_pet ||
+            jsonCadastro?.result?.result?.id_pet ||
+            jsonCadastro?.body?.result?.id_pet ||
+            null;
+
           if (id_pet) {
             petsCadastrados.push(id_pet);
           } else {
@@ -169,10 +176,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         formCadastro.reset();
-        // Chama a função de atualização do HTML (definida no script inline do HTML)
-        if (typeof atualizarValor === 'function') {
-          atualizarValor();
-        }
+        if (typeof atualizarValor === 'function') atualizarValor();
 
       } catch (erro) {
         console.error("❌ Erro no envio:", erro);
