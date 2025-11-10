@@ -217,10 +217,12 @@
 
       if (plano === "familia") {
         campoQtd.style.display = "block";
+        qtdInput.disabled = false; // ✅ CORREÇÃO: Reabilita o campo
         qtd = parseInt(qtdInput.value) || 2;
         if (qtd < 2) qtd = 2;
       } else {
         campoQtd.style.display = "none";
+        qtdInput.disabled = true; // ✅ CORREÇÃO: Desabilita o campo
         qtd = 1;
         qtdInput.value = 1;
       }
@@ -257,7 +259,6 @@
       atualizarValor();
     }
 
-    // === Atualiza valor ===
     function atualizarValor() {
       const plano = tipoPlano.value;
       const periodo = periodoSel.value;
@@ -277,11 +278,9 @@
     }
 
     tipoPlano.addEventListener("change", atualizarBlocosPets);
-    // ✅ CORREÇÃO APLICADA AQUI:
     qtdInput.addEventListener("input", atualizarBlocosPets);
     periodoSel.addEventListener("change", atualizarValor);
     
-    // Garante que os blocos de pet sejam criados na primeira vez que a página carrega
     document.addEventListener("DOMContentLoaded", atualizarBlocosPets);
   </script>
 
