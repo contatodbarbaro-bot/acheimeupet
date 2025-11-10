@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const WEBHOOK_FINANCEIRO = "https://webhook.fiqon.app/webhook/a037678d-0bd4-48a8-886a-d75537cfb146/4befe9a8-596a-41c2-8b27-b1ba57d0b130";
 
   // ====== ELEMENTOS DO FORMULÁRIO ======
-  const formCadastro = document.getElementById("form-cadastro");
+  const formCadastro = document.getElementById("form-cadastro" );
   const campoPlano = document.getElementById("tipo_plano");
   const campoPeriodo = document.getElementById("periodo");
   const inputQtdPets = document.getElementById("qtd_pets");
@@ -54,7 +54,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const plano = campoPlano.value;
         const periodo = campoPeriodo.value;
-        const qtd = plano === "familia" ? (parseInt(inputQtdPets.value) || 2) : 1;
+        
+        // ✅ CORREÇÃO APLICADA AQUI:
+        let qtd;
+        if (plano === "familia") {
+          qtd = parseInt(inputQtdPets.value) || 2;
+        } else {
+          qtd = 1;
+          // Garante que o valor do input reflita a quantidade correta para o loop
+          inputQtdPets.value = 1; 
+        }
 
         let valor = 0;
         if (plano === "individual") {
@@ -117,9 +126,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
           // Tentativa de ler a resposta JSON
           const jsonCadastro = await resCadastro.json().catch(() => ({}));
-          console.log(`📦 Retorno cadastro Pet ${i}:`, jsonCadastro);
+          console.log(`📦 Retorno cadastro Pet ${i}:`, JSON.stringify(jsonCadastro));
 
-          // ✅ AJUSTE: leitura ampliada do retorno JSON (corrige 1 pet)
+          // Leitura ampliada do retorno JSON (para funcionar com o Fiqon)
           const id_pet =
             jsonCadastro?.id_pet ||
             jsonCadastro?.result?.id_pet ||
@@ -131,11 +140,13 @@ document.addEventListener("DOMContentLoaded", () => {
           if (id_pet) {
             petsCadastrados.push(id_pet);
           } else {
-            console.warn(`⚠️ ID do Pet ${i} não encontrado na resposta do Fiqon.`);
+            console.warn(`⚠️ ID do Pet ${i} não encontrado na resposta do Fiqon. Resposta:`, jsonCadastro);
           }
 
           // Pequena pausa para evitar rate limit
-          await new Promise((r) => setTimeout(r, 1000));
+          if (qtd > 1) {
+            await new Promise((r) => setTimeout(r, 1000));
+          }
         }
 
         // Validação final de pets cadastrados
@@ -176,7 +187,12 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         formCadastro.reset();
-        if (typeof atualizarValor === 'function') atualizarValor();
+        if (typeof atualizarBlocosPets === 'function') {
+            // Chama a função para resetar a interface para o estado inicial
+            document.getElementById('tipo_plano').value = '';
+            atualizarBlocosPets();
+        }
+
 
       } catch (erro) {
         console.error("❌ Erro no envio:", erro);
