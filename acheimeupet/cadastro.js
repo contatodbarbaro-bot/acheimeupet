@@ -1,19 +1,18 @@
-document.addEventListener("DOMContentLoaded", () => {
-  console.log("🐾 AcheiMeuPet: Script de cadastro iniciado.");
+// ARQUIVO: cadastro.js (VERSÃO FINAL - PAYLOAD ÚNICO)
 
-  // ====== ENDPOINTS ======
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("🐾 AcheiMeuPet: Script de cadastro iniciado com lógica de payload único.");
+
   const WEBHOOK_CADASTRO = "https://webhook.fiqon.app/webhook/a029be45-8a23-418e-93e3-33f9b620a944/3e1595ab-b587-499b-a640-a8fe46b2d0c6";
   const WEBHOOK_FINANCEIRO = "https://webhook.fiqon.app/webhook/a037678d-0bd4-48a8-886a-d75537cfb146/4befe9a8-596a-41c2-8b27-b1ba57d0b130";
 
-  // ====== ELEMENTOS DO FORMULÁRIO ======
-  const formCadastro = document.getElementById("form-cadastro");
+  const formCadastro = document.getElementById("form-cadastro" );
   const campoPlano = document.getElementById("tipo_plano");
   const campoPeriodo = document.getElementById("periodo");
   const inputQtdPets = document.getElementById("qtd_pets");
   const loading = document.getElementById("loading");
   const msg = document.getElementById("mensagem");
 
-  // ====== HELPER: FILE → BASE64 ======
   function toBase64(file) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -23,7 +22,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ====== SUBMIT ======
   if (formCadastro) {
     formCadastro.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -38,7 +36,6 @@ document.addEventListener("DOMContentLoaded", () => {
       console.log("🚀 Iniciando envio do formulário...");
 
       try {
-        // === COLETA DOS DADOS ===
         const formData = new FormData(formCadastro);
         const dadosTutor = {
           nome_tutor: formData.get("nome_tutor"),
@@ -54,17 +51,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const plano = campoPlano.value;
         const periodo = campoPeriodo.value;
+        const qtd = parseInt(inputQtdPets.value) || 1;
 
-        // ✅ Quantidade de pets
-        let qtd;
-        if (plano === "familia") {
-          qtd = parseInt(inputQtdPets.value) || 2;
-        } else {
-          qtd = 1;
-          inputQtdPets.value = 1;
-        }
-
-        // 💰 Cálculo do valor total
         let valor = 0;
         if (plano === "individual") {
           valor = periodo === "mensal" ? 24.9 : 249.9;
@@ -72,11 +60,9 @@ document.addEventListener("DOMContentLoaded", () => {
           valor = periodo === "mensal" ? 19.9 * qtd : 199.0 * qtd;
         }
 
-        const petsCadastrados = [];
-
-        // ===== LOOP DE PETS =====
+        // === LÓGICA CORRIGIDA: Coleta todos os pets em um array ===
+        const listaPets = [];
         for (let i = 1; i <= qtd; i++) {
-          console.log(`📦 Preparando envio do Pet ${i}`);
           const nome_pet = formData.get(`nome_pet_${i}`);
           const especie = formData.get(`especie_${i}`);
           const raca = formData.get(`raca_${i}`);
@@ -84,118 +70,70 @@ document.addEventListener("DOMContentLoaded", () => {
           const ano_nasc = formData.get(`ano_nasc_${i}`);
           const file = formData.get(`foto_pet_${i}`);
 
-          // Validação básica
           if (!nome_pet || !especie || !raca || !sexo || !ano_nasc || !file) {
             throw new Error(`Preencha todos os campos do Pet ${i}.`);
           }
 
-          // Validação do tamanho da imagem
           const MAX_FILE_SIZE = 1024 * 1024;
           if (file.size > MAX_FILE_SIZE) {
             throw new Error(`A foto do Pet ${i} é muito grande. O limite é 1MB.`);
           }
 
-          // Conversão da imagem
           const foto_pet = await toBase64(file);
 
-          // Montagem do payload
-          const payloadPet = {
+          listaPets.push({
             nome_pet, especie, raca, sexo,
             ano_nascimento: ano_nasc,
             foto_pet,
-            ...dadosTutor,
-            plano, periodo,
-            qtd_pets: qtd,
-            valor_total: valor,
-          };
-
-          console.log("📤 Enviando cadastro ao Fiqon...");
-
-          const resCadastro = await fetch(WEBHOOK_CADASTRO, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payloadPet),
           });
-
-          if (!resCadastro.ok) {
-            const errorText = await resCadastro.text().catch(() => "");
-            console.error("⚠️ HTTP falhou:", resCadastro.status, errorText);
-            throw new Error(`Falha HTTP ao cadastrar o Pet ${i}. Status: ${resCadastro.status}.`);
-          }
-
-          // === NOVO TRATAMENTO DO RETORNO ===
-          const jsonCadastro = await resCadastro.json().catch(() => ({}));
-          console.log(`📦 Retorno cadastro Pet ${i}:`, JSON.stringify(jsonCadastro));
-
-          const id_pet =
-            jsonCadastro?.id_pet ||
-            jsonCadastro?.result?.id_pet ||
-            jsonCadastro?.body?.id_pet ||
-            jsonCadastro?.result?.result?.id_pet ||
-            jsonCadastro?.body?.result?.id_pet ||
-            null;
-
-          const statusRetorno =
-            jsonCadastro?.status ||
-            jsonCadastro?.result?.status ||
-            jsonCadastro?.body?.status ||
-            null;
-
-          if (statusRetorno === "ok" && id_pet) {
-            console.log(`✅ Pet ${i} cadastrado com sucesso — ID: ${id_pet}`);
-            petsCadastrados.push(id_pet);
-          } else {
-            console.warn(`⚠️ Retorno inesperado para Pet ${i}. Resposta completa:`, jsonCadastro);
-          }
-
-          if (qtd > 1) {
-            await new Promise((r) => setTimeout(r, 1000));
-          }
         }
 
-        // === VALIDAÇÃO FINAL ===
-        if (petsCadastrados.length > 0) {
-          console.log(`🎉 Todos os ${petsCadastrados.length} pets foram cadastrados com sucesso!`);
-        } else {
-          throw new Error("Nenhum pet foi cadastrado com sucesso. Verifique o console para detalhes.");
-        }
-
-        // === FINANCEIRO ===
-        const payloadFinanceiro = {
-          id_pet: petsCadastrados[0],
-          nome_tutor: dadosTutor.nome_tutor,
-          email_tutor: dadosTutor.email_tutor,
-          cpf_tutor: dadosTutor.cpf_tutor,
-          whatsapp_tutor: dadosTutor.whatsapp_tutor,
-          plano, periodo, qtd_pets: qtd, valor_total: valor,
-          forma_pagamento: "Boleto",
+        // === LÓGICA CORRIGIDA: Monta um payload único com o array de pets ===
+        const payloadUnico = {
+          ...dadosTutor,
+          plano, periodo,
+          qtd_pets: qtd,
+          valor_total: valor,
+          pets: listaPets, // Envia um array com todos os pets
         };
 
-        console.log("💰 Enviando dados financeiros...");
-        const resFinanceiro = await fetch(WEBHOOK_FINANCEIRO, {
+        console.log("📤 Enviando payload único ao Fiqon...", payloadUnico);
+        const resCadastro = await fetch(WEBHOOK_CADASTRO, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payloadFinanceiro),
+          body: JSON.stringify(payloadUnico),
         });
 
-        const jsonFin = await resFinanceiro.json().catch(() => ({}));
-        console.log("💰 Retorno financeiro:", jsonFin);
+        if (!resCadastro.ok) {
+          const errorText = await resCadastro.text().catch(() => "Erro desconhecido no servidor.");
+          console.error("⚠️ HTTP falhou:", resCadastro.status, errorText);
+          throw new Error(`Falha na comunicação com o servidor. Status: ${resCadastro.status}.`);
+        }
 
-        const linkPagamento = jsonFin?.body?.payment_link || jsonFin?.payment_link || null;
+        const jsonCadastro = await resCadastro.json().catch(() => ({}));
+        console.log(`📦 Retorno completo do Fiqon:`, jsonCadastro);
 
-        if (linkPagamento) {
-          msg.textContent = "✅ Cadastro concluído! Redirecionando para o pagamento...";
-          msg.style.color = "green";
-          setTimeout(() => { window.location.href = linkPagamento; }, 1500);
+        // === LÓGICA CORRIGIDA: Processa a resposta única ===
+        const petsSucesso = jsonCadastro?.pets_cadastrados || [];
+        const linkPagamento = jsonCadastro?.link_pagamento || null;
+
+        if (petsSucesso.length > 0) {
+          if (linkPagamento) {
+            msg.textContent = `✅ ${petsSucesso.length} pet(s) cadastrado(s)! Redirecionando para o pagamento...`;
+            msg.style.color = "green";
+            setTimeout(() => { window.location.href = linkPagamento; }, 1500);
+          } else {
+            msg.textContent = `✅ ${petsSucesso.length} pet(s) cadastrado(s), mas o link de pagamento não foi gerado. Entraremos em contato.`;
+            msg.style.color = "orange";
+          }
         } else {
-          msg.textContent = "✅ Cadastro concluído, mas o link de pagamento não foi gerado. Entraremos em contato.";
-          msg.style.color = "orange";
+          throw new Error(jsonCadastro?.message || "Nenhum pet foi cadastrado com sucesso. Verifique o console.");
         }
 
         formCadastro.reset();
         if (typeof atualizarBlocosPets === 'function') {
-          document.getElementById('tipo_plano').value = '';
-          atualizarBlocosPets();
+            document.getElementById('tipo_plano').value = '';
+            atualizarBlocosPets();
         }
 
       } catch (erro) {
@@ -204,30 +142,20 @@ document.addEventListener("DOMContentLoaded", () => {
         msg.style.color = "red";
       } finally {
         loading.style.display = "none";
-        const btn = document.getElementById("botao-enviar");
         btn.disabled = false;
         btn.innerHTML = "🐾 Enviar cadastro";
       }
     });
   }
 
-  // ====== ESTILO DO LOADING ======
   const style = document.createElement("style");
   style.innerHTML = `
     .spinner {
-      border: 3px solid #f3f3f3;
-      border-top: 3px solid #c38e3d;
-      border-radius: 50%;
-      width: 16px;
-      height: 16px;
-      animation: spin 1s linear infinite;
-      display: inline-block;
-      margin-right: 6px;
-      vertical-align: middle;
+      border: 3px solid #f3f3f3; border-top: 3px solid #c38e3d; border-radius: 50%;
+      width: 16px; height: 16px; animation: spin 1s linear infinite;
+      display: inline-block; margin-right: 6px; vertical-align: middle;
     }
     @keyframes spin { 0% {transform: rotate(0)} 100% {transform: rotate(360deg)} }
   `;
   document.head.appendChild(style);
-
-  console.log("✅ AcheiMeuPet — cadastro.js carregado com sucesso.");
 });
