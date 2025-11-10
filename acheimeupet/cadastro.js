@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const WEBHOOK_FINANCEIRO = "https://webhook.fiqon.app/webhook/a037678d-0bd4-48a8-886a-d75537cfb146/4befe9a8-596a-41c2-8b27-b1ba57d0b130";
 
   // ====== ELEMENTOS DO FORMULÁRIO ======
-  const formCadastro = document.getElementById("form-cadastro" );
+  const formCadastro = document.getElementById("form-cadastro");
   const campoPlano = document.getElementById("tipo_plano");
   const campoPeriodo = document.getElementById("periodo");
   const inputQtdPets = document.getElementById("qtd_pets");
@@ -54,17 +54,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const plano = campoPlano.value;
         const periodo = campoPeriodo.value;
-        
-        // ✅ CORREÇÃO APLICADA AQUI:
+
+        // ✅ Quantidade de pets
         let qtd;
         if (plano === "familia") {
           qtd = parseInt(inputQtdPets.value) || 2;
         } else {
           qtd = 1;
-          // Garante que o valor do input reflita a quantidade correta para o loop
-          inputQtdPets.value = 1; 
+          inputQtdPets.value = 1;
         }
 
+        // 💰 Cálculo do valor total
         let valor = 0;
         if (plano === "individual") {
           valor = periodo === "mensal" ? 24.9 : 249.9;
@@ -74,6 +74,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const petsCadastrados = [];
 
+        // ===== LOOP DE PETS =====
         for (let i = 1; i <= qtd; i++) {
           console.log(`📦 Preparando envio do Pet ${i}`);
           const nome_pet = formData.get(`nome_pet_${i}`);
@@ -83,25 +84,25 @@ document.addEventListener("DOMContentLoaded", () => {
           const ano_nasc = formData.get(`ano_nasc_${i}`);
           const file = formData.get(`foto_pet_${i}`);
 
-          // Validação de campos
+          // Validação básica
           if (!nome_pet || !especie || !raca || !sexo || !ano_nasc || !file) {
             throw new Error(`Preencha todos os campos do Pet ${i}.`);
           }
 
-          // Validação de tamanho de arquivo
+          // Validação do tamanho da imagem
           const MAX_FILE_SIZE = 1024 * 1024;
           if (file.size > MAX_FILE_SIZE) {
             throw new Error(`A foto do Pet ${i} é muito grande. O limite é 1MB.`);
           }
 
-          // CONVERSÃO PARA BASE64
+          // Conversão da imagem
           const foto_pet = await toBase64(file);
 
-          // MONTAGEM DO PAYLOAD
+          // Montagem do payload
           const payloadPet = {
             nome_pet, especie, raca, sexo,
             ano_nascimento: ano_nasc,
-            foto_pet, // Base64 da imagem
+            foto_pet,
             ...dadosTutor,
             plano, periodo,
             qtd_pets: qtd,
@@ -110,25 +111,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
           console.log("📤 Enviando cadastro ao Fiqon...");
 
-          // Requisição com Content-Type: application/json
           const resCadastro = await fetch(WEBHOOK_CADASTRO, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payloadPet),
           });
 
-          // Tratamento de erro HTTP
           if (!resCadastro.ok) {
             const errorText = await resCadastro.text().catch(() => "");
             console.error("⚠️ HTTP falhou:", resCadastro.status, errorText);
             throw new Error(`Falha HTTP ao cadastrar o Pet ${i}. Status: ${resCadastro.status}.`);
           }
 
-          // Tentativa de ler a resposta JSON
+          // === NOVO TRATAMENTO DO RETORNO ===
           const jsonCadastro = await resCadastro.json().catch(() => ({}));
           console.log(`📦 Retorno cadastro Pet ${i}:`, JSON.stringify(jsonCadastro));
 
-          // Leitura ampliada do retorno JSON (para funcionar com o Fiqon)
           const id_pet =
             jsonCadastro?.id_pet ||
             jsonCadastro?.result?.id_pet ||
@@ -137,24 +135,32 @@ document.addEventListener("DOMContentLoaded", () => {
             jsonCadastro?.body?.result?.id_pet ||
             null;
 
-          if (id_pet) {
+          const statusRetorno =
+            jsonCadastro?.status ||
+            jsonCadastro?.result?.status ||
+            jsonCadastro?.body?.status ||
+            null;
+
+          if (statusRetorno === "ok" && id_pet) {
+            console.log(`✅ Pet ${i} cadastrado com sucesso — ID: ${id_pet}`);
             petsCadastrados.push(id_pet);
           } else {
-            console.warn(`⚠️ ID do Pet ${i} não encontrado na resposta do Fiqon. Resposta:`, jsonCadastro);
+            console.warn(`⚠️ Retorno inesperado para Pet ${i}. Resposta completa:`, jsonCadastro);
           }
 
-          // Pequena pausa para evitar rate limit
           if (qtd > 1) {
             await new Promise((r) => setTimeout(r, 1000));
           }
         }
 
-        // Validação final de pets cadastrados
-        if (petsCadastrados.length === 0) {
+        // === VALIDAÇÃO FINAL ===
+        if (petsCadastrados.length > 0) {
+          console.log(`🎉 Todos os ${petsCadastrados.length} pets foram cadastrados com sucesso!`);
+        } else {
           throw new Error("Nenhum pet foi cadastrado com sucesso. Verifique o console para detalhes.");
         }
 
-        // === FINANCEIRO (usa o 1º pet) ===
+        // === FINANCEIRO ===
         const payloadFinanceiro = {
           id_pet: petsCadastrados[0],
           nome_tutor: dadosTutor.nome_tutor,
@@ -188,11 +194,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         formCadastro.reset();
         if (typeof atualizarBlocosPets === 'function') {
-            // Chama a função para resetar a interface para o estado inicial
-            document.getElementById('tipo_plano').value = '';
-            atualizarBlocosPets();
+          document.getElementById('tipo_plano').value = '';
+          atualizarBlocosPets();
         }
-
 
       } catch (erro) {
         console.error("❌ Erro no envio:", erro);
