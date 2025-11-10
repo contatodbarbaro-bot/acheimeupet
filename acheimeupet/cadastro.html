@@ -208,6 +208,8 @@
     const qtdInput   = document.getElementById("qtd_pets");
     const campoQtd   = document.getElementById("campo_qtd_pets");
     const areaPets   = document.getElementById("area-pets");
+    const periodoSel = document.getElementById("periodo");
+    const valorLabel = document.getElementById("valor_exibido");
 
     function atualizarBlocosPets() {
       const plano = tipoPlano.value;
@@ -251,13 +253,35 @@
             <input type="file" name="foto_pet_${i}" accept="image/*" required />
           </div>`;
       }
+
+      atualizarValor();
+    }
+
+    // === Atualiza valor ===
+    function atualizarValor() {
+      const plano = tipoPlano.value;
+      const periodo = periodoSel.value;
+      const qtd = parseInt(qtdInput.value) || 1;
+      let valor = 0;
+
+      if (plano && periodo) {
+        if (plano === "individual") {
+          valor = periodo === "mensal" ? 24.9 : 249.9;
+        } else if (plano === "familia") {
+          valor = periodo === "mensal" ? 19.9 * qtd : 199.0 * qtd;
+        }
+        valorLabel.textContent = `Valor total: R$ ${valor.toFixed(2).replace('.', ',')}`;
+      } else {
+        valorLabel.textContent = "Selecione o plano para ver o valor";
+      }
     }
 
     tipoPlano.addEventListener("change", atualizarBlocosPets);
-    qtdInput.addEventListener("input", atualizarBlocosPets);
+    qtdInput.addEventListener("input", atualizarValor);
+    periodoSel.addEventListener("change", atualizarValor);
   </script>
 
-  <!-- SCRIPT PRINCIPAL DE CADASTRO -->
+  <!-- SCRIPT PRINCIPAL -->
   <script src="/cadastro.js"></script>
 </body>
 </html>
