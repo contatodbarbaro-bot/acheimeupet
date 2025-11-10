@@ -1,201 +1,263 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>AcheiMeuPet – A tag que encontra seu melhor amigo</title>
-<meta name="description" content="AcheiMeuPet: Tag com QR Code para proteger e reconectar animais aos seus tutores.">
-
-<!-- ✅ Verificação do Google Search Console -->
-<meta name="google-site-verification" content="TgI_kqSpxIA03bWcGYA03-gYBAG2w4Z_h2G0ou9XMvc" />
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<meta name="description" content="AcheiMeuPet: a tag com QR Code que protege e reconecta animais aos seus tutores em segundos.">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+
 <style>
-  :root{
-    --caramelo:#C58B49;
-    --azul:#5CD6E0;
-    --escuro:#1E1811;
-    --claro:#F8F7F5;
-    --texto:#222;
-  }
-  *{box-sizing:border-box}
-  html,body{margin:0}
-  body{font-family:Poppins,system-ui,-apple-system,Segoe UI,Roboto,Arial; color:var(--texto); background:var(--claro); line-height:1.6}
-  img{max-width:100%; display:block}
-  .container{width:90%; max-width:1120px; margin:auto}
-  a{color:var(--azul); text-decoration:none}
-  h1,h2,h3{color:var(--escuro); font-weight:600}
+:root {
+  --caramelo: #C58B49;
+  --azul: #5CD6E0;
+  --escuro: #1E1811;
+  --claro: #F8F7F5;
+}
+body {
+  margin: 0;
+  font-family: "Poppins", sans-serif;
+  background: var(--claro);
+  color: #222;
+  line-height: 1.6;
+}
+header {
+  background: var(--escuro);
+  color: #fff;
+  padding: 15px 0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+nav {
+  display: flex;
+  justify-content: center;
+  gap: 25px;
+  flex-wrap: wrap;
+}
+nav a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: 500;
+  transition: 0.3s;
+}
+nav a:hover { color: var(--caramelo); }
 
-  /* Header */
-  .header{position:sticky; top:0; z-index:10; background:var(--escuro); color:#fff; border-bottom:2px solid #0009}
-  .header .wrap{display:flex; align-items:center; justify-content:space-between; padding:10px 0}
-  .logo-img{height:58px; width:auto; object-fit:contain; filter:none}
-  .nav a{color:#fff; margin:0 12px; font-weight:500}
-  .btn{border:none; border-radius:10px; padding:12px 20px; font-weight:600; cursor:pointer; transition:.25s}
-  .btn-primary{background:var(--caramelo); color:#fff}
-  .btn-primary:hover{background:var(--azul); color:var(--escuro)}
+section {
+  padding: 60px 20px;
+  max-width: 1100px;
+  margin: auto;
+}
+.hero {
+  text-align: center;
+  background: var(--claro);
+  padding-top: 80px;
+  padding-bottom: 80px;
+}
+.hero img {
+  width: 260px;
+  margin-bottom: 25px;
+  filter: drop-shadow(0 2px 4px #0002);
+  animation: fadeIn 1.4s ease;
+}
+.hero h1 {
+  font-size: clamp(26px, 4vw, 40px);
+  color: var(--escuro);
+  margin-bottom: 10px;
+}
+.hero p {
+  font-size: 17px;
+  max-width: 700px;
+  margin: 0 auto 25px;
+  color: #333;
+}
+.btn {
+  background: var(--caramelo);
+  color: #fff;
+  padding: 12px 22px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.3s;
+  text-decoration: none;
+}
+.btn:hover {
+  background: var(--azul);
+  color: var(--escuro);
+}
 
-  /* Hero */
-  .hero{padding:90px 0 70px; background:
-    radial-gradient(1200px 500px at 50% -200px,#00000033,transparent),
-    var(--claro);}
-  .hero h1{font-size:clamp(28px,4vw,42px); margin:0 0 12px}
-  .hero p{max-width:720px; margin:0 auto 24px; color:#333}
-  .hero .cta{display:flex; gap:14px; justify-content:center; flex-wrap:wrap}
+/* Contador */
+.counter {
+  font-size: 18px;
+  color: var(--escuro);
+  margin-top: 30px;
+  font-weight: 500;
+}
 
-  /* Como funciona */
-  .como{background:#fff; padding:70px 0}
-  .steps{display:grid; gap:18px; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); margin-top:28px}
-  .step{background:var(--claro); border:2px solid var(--caramelo); border-radius:14px; padding:20px; text-align:center}
-  .step i{font-size:34px; color:var(--caramelo); margin-bottom:10px}
+/* Como Funciona */
+.steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-top: 30px;
+}
+.step {
+  background: #fff;
+  border: 2px solid var(--caramelo);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  transition: transform 0.3s;
+}
+.step:hover { transform: scale(1.03); }
+.step i {
+  font-size: 35px;
+  color: var(--caramelo);
+  margin-bottom: 10px;
+}
 
-  /* História */
-  .historia{padding:80px 0; background:var(--claro)}
-  .hist-grid{display:grid; gap:28px; grid-template-columns:1.2fr .8fr; align-items:center}
-  .hist-grid .imgbox{border:4px solid var(--caramelo); border-radius:14px; overflow:hidden; background:#fff}
-  .legenda{margin-top:8px; text-align:center; color:var(--azul); font-style:italic}
+/* História */
+.historia {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  align-items: center;
+}
+.historia img {
+  width: 100%;
+  border: 4px solid var(--caramelo);
+  border-radius: 14px;
+}
 
-  /* FAQ */
-  .faq{background:#fff; padding:80px 0}
-  details{background:var(--claro); border-left:5px solid var(--caramelo); margin:10px 0; padding:12px 16px; border-radius:8px}
-  summary{cursor:pointer; font-weight:600; color:var(--escuro)}
+/* FAQ */
+details {
+  background: #fff;
+  border-left: 4px solid var(--caramelo);
+  padding: 12px 16px;
+  margin: 10px 0;
+  border-radius: 8px;
+}
+summary {
+  cursor: pointer;
+  font-weight: 600;
+}
 
-  /* Footer */
-  .footer{background:var(--escuro); color:#fff; padding:40px 0}
-  .foot-flex{display:flex; flex-wrap:wrap; gap:24px; justify-content:space-between; align-items:center}
-  .footer .logo-img{height:56px}
-  .foot-bottom{text-align:center; margin-top:16px; color:#ccc}
+/* Footer */
+footer {
+  background: var(--escuro);
+  color: #fff;
+  padding: 40px 20px;
+  text-align: center;
+}
+footer img {
+  width: 70px;
+  margin-bottom: 10px;
+}
+footer a { color: #fff; }
 
-  /* Modal Pix */
-  .modal{position:fixed; inset:0; display:none; align-items:center; justify-content:center}
-  .modal.active{display:flex}
-  .overlay{position:absolute; inset:0; background:#0008}
-  .card{position:relative; background:#fff; padding:26px; border-radius:14px; width:min(92%,420px); box-shadow:0 12px 40px #0003; z-index:1}
-  .card h3{margin:0 0 12px}
-  .pix li{margin:8px 0}
-  .close{position:absolute; top:8px; right:10px; background:none; border:none; font-size:22px; cursor:pointer}
+@keyframes fadeIn {
+  from {opacity: 0; transform: translateY(10px);}
+  to {opacity: 1; transform: translateY(0);}
+}
 
-  @media (max-width:860px){
-    .hist-grid{grid-template-columns:1fr}
-    .nav{display:none}
-  }
+@media (max-width: 800px) {
+  .historia { grid-template-columns: 1fr; text-align: center; }
+}
 </style>
 </head>
+
 <body>
+<header>
+  <nav>
+    <a href="#como-funciona">Como Funciona</a>
+    <a href="#nossa-historia">Nossa História</a>
+    <a href="#faq">FAQ</a>
+    <a href="#contato">Contato</a>
+    <a href="cadastro.html"><b>Cadastrar Pet</b></a>
+  </nav>
+</header>
 
-  <!-- Header -->
-  <header class="header">
-    <div class="container wrap">
-      <img id="logoEl" class="logo-img" alt="Logo AcheiMeuPet">
-      <nav class="nav">
-        <a href="#como-funciona">Como Funciona</a>
-        <a href="#nossa-historia">Nossa História</a>
-        <a href="#faq">FAQ</a>
-        <a href="#contato">Contato</a>
-        <!-- 🔗 Novo link -->
-        <a href="cadastro.html"><b>Cadastrar Pet</b></a>
-      </nav>
-      <button class="btn btn-primary" id="btnComprarTop">Comprar Tag</button>
-    </div>
-  </header>
+<section class="hero">
+  <img src="logo-completa.png" alt="AcheiMeuPet logo completa">
+  <h1>AcheiMeuPet: a tag que encontra seu melhor amigo.</h1>
+  <p>Um QR Code que conecta histórias, reencontros e corações — em segundos.</p>
 
-  <!-- Hero -->
-  <section class="hero">
-    <div class="container" style="text-align:center">
-      <h1>AcheiMeuPet: a tag que encontra seu melhor amigo.</h1>
-      <p>Um QR Code que conecta quem achou seu pet a você em segundos — com localização e contato direto.</p>
-      <div class="cta">
-        <button class="btn btn-primary" id="btnComprarHero">Comprar Tag</button>
-        <!-- 🔗 Novo botão de acesso direto -->
-        <a href="cadastro.html" class="btn btn-primary">Cadastrar Pet</a>
-      </div>
-    </div>
-  </section>
-
-  <!-- Como funciona -->
-  <section id="como-funciona" class="como">
-    <div class="container">
-      <h2>Como Funciona</h2>
-      <div class="steps">
-        <div class="step"><i class="ri-shopping-cart-2-line"></i><h3>1. Compre sua tag</h3><p>Receba em casa e ative em minutos.</p></div>
-        <div class="step"><i class="ri-qr-scan-2-line"></i><h3>2. Escaneie o QR Code</h3><p>O QR leva direto ao perfil do seu pet.</p></div>
-        <div class="step"><i class="ri-shield-check-line"></i><h3>3. Proteção garantida</h3><p>Quem achar seu pet consegue te avisar na hora.</p></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Nossa História -->
-  <section id="nossa-historia" class="historia">
-    <div class="container hist-grid">
-      <div>
-        <h2>Nossa História</h2>
-        <p>O AcheiMeuPet nasceu de uma história real — a do Picolé...</p>
-        <p>A partir daquele instante...</p>
-        <p>O AcheiMeuPet nasceu dessa despedida — da vontade de transformar a dor em propósito...</p>
-      </div>
-      <div>
-        <div class="imgbox">
-          <img id="picoleEl" alt="Picolé – inspiração do AcheiMeuPet">
-        </div>
-        <p class="legenda">Picolé (2015 – 2025) 💙</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- FAQ -->
-  <section id="faq" class="faq">
-    <div class="container">
-      <h2>Perguntas Frequentes</h2>
-      <details><summary>Preciso de aplicativo?</summary><p>Não! Basta escanear o QR Code com a câmera do celular.</p></details>
-      <details><summary>Qual o valor da tag?</summary><p>R$ 29,90 — pagamento único.</p></details>
-      <details><summary>Existe mensalidade?</summary><p>Sim. O Plano de Proteção com benefícios adicionais custa R$ 50,00/mês.</p></details>
-      <details><summary>Serve para outros animais?</summary><p>Sim! Funciona para cães, gatos e outros pets.</p></details>
-      <details><summary>Posso atualizar meus dados?</summary><p>Sim, fale com nosso suporte e atualizamos pra você.</p></details>
-    </div>
-  </section>
-
-  <!-- Footer -->
-  <footer id="contato" class="footer">
-    <div class="container foot-flex">
-      <div>
-        <img id="logoFootEl" class="logo-img" alt="Logo AcheiMeuPet">
-        <p>Protegendo e reconectando animais a seus tutores através da tecnologia e do amor.</p>
-      </div>
-      <div>
-        <p><i class="ri-whatsapp-line"></i> <a href="https://wa.me/5516992402471" target="_blank" style="color:#fff"> (16) 99240-2471</a></p>
-        <p><i class="ri-mail-line"></i> <a href="mailto:contatodbarbaro@gmail.com" style="color:#fff">contatodbarbaro@gmail.com</a></p>
-      </div>
-    </div>
-    <p class="foot-bottom">© 2025 AcheiMeuPet — Em memória do Picolé 💙</p>
-  </footer>
-
-  <!-- Modal Pix -->
-  <div class="modal" id="pixModal" aria-hidden="true">
-    <div class="overlay" id="pixOverlay"></div>
-    <div class="card" role="dialog" aria-modal="true">
-      <button class="close" id="pixClose" aria-label="Fechar"><i class="ri-close-line"></i></button>
-      <h3>Faça o Pix para adquirir sua tag</h3>
-      <ul class="pix">
-        <li><strong>Chave Pix:</strong> contatodbarbaro@gmail.com</li>
-        <li><strong>Banco:</strong> Infinity Pay</li>
-        <li><strong>Valor da Tag:</strong> R$ 29,90 (pagamento único)</li>
-        <li><strong>Plano de Proteção:</strong> R$ 50,00 / mês</li>
-      </ul>
-      <p style="margin-top:12px">Após o pagamento, envie o comprovante para:
-        <a href="https://wa.me/5516992402471" target="_blank">WhatsApp (16) 99240-2471</a></p>
-    </div>
+  <div>
+    <a href="cadastro.html" class="btn">Cadastrar Pet</a>
+    <a href="tag-demo.html" class="btn" style="background:var(--azul); color:var(--escuro);">Ver Tag em Ação</a>
   </div>
 
+  <div class="counter">
+    <span id="petCount">0</span> pets já protegidos com AcheiMeuPet 💙
+  </div>
+</section>
+
+<section id="como-funciona">
+  <h2>Como Funciona</h2>
+  <div class="steps">
+    <div class="step">
+      <i class="ri-hand-heart-line"></i>
+      <h3>1. Cadastre seu pet</h3>
+      <p>Preencha o perfil e ative a proteção.</p>
+    </div>
+    <div class="step">
+      <i class="ri-qr-scan-2-line"></i>
+      <h3>2. Receba sua tag gratuita</h3>
+      <p>Enviamos sua tag em até 24h após a assinatura — você paga apenas o frete.</p>
+    </div>
+    <div class="step">
+      <i class="ri-shield-check-line"></i>
+      <h3>3. Proteção garantida</h3>
+      <p>Se seu pet for encontrado, você recebe a localização e contato do encontrador na hora.</p>
+    </div>
+  </div>
+</section>
+
+<section id="nossa-historia" class="historia">
+  <div>
+    <h2>Nossa História</h2>
+    <p>O AcheiMeuPet nasceu de uma história real, marcada por amor, amizade e propósito.</p>
+    <p>Criamos este projeto para que nenhum tutor precise viver o desespero de perder seu companheiro sem ter uma forma de reencontrá-lo.</p>
+    <p><strong>AcheiMeuPet — Em memória do Picolé 💙</strong></p>
+  </div>
+  <div>
+    <img src="picole.png" alt="Picolé - inspiração do AcheiMeuPet">
+  </div>
+</section>
+
+<section id="faq">
+  <h2>Perguntas Frequentes</h2>
+  <details><summary>Preciso de aplicativo?</summary><p>Não. Basta escanear o QR da tag — tudo acontece direto no navegador.</p></details>
+  <details><summary>Existe mensalidade?</summary><p>Sim. Os planos incluem atualizações ilimitadas, notificações automáticas e suporte humanizado.</p></details>
+  <details><summary>O que acontece quando alguém escaneia o QR Code?</summary><p>A pessoa acessa o perfil do pet, pode enviar a localização e falar com o tutor pelo WhatsApp.</p></details>
+  <details><summary>Posso usar em qualquer animal?</summary><p>Sim — cães, gatos, aves, coelhos e mais.</p></details>
+  <details><summary>E se eu perder minha tag?</summary><p>Você recebe adesivos reservas e pode imprimir novas pelo site.</p></details>
+</section>
+
+<footer id="contato">
+  <img src="logo-pata.png" alt="Logo AcheiMeuPet">
+  <p>Protegendo e reconectando animais aos seus tutores através da tecnologia e do amor.</p>
+  <p><i class="ri-whatsapp-line"></i> <a href="https://wa.me/5516992940922" target="_blank">(16) 99294-0922</a></p>
+  <p><i class="ri-mail-line"></i> <a href="mailto:contatodbarbaro@gmail.com">contatodbarbaro@gmail.com</a></p>
+  <p>© 2025 AcheiMeuPet — Em memória do Picolé 💙</p>
+</footer>
+
 <script>
-  const pixModal = document.getElementById('pixModal');
-  const openBtns = [document.getElementById('btnComprarTop'), document.getElementById('btnComprarHero')];
-  const pixOverlay = document.getElementById('pixOverlay');
-  const pixClose = document.getElementById('pixClose');
-  openBtns.forEach(b => b && (b.onclick = ()=> pixModal.classList.add('active')));
-  [pixOverlay, pixClose].forEach(el => el && (el.onclick = ()=> pixModal.classList.remove('active')));
+// contador (valor inicial real, depois pode puxar da planilha via Fiqon)
+let countEl = document.getElementById("petCount");
+let start = 0;
+let end = 12; // número real inicial de pets cadastrados
+let speed = 60;
+let updateCounter = () => {
+  if (start < end) {
+    start++;
+    countEl.innerText = start.toLocaleString("pt-BR");
+    setTimeout(updateCounter, speed);
+  }
+};
+updateCounter();
 </script>
 </body>
 </html>
