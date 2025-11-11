@@ -1,8 +1,13 @@
+// =============================================
+//  AcheiMeuPet — pet.js (versão corrigida 11/11/2025)
+//  Final — totalmente compatível com o fluxo Encontro_Pet_Fiqon
+// =============================================
+
 // ====== ENDPOINTS ======
 const WEBHOOK_AVISO =
   "https://webhook.fiqon.app/webhook/a02b8e45-cd21-44e0-a619-be0e64fd9a4b/b9ae07d8-e7af-4b1f-9b1c-a22cc15fb9cd"; // Encontro (aviso tutor)
 const FIQON_API_PET =
-  "https://webhook.fiqon.app/webhook/a02b8e45-cd21-44e0-a619-be0e64fd9a4b/b9ae07d8-e7af-4b1f-9b1c-a22cc15fb9cd"; // Buscar dados do pet
+  "https://webhook.fiqon.app/webhook/a02b8e45-cd21-44e0-a619-be0e64fd9a4b/b9ae07d8-e7af-4b1f-9b1c-a22cc15fb9cd"; // Buscar dados do pet (fluxo Encontro_Pet_Fiqon)
 
 // === Obter ID do pet da URL ===
 function obterIdPet() {
@@ -13,17 +18,25 @@ function obterIdPet() {
 // === Buscar dados do pet (direto do Fiqon) ===
 async function buscarDadosPet(id_pet) {
   try {
+    console.log("📡 Buscando dados do pet no Fiqon...", id_pet);
+
     const resposta = await fetch(FIQON_API_PET, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ id_pet }),
     });
-    const json = await resposta.json();
 
-    if (!json || json.status !== "sucesso") throw new Error("Pet não encontrado");
+    const json = await resposta.json();
+    console.log("🔍 Retorno completo do Fiqon:", json);
+
+    // Valida retorno
+    if (!json || json.status !== "sucesso" || !json.pet) {
+      throw new Error("Pet não encontrado ou resposta inválida");
+    }
+
     return json.pet;
   } catch (e) {
-    console.error("Erro buscarDadosPet:", e);
+    console.error("❌ Erro buscarDadosPet:", e);
     return null;
   }
 }
@@ -50,16 +63,26 @@ function preencherDadosPet(d) {
     `Olá! Encontrei o pet ${nomePet} através do AcheiMeuPet 🐾`
   )}`;
   document.getElementById("btn_contato").href = contatoLink;
+
+  console.log("✅ Dados preenchidos na interface com sucesso.");
 }
 
 // === Enviar aviso para o tutor ===
 async function enviarAviso(formData) {
-  const r = await fetch(WEBHOOK_AVISO, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(formData),
-  });
-  return r.json();
+  try {
+    const r = await fetch(WEBHOOK_AVISO, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData),
+    });
+
+    const json = await r.json();
+    console.log("📤 Retorno do aviso:", json);
+    return json;
+  } catch (err) {
+    console.error("❌ Erro ao enviar aviso:", err);
+    return null;
+  }
 }
 
 // === Execução ao carregar página ===
@@ -98,18 +121,13 @@ document.addEventListener("DOMContentLoaded", async () => {
       email_tutor: dados.email_tutor || "",
     };
 
-    try {
-      const resp = await enviarAviso(payload);
-      if (resp && (resp.ok || resp.success)) {
-        msgOk.style.display = "block";
-        setTimeout(() => (msgOk.style.display = "none"), 4000);
-        form.reset();
-      } else {
-        alert("Não foi possível enviar o aviso ao tutor.");
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Falha ao enviar o aviso. Tente novamente.");
+    const resp = await enviarAviso(payload);
+    if (resp && (resp.ok || resp.success)) {
+      msgOk.style.display = "block";
+      setTimeout(() => (msgOk.style.display = "none"), 4000);
+      form.reset();
+    } else {
+      alert("Não foi possível enviar o aviso ao tutor.");
     }
   });
 });
