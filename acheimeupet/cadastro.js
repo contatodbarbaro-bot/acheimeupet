@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // === URLs dos fluxos Fiqon ===
   const WEBHOOK_PAGO = "https://webhook.fiqon.app/webhook/a029be45-8a23-418e-93e3-33f9b620a944/3e1595ab-b587-499b-a640-a8fe46b2d0c6";
-  const WEBHOOK_FREE = "https://webhook.fiqon.app/webhook/019a781c-15f8-738a-93bc-5b70388445ff/faee8";
+  const WEBHOOK_FREE = "https://webhook.fiqon.app/webhook/019a781c-15f8-738a-93bc-5b70388445ff/faee836c-d909-4b6b-96d0-ed6433640060";
   const WEBHOOK_FINANCEIRO = "https://webhook.fiqon.app/webhook/a037678d-0bd4-48a8-886a-d75537cfb146/4befe9a8-596a-41c2-8b27-b1ba57d0b130";
 
   // === Seleciona automaticamente o fluxo correto ===
@@ -186,3 +186,4 @@ document.addEventListener("DOMContentLoaded", () => {
   `;
   document.head.appendChild(style);
 });
+
