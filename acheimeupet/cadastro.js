@@ -1,18 +1,29 @@
-// ARQUIVO: cadastro.js (VERSÃO FINAL - PAYLOAD ÚNICO)
+// ARQUIVO: cadastro.js (VERSÃO FINAL COM TOKEN DINÂMICO)
 
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("🐾 AcheiMeuPet: Script de cadastro iniciado com lógica de payload único.");
+  console.log("🐾 AcheiMeuPet: Script de cadastro iniciado (token dinâmico ativo).");
 
-  const WEBHOOK_CADASTRO = "https://webhook.fiqon.app/webhook/a029be45-8a23-418e-93e3-33f9b620a944/3e1595ab-b587-499b-a640-a8fe46b2d0c6";
+  // === NOVA LÓGICA: detecta token na URL ===
+  const urlParams = new URLSearchParams(window.location.search);
+  const temToken = urlParams.has("token");
+
+  // === URLs dos fluxos Fiqon ===
+  const WEBHOOK_PAGO = "https://webhook.fiqon.app/webhook/a029be45-8a23-418e-93e3-33f9b620a944/3e1595ab-b587-499b-a640-a8fe46b2d0c6";
+  const WEBHOOK_FREE = "https://webhook.fiqon.app/webhook/019a781c-15f8-738a-93bc-5b70388445ff/faee8";
   const WEBHOOK_FINANCEIRO = "https://webhook.fiqon.app/webhook/a037678d-0bd4-48a8-886a-d75537cfb146/4befe9a8-596a-41c2-8b27-b1ba57d0b130";
 
-  const formCadastro = document.getElementById("form-cadastro" );
+  // === Seleciona automaticamente o fluxo correto ===
+  const WEBHOOK_CADASTRO = temToken ? WEBHOOK_FREE : WEBHOOK_PAGO;
+  console.log(`📡 Modo de envio detectado: ${temToken ? "FREE" : "PAGO"}`);
+
+  const formCadastro = document.getElementById("form-cadastro");
   const campoPlano = document.getElementById("tipo_plano");
   const campoPeriodo = document.getElementById("periodo");
   const inputQtdPets = document.getElementById("qtd_pets");
   const loading = document.getElementById("loading");
   const msg = document.getElementById("mensagem");
 
+  // === Função de conversão de imagem ===
   function toBase64(file) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -22,6 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // === Evento principal de envio ===
   if (formCadastro) {
     formCadastro.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -60,7 +72,7 @@ document.addEventListener("DOMContentLoaded", () => {
           valor = periodo === "mensal" ? 19.9 * qtd : 199.0 * qtd;
         }
 
-        // === LÓGICA CORRIGIDA: Coleta todos os pets em um array ===
+        // === Coleta os dados de cada pet ===
         const listaPets = [];
         for (let i = 1; i <= qtd; i++) {
           const nome_pet = formData.get(`nome_pet_${i}`);
@@ -88,16 +100,17 @@ document.addEventListener("DOMContentLoaded", () => {
           });
         }
 
-        // === LÓGICA CORRIGIDA: Monta um payload único com o array de pets ===
+        // === Payload principal (único para free e pago) ===
         const payloadUnico = {
           ...dadosTutor,
           plano, periodo,
           qtd_pets: qtd,
           valor_total: valor,
-          pets: listaPets, // Envia um array com todos os pets
+          origem_cadastro: temToken ? "free_site" : "assinatura_site",
+          pets: listaPets,
         };
 
-        console.log("📤 Enviando payload único ao Fiqon...", payloadUnico);
+        console.log("📤 Enviando payload ao Fiqon:", payloadUnico);
         const resCadastro = await fetch(WEBHOOK_CADASTRO, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -113,27 +126,32 @@ document.addEventListener("DOMContentLoaded", () => {
         const jsonCadastro = await resCadastro.json().catch(() => ({}));
         console.log(`📦 Retorno completo do Fiqon:`, jsonCadastro);
 
-        // === LÓGICA CORRIGIDA: Processa a resposta única ===
-        const petsSucesso = jsonCadastro?.pets_cadastrados || [];
-        const linkPagamento = jsonCadastro?.link_pagamento || null;
-
-        if (petsSucesso.length > 0) {
-          if (linkPagamento) {
-            msg.textContent = `✅ ${petsSucesso.length} pet(s) cadastrado(s)! Redirecionando para o pagamento...`;
-            msg.style.color = "green";
-            setTimeout(() => { window.location.href = linkPagamento; }, 1500);
-          } else {
-            msg.textContent = `✅ ${petsSucesso.length} pet(s) cadastrado(s), mas o link de pagamento não foi gerado. Entraremos em contato.`;
-            msg.style.color = "orange";
-          }
+        // === Resposta diferenciada conforme o tipo de cadastro ===
+        if (temToken) {
+          msg.textContent = `✅ Cadastro gratuito recebido com sucesso! Seu pet está protegido no AcheiMeuPet 🐾`;
+          msg.style.color = "green";
         } else {
-          throw new Error(jsonCadastro?.message || "Nenhum pet foi cadastrado com sucesso. Verifique o console.");
+          const petsSucesso = jsonCadastro?.pets_cadastrados || [];
+          const linkPagamento = jsonCadastro?.link_pagamento || null;
+
+          if (petsSucesso.length > 0) {
+            if (linkPagamento) {
+              msg.textContent = `✅ ${petsSucesso.length} pet(s) cadastrado(s)! Redirecionando para o pagamento...`;
+              msg.style.color = "green";
+              setTimeout(() => { window.location.href = linkPagamento; }, 1500);
+            } else {
+              msg.textContent = `✅ ${petsSucesso.length} pet(s) cadastrados, mas o link de pagamento não foi gerado. Entraremos em contato.`;
+              msg.style.color = "orange";
+            }
+          } else {
+            throw new Error(jsonCadastro?.message || "Nenhum pet foi cadastrado. Verifique os dados.");
+          }
         }
 
         formCadastro.reset();
         if (typeof atualizarBlocosPets === 'function') {
-            document.getElementById('tipo_plano').value = '';
-            atualizarBlocosPets();
+          document.getElementById('tipo_plano').value = '';
+          atualizarBlocosPets();
         }
 
       } catch (erro) {
@@ -142,12 +160,14 @@ document.addEventListener("DOMContentLoaded", () => {
         msg.style.color = "red";
       } finally {
         loading.style.display = "none";
+        const btn = document.getElementById("botao-enviar");
         btn.disabled = false;
         btn.innerHTML = "🐾 Enviar cadastro";
       }
     });
   }
 
+  // === Estilo do spinner ===
   const style = document.createElement("style");
   style.innerHTML = `
     .spinner {
