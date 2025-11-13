@@ -1,24 +1,26 @@
-// ===============================================
-// 🐾 AcheiMeuPet — Cadastro.js Versão PRO (2025)
-// ===============================================
-//
-// Reforçado, otimizado e totalmente compatível
-// com fluxos Fiqon, múltiplos pets, base64 e tokens.
-// ===============================================
+// ===============================================================
+// 🐾 AcheiMeuPet — Cadastro.js Versão PRO + STATE (2025)
+// ===============================================================
+// • Campos não somem mais ao alterar plano/qtd de pets
+// • Rehidratação total dos dados digitados
+// • Aviso automático para reinserir foto
+// • Validação reforçada e UX profissional
+// • Totalmente compatível com Fiqon
+// ===============================================================
 
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("🐾 AcheiMeuPet: Script de cadastro PRO carregado.");
+  console.log("🐾 AcheiMeuPet: Script PRO + State carregado.");
 
-  // -----------------------------
-  // 🔐 Captura token da URL
-  // -----------------------------
+  // ============================
+  // 🔐 TOKEN DE ORIGEM
+  // ============================
   const urlParams = new URLSearchParams(window.location.search);
   const temToken = urlParams.has("token");
   const tokenParam = urlParams.get("token") || "";
 
-  // -----------------------------
-  // 🌐 Webhooks oficiais
-  // -----------------------------
+  // ============================
+  // 🌐 WEBHOOKS
+  // ============================
   const WEBHOOK_PAGO =
     "https://webhook.fiqon.app/webhook/a029be45-8a23-418e-93e3-33f9b620a944/3e1595ab-b587-499b-a640-a8fe46b2d0c6";
   const WEBHOOK_FREE =
@@ -28,9 +30,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   console.log(`📡 Modo detectado: ${temToken ? "FREE" : "PAGO"}`);
 
-  // -----------------------------------------
-  // 📌 Seletores do DOM
-  // -----------------------------------------
+  // ==================================================
+  // 📌 ELEMENTOS DO DOM
+  // ==================================================
   const form = document.getElementById("form-cadastro");
   const tipoPlano = document.getElementById("tipo_plano");
   const periodo = document.getElementById("periodo");
@@ -42,47 +44,83 @@ document.addEventListener("DOMContentLoaded", () => {
   const valorLabel = document.getElementById("valor_exibido");
   const botao = document.getElementById("botao-enviar");
 
-  // =====================================================
-  // 🧱 FUNÇÃO — Gera bloco de campos para cada pet
-  // =====================================================
+  // ==================================================
+  // 📦 MEMÓRIA LOCAL (STATE)
+  // ==================================================
+  function salvarState() {
+    const data = new FormData(form);
+    const obj = {};
+
+    for (const [key, val] of data.entries()) {
+      if (key.includes("foto_pet")) continue; // fotos não podem ser restauradas
+      obj[key] = val;
+    }
+
+    localStorage.setItem("form_state", JSON.stringify(obj));
+  }
+
+  function carregarState() {
+    const state = localStorage.getItem("form_state");
+    if (!state) return;
+
+    const obj = JSON.parse(state);
+
+    for (const key in obj) {
+      const el = form.querySelector(`[name="${key}"]`);
+      if (el) el.value = obj[key];
+    }
+  }
+
+  // ==================================================
+  // 🧱 GERAR BLOCOS DE PET COM REHIDRATAÇÃO
+  // ==================================================
   function gerarBlocoPet(i) {
+    const state = JSON.parse(localStorage.getItem("form_state") || "{}");
+
+    const nome = state[`nome_pet_${i}`] || "";
+    const especie = state[`especie_${i}`] || "";
+    const raca = state[`raca_${i}`] || "";
+    const sexo = state[`sexo_${i}`] || "";
+    const ano = state[`ano_nasc_${i}`] || "";
+
     return `
       <div class="pet-group" id="bloco_pet_${i}">
         <h4>🐾 Pet ${i}</h4>
 
         <label>Nome do pet *</label>
-        <input type="text" name="nome_pet_${i}" required />
+        <input type="text" name="nome_pet_${i}" value="${nome}" required />
 
         <label>Espécie *</label>
         <select name="especie_${i}" required>
           <option value="">Selecione</option>
-          <option value="Cachorro">Cachorro</option>
-          <option value="Gato">Gato</option>
-          <option value="Outros">Outros</option>
+          <option value="Cachorro" ${especie === "Cachorro" ? "selected" : ""}>Cachorro</option>
+          <option value="Gato" ${especie === "Gato" ? "selected" : ""}>Gato</option>
+          <option value="Outros" ${especie === "Outros" ? "selected" : ""}>Outros</option>
         </select>
 
         <label>Raça *</label>
-        <input type="text" name="raca_${i}" required />
+        <input type="text" name="raca_${i}" value="${raca}" required />
 
         <label>Sexo *</label>
         <select name="sexo_${i}" required>
           <option value="">Selecione</option>
-          <option value="Macho">Macho</option>
-          <option value="Fêmea">Fêmea</option>
+          <option value="Macho" ${sexo === "Macho" ? "selected" : ""}>Macho</option>
+          <option value="Fêmea" ${sexo === "Fêmea" ? "selected" : ""}>Fêmea</option>
         </select>
 
-        <label>Ano de nascimento (AAAA) *</label>
-        <input type="text" name="ano_nasc_${i}" maxlength="4" required />
+        <label>Ano de nascimento *</label>
+        <input type="text" name="ano_nasc_${i}" maxlength="4" value="${ano}" required />
 
         <label>Foto do pet *</label>
         <input type="file" name="foto_pet_${i}" accept="image/*" required />
+        <small style="color:#b00;font-size:12px;">Reinsira a foto do pet.</small>
       </div>
     `;
   }
 
-  // =====================================================
-  // 🔁 Atualiza blocos de pets dinamicamente
-  // =====================================================
+  // ==================================================
+  // 🔁 ATUALIZAR BLOCOS DE PET
+  // ==================================================
   function atualizarBlocosPets() {
     const plano = tipoPlano.value;
 
@@ -105,9 +143,9 @@ document.addEventListener("DOMContentLoaded", () => {
     atualizarValor();
   }
 
-  // =====================================================
-  // 💰 Atualiza o valor do plano
-  // =====================================================
+  // ==================================================
+  // 💰 ATUALIZAR VALOR
+  // ==================================================
   function atualizarValor() {
     const plano = tipoPlano.value;
     const per = periodo.value;
@@ -119,45 +157,41 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     let valor = 0;
-    if (plano === "individual") {
-      valor = per === "mensal" ? 24.9 : 249.9;
-    } else if (plano === "familia") {
-      valor = per === "mensal" ? 19.9 * qtd : 199 * qtd;
-    }
+    if (plano === "individual") valor = per === "mensal" ? 24.9 : 249.9;
+    else valor = per === "mensal" ? 19.9 * qtd : 199 * qtd;
 
-    valorLabel.textContent = `Valor total: R$ ${valor
-      .toFixed(2)
-      .replace(".", ",")}`;
+    valorLabel.textContent = `Valor total: R$ ${valor.toFixed(2).replace(".", ",")}`;
   }
 
-  // =====================================================
-  // 🖼 Converte foto em Base64 com Promise
-  // =====================================================
+  // ==================================================
+  // 🖼 BASE64
+  // ==================================================
   function toBase64(file) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
+    return new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onload = () => res(r.result);
+      r.onerror = rej;
+      r.readAsDataURL(file);
     });
   }
 
-  // =====================================================
+  // ==================================================
   // 🚀 ENVIO DO FORMULÁRIO
-  // =====================================================
+  // ==================================================
   if (form) {
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       msg.textContent = "";
       loading.style.display = "block";
-
       botao.disabled = true;
       botao.innerHTML = `<span class="spinner"></span> Enviando...`;
+
+      salvarState();
 
       try {
         const fd = new FormData(form);
 
-        // DADOS DO TUTOR
+        // DADOS TUTOR
         const tutor = {
           nome_tutor: fd.get("nome_tutor"),
           cpf_tutor: fd.get("cpf_tutor"),
@@ -174,57 +208,47 @@ document.addEventListener("DOMContentLoaded", () => {
         const per = periodo.value;
         const qtd = parseInt(qtdPetsInput.value) || 1;
 
-        // VALOR FINAL
         let valor = 0;
         if (!temToken) {
-          if (plano === "individual") {
-            valor = per === "mensal" ? 24.9 : 249.9;
-          } else if (plano === "familia") {
-            valor = per === "mensal" ? 19.9 * qtd : 199 * qtd;
-          }
+          if (plano === "individual") valor = per === "mensal" ? 24.9 : 249.9;
+          else valor = per === "mensal" ? 19.9 * qtd : 199 * qtd;
         }
 
-        // -----------------------------------------------------
-        // 🐾 COLETAR PETS (com garantia de foto obrigatória)
-        // -----------------------------------------------------
+        // COLETAR PETS
         const pets = [];
         for (let i = 1; i <= qtd; i++) {
-          const nome_pet = fd.get(`nome_pet_${i}`);
-          const especie = fd.get(`especie_${i}`);
+          const nome = fd.get(`nome_pet_${i}`);
+          const esp = fd.get(`especie_${i}`);
           const raca = fd.get(`raca_${i}`);
           const sexo = fd.get(`sexo_${i}`);
           const ano = fd.get(`ano_nasc_${i}`);
-          const fotoFile = fd.get(`foto_pet_${i}`);
+          const file = fd.get(`foto_pet_${i}`);
 
-          if (!nome_pet || !especie || !raca || !sexo || !ano) {
+          if (!nome || !esp || !raca || !sexo || !ano) {
             throw new Error(`Preencha todos os campos do Pet ${i}.`);
           }
 
-          if (!fotoFile || fotoFile.size === 0) {
+          if (!file || file.size === 0)
             throw new Error(`A foto do Pet ${i} é obrigatória.`);
-          }
 
-          if (fotoFile.size > 1024 * 1024) {
+          if (file.size > 1024 * 1024)
             throw new Error(
-              `A foto do Pet ${i} excede o limite de 1MB. Selecione outra.`
+              `A foto do Pet ${i} excede 1MB. Envie uma imagem menor.`
             );
-          }
 
-          const foto_pet = await toBase64(fotoFile);
+          const base64 = await toBase64(file);
 
           pets.push({
-            nome_pet,
-            especie,
+            nome_pet: nome,
+            especie: esp,
             raca,
             sexo,
             ano_nascimento: ano,
-            foto_pet,
+            foto_pet: base64,
           });
         }
 
-        // -----------------------------------------------------
-        // 📦 MONTA O PAYLOAD FINAL
-        // -----------------------------------------------------
+        // PAYLOAD FINAL
         const payload = {
           ...tutor,
           plano: temToken ? "Free" : plano,
@@ -233,14 +257,11 @@ document.addEventListener("DOMContentLoaded", () => {
           valor_total: temToken ? 0 : valor,
           origem_cadastro: temToken ? "free_site" : "assinatura_site",
           token_origem: tokenParam,
-          pets: pets,
+          pets,
         };
 
         console.log("📤 Enviando para Fiqon:", payload);
 
-        // -----------------------------------------------------
-        // 🌐 ENVIO PARA O FIQON
-        // -----------------------------------------------------
         const req = await fetch(WEBHOOK_CADASTRO, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -251,44 +272,29 @@ document.addEventListener("DOMContentLoaded", () => {
 
         console.log("📦 Retorno Fiqon:", json);
 
-        // -----------------------------------------------------
-        // 📩 TRATAMENTO DE RESPOSTA
-        // -----------------------------------------------------
-        if (!req.ok) {
-          throw new Error(
-            json?.message ||
-              `Erro na comunicação com o servidor (HTTP ${req.status}).`
-          );
-        }
+        if (!req.ok)
+          throw new Error(json?.message || `Erro HTTP ${req.status}`);
 
-        // FREE
-        if (temToken) {
+        if (!temToken) {
+          const quant = json?.pets_cadastrados?.length || 0;
+          const link = json?.link_pagamento;
+
+          if (quant === 0) throw new Error("Nenhum pet foi cadastrado.");
+
+          msg.style.color = "green";
+          msg.textContent = `✅ ${quant} pet(s) cadastrado(s)! Redirecionando...`;
+
+          if (link) setTimeout(() => (window.location.href = link), 1500);
+        } else {
           msg.style.color = "green";
           msg.textContent =
             "✅ Cadastro concluído! Seu(s) pet(s) está(ão) protegido(s).";
         }
 
-        // PAGO
-        else {
-          const lista = json?.pets_cadastrados || [];
-          const link = json?.link_pagamento;
-
-          if (lista.length === 0) {
-            throw new Error("Nenhum pet foi cadastrado.");
-          }
-
-          msg.style.color = "green";
-          msg.textContent = `✅ ${lista.length} pet(s) cadastrado(s)! Redirecionando...`;
-
-          if (link) {
-            setTimeout(() => (window.location.href = link), 1500);
-          }
-        }
-
+        localStorage.removeItem("form_state");
         form.reset();
         tipoPlano.value = "";
         atualizarBlocosPets();
-
       } catch (err) {
         console.error("❌ Erro no envio", err);
         msg.style.color = "red";
@@ -301,12 +307,24 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // =====================================================
-  // 📌 EVENTOS
-  // =====================================================
-  tipoPlano.addEventListener("change", atualizarBlocosPets);
-  qtdPetsInput.addEventListener("input", atualizarBlocosPets);
-  periodo.addEventListener("change", atualizarValor);
+  // ==================================================
+  // EVENTOS
+  // ==================================================
+  tipoPlano.addEventListener("change", () => {
+    salvarState();
+    atualizarBlocosPets();
+  });
 
-  atualizarBlocosPets(); // carregamento inicial
+  periodo.addEventListener("change", () => {
+    salvarState();
+    atualizarValor();
+  });
+
+  qtdPetsInput.addEventListener("input", () => {
+    salvarState();
+    atualizarBlocosPets();
+  });
+
+  carregarState();
+  atualizarBlocosPets();
 });
