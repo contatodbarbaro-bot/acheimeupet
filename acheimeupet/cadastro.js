@@ -79,7 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const state = JSON.parse(localStorage.getItem("form_state") || "{}");
 
     const nome = state[`nome_pet_${i}`] || "";
-    const especie = state[`especie_${i}`] || "";
+       const especie = state[`especie_${i}`] || "";
     const raca = state[`raca_${i}`] || "";
     const sexo = state[`sexo_${i}`] || "";
     const ano = state[`ano_nasc_${i}`] || "";
@@ -292,11 +292,16 @@ document.addEventListener("DOMContentLoaded", () => {
         // ============================================================
 
         if (!temToken) {
-          // MODO PAGO — validação por assinatura/link_pagamento
+          // MODO PAGO — validação corrigida compatível com o fluxo financeiro
+          const linkPagamento =
+            json?.body?.payment_link ||
+            json?.body?.checkoutUrl ||
+            json?.body?.invoiceUrl ||
+            null;
+
           const sucessoAssinatura =
-            json?.status === "ok" ||
-            json?.mensagem ||
-            json?.link_pagamento;
+            json?.body?.sucesso === true ||
+            linkPagamento;
 
           if (!sucessoAssinatura) {
             console.error("❌ Retorno inesperado do Fiqon:", json);
@@ -306,8 +311,9 @@ document.addEventListener("DOMContentLoaded", () => {
           msg.style.color = "green";
           msg.textContent = `✅ Assinatura criada com sucesso! Redirecionando...`;
 
-          const link = json?.link_pagamento;
-          if (link) setTimeout(() => (window.location.href = link), 1500);
+          if (linkPagamento) {
+            setTimeout(() => (window.location.href = linkPagamento), 1500);
+          }
 
         } else {
           // MODO FREE — usa pets retornados
