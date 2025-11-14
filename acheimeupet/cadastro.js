@@ -262,31 +262,56 @@ document.addEventListener("DOMContentLoaded", () => {
 
         console.log("📤 Enviando para Fiqon:", payload);
 
+        // ====================================================================
+        // 🔥 CORREÇÃO COMPLETA DO RETORNO DO FIQON (JSON, TEXTO, FALLBACK, ETC)
+        // ====================================================================
         const req = await fetch(WEBHOOK_CADASTRO, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
         });
 
-        const json = await req.json().catch(() => ({}));
+        let json;
+        try {
+          json = await req.clone().json();
+        } catch (e) {
+          console.warn("⚠️ Retorno não veio como JSON, tentando texto...");
+          const texto = await req.text();
+          console.warn("📄 Retorno bruto:", texto);
 
-        console.log("📦 Retorno Fiqon:", json);
+          try {
+            json = JSON.parse(texto);
+          } catch (e2) {
+            json = {};
+          }
+        }
 
-        if (!req.ok)
+        console.log("📦 Retorno Fiqon (parseado):", json);
+
+        if (!req.ok) {
           throw new Error(json?.message || `Erro HTTP ${req.status}`);
+        }
 
-        // =========================================================
-        // 🔥 CORREÇÃO DEFINITIVA DO ERRO "Nenhum pet foi cadastrado"
-        // =========================================================
+        // Normalizar chave final
+        const petsCadastrados =
+          json?.pets_cadastrados ||
+          json?.pets ||
+          [];
+
+        const quant = Array.isArray(petsCadastrados)
+          ? petsCadastrados.length
+          : 0;
+
         if (!temToken) {
-          const quant = json?.pets_cadastrados?.length || 0;
-          const link = json?.link_pagamento;
-
-          if (quant === 0) throw new Error("Nenhum pet foi cadastrado.");
+          if (quant === 0) {
+            console.error("❌ Nenhum pet retornado pelo Fiqon:", json);
+            throw new Error("Nenhum pet foi cadastrado.");
+          }
 
           msg.style.color = "green";
           msg.textContent = `✅ ${quant} pet(s) cadastrado(s)! Redirecionando...`;
 
+          const link = json?.link_pagamento;
           if (link) setTimeout(() => (window.location.href = link), 1500);
         } else {
           msg.style.color = "green";
@@ -294,6 +319,7 @@ document.addEventListener("DOMContentLoaded", () => {
             "✅ Cadastro concluído! Seu(s) pet(s) está(ão) protegido(s).";
         }
 
+        // Reset seguro
         localStorage.removeItem("form_state");
         form.reset();
         tipoPlano.value = "";
