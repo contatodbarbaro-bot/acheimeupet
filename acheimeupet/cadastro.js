@@ -1,17 +1,31 @@
 // ===============================================================
-// 🐾 AcheiMeuPet — Cadastro.js Versão FINAL (2025)
+// 🐾 AcheiMeuPet — Cadastro.js Versão FINAL CORRIGIDA (2025)
 // ===============================================================
-// • CORREÇÃO: Validação ajustada para ler o link de pagamento de `json.result.link_pagamento`,
-//   conforme a estrutura de retorno do Fiqon.
+// • CÓDIGO COMPLETO E REVISADO.
+// • Corrige o erro "temToken is not defined".
+// • Validação ajustada para ler `json.result.link_pagamento`.
 // ===============================================================
 
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("🐾 AcheiMeuPet: Script FINAL carregado.");
+  console.log("🐾 AcheiMeuPet: Script FINAL (Completo) carregado.");
 
-  // ... (todo o código anterior permanece exatamente igual até a seção de validação) ...
+  // ============================
+  // 🔐 TOKEN DE ORIGEM E WEBHOOKS (Restaurado)
+  // ============================
+  const urlParams = new URLSearchParams(window.location.search);
+  const temToken = urlParams.has("token");
+  const tokenParam = urlParams.get("token") || "";
+
+  const WEBHOOK_PAGO =
+    "https://webhook.fiqon.app/webhook/a029be45-8a23-418e-93e3-33f9b620a944/3e1595ab-b587-499b-a640-a8fe46b2d0c6";
+  const WEBHOOK_FREE =
+    "https://webhook.fiqon.app/webhook/019a781c-15f8-738a-93bc-5b70388445ff/faee836c-d909-4b6b-96d0-ed6433640060";
+  const WEBHOOK_CADASTRO = temToken ? WEBHOOK_FREE : WEBHOOK_PAGO;
+
+  console.log(`📡 Modo detectado: ${temToken ? "FREE" : "PAGO"}` );
 
   // ==================================================
-  // 📌 ELEMENTOS DO DOM (código omitido para brevidade, mantenha o seu)
+  // 📌 ELEMENTOS DO DOM
   // ==================================================
   const form = document.getElementById("form-cadastro");
   const tipoPlano = document.getElementById("tipo_plano");
@@ -25,7 +39,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const botao = document.getElementById("botao-enviar");
 
   // ==================================================
-  // 📦 MEMÓRIA LOCAL (STATE) (código omitido, mantenha o seu)
+  // 📦 MEMÓRIA LOCAL (STATE)
   // ==================================================
   function salvarState() {
     const data = new FormData(form);
@@ -48,9 +62,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ==================================================
-  // 🧱 GERAR BLOCOS DE PET (código omitido, mantenha o seu)
+  // 🧱 GERAR BLOCOS DE PET COM REHIDRATAÇÃO
   // ==================================================
-    function gerarBlocoPet(i) {
+  function gerarBlocoPet(i) {
     const state = JSON.parse(localStorage.getItem("form_state") || "{}");
     const nome = state[`nome_pet_${i}`] || "";
     const especie = state[`especie_${i}`] || "";
@@ -87,7 +101,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ==================================================
-  // 🔁 ATUALIZAR BLOCOS DE PET (código omitido, mantenha o seu)
+  // 🔁 ATUALIZAR BLOCOS DE PET
   // ==================================================
   function atualizarBlocosPets() {
     const plano = tipoPlano.value;
@@ -116,7 +130,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ==================================================
-  // 💰 ATUALIZAR VALOR (código omitido, mantenha o seu)
+  // 💰 ATUALIZAR VALOR
   // ==================================================
   function atualizarValor() {
     const plano = tipoPlano.value;
@@ -146,7 +160,6 @@ document.addEventListener("DOMContentLoaded", () => {
       salvarState();
 
       try {
-        // ... (toda a lógica de validação e coleta de dados permanece a mesma) ...
         const fd = new FormData(form);
         let formValido = true;
         form.querySelectorAll('[required]').forEach(input => {
@@ -242,33 +255,24 @@ document.addEventListener("DOMContentLoaded", () => {
         // ============================================================
         // ⭐ VALIDAÇÃO DO RETORNO — VERSÃO FINAL E CORRIGIDA
         // ============================================================
-
         if (!temToken) {
-          // MODO PAGO — Procura o link de pagamento em json.result.link_pagamento
           const linkPagamento = json?.result?.link_pagamento || null;
-
           if (!linkPagamento) {
             console.error("❌ Link de pagamento não encontrado em json.result.link_pagamento:", json);
             throw new Error("Erro ao finalizar a assinatura. Tente novamente mais tarde.");
           }
-
           msg.style.color = "green";
           msg.textContent = `✅ Cadastro recebido! Redirecionando para o pagamento...`;
-          
           setTimeout(() => {
               window.location.href = linkPagamento;
           }, 2000);
-
         } else {
-          // MODO FREE — Validação como antes
           const petsCadastrados = json?.pets_cadastrados || json?.pets || [];
           const quant = Array.isArray(petsCadastrados) ? petsCadastrados.length : 0;
-
           msg.style.color = "green";
           msg.textContent = `✅ Cadastro concluído! Seu(s) pet(s) está(ão) protegido(s)!`;
         }
 
-        // Reset seguro
         localStorage.removeItem("form_state");
         form.reset();
         tipoPlano.value = "";
@@ -287,7 +291,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ==================================================
-  // EVENTOS (código omitido, mantenha o seu)
+  // EVENTOS
   // ==================================================
   tipoPlano.addEventListener("change", () => { salvarState(); atualizarBlocosPets(); });
   periodo.addEventListener("change", () => { salvarState(); atualizarValor(); });
