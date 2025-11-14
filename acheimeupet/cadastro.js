@@ -1,15 +1,13 @@
 // ===============================================================
-// 🐾 AcheiMeuPet — Cadastro.js Versão PRO + STATE (2025)
+// 🐾 AcheiMeuPet — Cadastro.js Versão PRO + STATE (2025) - CORRIGIDO
 // ===============================================================
-// • Campos não somem mais ao alterar plano/qtd de pets
-// • Rehidratação total dos dados digitados
-// • Aviso automático para reinserir foto
-// • Validação reforçada e UX profissional
-// • Totalmente compatível com Fiqon (CADASTRO FREE + PAGO)
+// • Validação de retorno do Fiqon mais robusta para evitar falsos negativos.
+// • Tratamento de erros aprimorado para exibir mensagens mais claras.
+// • Melhorias na experiência do usuário (UX) durante o envio.
 // ===============================================================
 
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("🐾 AcheiMeuPet: Script PRO + State carregado.");
+  console.log("🐾 AcheiMeuPet: Script PRO + State (Corrigido) carregado.");
 
   // ============================
   // 🔐 TOKEN DE ORIGEM
@@ -29,7 +27,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const WEBHOOK_CADASTRO = temToken ? WEBHOOK_FREE : WEBHOOK_PAGO;
 
-  console.log(`📡 Modo detectado: ${temToken ? "FREE" : "PAGO"}`);
+  console.log(`📡 Modo detectado: ${temToken ? "FREE" : "PAGO"}` );
 
   // ==================================================
   // 📌 ELEMENTOS DO DOM
@@ -79,7 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const state = JSON.parse(localStorage.getItem("form_state") || "{}");
 
     const nome = state[`nome_pet_${i}`] || "";
-       const especie = state[`especie_${i}`] || "";
+    const especie = state[`especie_${i}`] || "";
     const raca = state[`raca_${i}`] || "";
     const sexo = state[`sexo_${i}`] || "";
     const ano = state[`ano_nasc_${i}`] || "";
@@ -102,7 +100,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <label>Raça *</label>
         <input type="text" name="raca_${i}" value="${raca}" required />
 
-        <label>Sexo *</label>
+        <label>Sexo *</label>        
         <select name="sexo_${i}" required>
           <option value="">Selecione</option>
           <option value="Macho" ${sexo === "Macho" ? "selected" : ""}>Macho</option>
@@ -114,7 +112,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         <label>Foto do pet *</label>
         <input type="file" name="foto_pet_${i}" accept="image/*" required />
-        <small style="color:#b00;font-size:12px;">Reinsira a foto do pet.</small>
+        <small style="color:#b00;font-size:12px;display:none;" id="aviso_foto_${i}">Reinsira a foto do pet, se necessário.</small>
       </div>
     `;
   }
@@ -136,9 +134,19 @@ document.addEventListener("DOMContentLoaded", () => {
       qtdPetsInput.value = 1;
     }
 
+    // Mostra o aviso de reinserir foto apenas se já houver dados salvos
+    const stateExists = !!localStorage.getItem("form_state");
+
     areaPets.innerHTML = "";
     for (let i = 1; i <= qtd; i++) {
       areaPets.innerHTML += gerarBlocoPet(i);
+    }
+
+    if (stateExists) {
+        for (let i = 1; i <= qtd; i++) {
+            const aviso = document.getElementById(`aviso_foto_${i}`);
+            if(aviso) aviso.style.display = 'block';
+        }
     }
 
     atualizarValor();
@@ -165,16 +173,9 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ==================================================
-  // 🖼 BASE64
+  // 🖼 BASE64 (Usando a função global do HTML)
   // ==================================================
-  function toBase64(file) {
-    return new Promise((res, rej) => {
-      const r = new FileReader();
-      r.onload = () => res(r.result);
-      r.onerror = rej;
-      r.readAsDataURL(file);
-    });
-  }
+  // A função comprimirImagem já está no escopo global, não precisa redefinir.
 
   // ==================================================
   // 🚀 ENVIO DO FORMULÁRIO
@@ -185,12 +186,27 @@ document.addEventListener("DOMContentLoaded", () => {
       msg.textContent = "";
       loading.style.display = "block";
       botao.disabled = true;
-      botao.innerHTML = `<span class="spinner"></span> Enviando...`;
+      botao.innerHTML = `⏳ Enviando...`;
 
       salvarState();
 
       try {
         const fd = new FormData(form);
+        
+        // Validação customizada antes de prosseguir
+        let formValido = true;
+        form.querySelectorAll('[required]').forEach(input => {
+            if (!input.value) {
+                formValido = false;
+                input.style.borderColor = 'red';
+            } else {
+                input.style.borderColor = '#ccc';
+            }
+        });
+
+        if (!formValido) {
+            throw new Error("Por favor, preencha todos os campos obrigatórios.");
+        }
 
         // DADOS TUTOR
         const tutor = {
@@ -223,18 +239,21 @@ document.addEventListener("DOMContentLoaded", () => {
           const raca = fd.get(`raca_${i}`);
           const sexo = fd.get(`sexo_${i}`);
           const ano = fd.get(`ano_nasc_${i}`);
-          const file = fd.get(`foto_pet_${i}`);
+          const fileInput = form.querySelector(`[name="foto_pet_${i}"]`);
+          const file = fileInput.files[0];
 
           if (!nome || !esp || !raca || !sexo || !ano)
             throw new Error(`Preencha todos os campos do Pet ${i}.`);
 
-          if (!file || file.size === 0)
+          if (!file || file.size === 0) {
+            fileInput.style.borderColor = 'red';
             throw new Error(`A foto do Pet ${i} é obrigatória.`);
+          } else {
+            fileInput.style.borderColor = '#ccc';
+          }
 
-          if (file.size > 1024 * 1024)
-            throw new Error(`A foto do Pet ${i} excede 1MB. Envie uma imagem menor.`);
-
-          const base64 = await toBase64(file);
+          // Usando a função de compressão do HTML
+          const base64 = await comprimirImagem(file);
 
           pets.push({
             nome_pet: nome,
@@ -269,65 +288,55 @@ document.addEventListener("DOMContentLoaded", () => {
           body: JSON.stringify(payload),
         });
 
+        const responseText = await req.text();
         let json;
         try {
-          json = await req.clone().json();
+          json = JSON.parse(responseText);
         } catch (e) {
-          const texto = await req.text();
-          try {
-            json = JSON.parse(texto);
-          } catch (e2) {
-            json = {};
-          }
+          console.error("Fiqon não retornou um JSON válido. Resposta:", responseText);
+          throw new Error("Ocorreu um erro de comunicação com o servidor. Tente novamente.");
         }
 
         console.log("📦 Retorno Fiqon (parseado):", json);
 
         if (!req.ok) {
-          throw new Error(json?.message || `Erro HTTP ${req.status}`);
+          throw new Error(json?.message || json?.error || `Erro no servidor (HTTP ${req.status})`);
         }
 
         // ============================================================
-        // ⭐ VALIDAÇÃO DO RETORNO — COMPATÍVEL COM PAY + FREE
+        // ⭐ VALIDAÇÃO DO RETORNO — CORRIGIDA E MAIS ROBUSTA
         // ============================================================
 
         if (!temToken) {
-          // MODO PAGO — validação corrigida compatível com o fluxo financeiro
+          // MODO PAGO — Procura o link de pagamento em vários locais possíveis
           const linkPagamento =
+            json?.payment_link ||
+            json?.checkoutUrl ||
+            json?.invoiceUrl ||
             json?.body?.payment_link ||
             json?.body?.checkoutUrl ||
             json?.body?.invoiceUrl ||
             null;
 
-          const sucessoAssinatura =
-            json?.body?.sucesso === true ||
-            linkPagamento;
-
-          if (!sucessoAssinatura) {
-            console.error("❌ Retorno inesperado do Fiqon:", json);
-            throw new Error("Erro ao processar assinatura.");
+          if (!linkPagamento) {
+            console.error("❌ Link de pagamento não encontrado no retorno do Fiqon:", json);
+            throw new Error("Erro ao processar assinatura. Tente novamente.");
           }
 
           msg.style.color = "green";
-          msg.textContent = `✅ Assinatura criada com sucesso! Redirecionando...`;
-
-          if (linkPagamento) {
-            setTimeout(() => (window.location.href = linkPagamento), 1500);
-          }
+          msg.textContent = `✅ Cadastro recebido! Redirecionando para o pagamento...`;
+          
+          setTimeout(() => {
+              window.location.href = linkPagamento;
+          }, 2000);
 
         } else {
-          // MODO FREE — usa pets retornados
-          const petsCadastrados =
-            json?.pets_cadastrados ||
-            json?.pets ||
-            [];
-
-          const quant = Array.isArray(petsCadastrados)
-            ? petsCadastrados.length
-            : 0;
+          // MODO FREE — Validação como antes
+          const petsCadastrados = json?.pets_cadastrados || json?.pets || [];
+          const quant = Array.isArray(petsCadastrados) ? petsCadastrados.length : 0;
 
           msg.style.color = "green";
-          msg.textContent = `✅ Cadastro concluído! ${quant} pet(s) protegido(s)!`;
+          msg.textContent = `✅ Cadastro concluído! Seu(s) pet(s) está(ão) protegido(s)!`;
         }
 
         // Reset seguro
@@ -366,6 +375,7 @@ document.addEventListener("DOMContentLoaded", () => {
     atualizarBlocosPets();
   });
 
+  // Carregamento inicial
   carregarState();
   atualizarBlocosPets();
 });
