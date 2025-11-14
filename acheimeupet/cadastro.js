@@ -1,36 +1,17 @@
 // ===============================================================
-// 🐾 AcheiMeuPet — Cadastro.js Versão PRO + STATE (2025) - CORRIGIDO
+// 🐾 AcheiMeuPet — Cadastro.js Versão FINAL (2025)
 // ===============================================================
-// • Validação de retorno do Fiqon mais robusta para evitar falsos negativos.
-// • Tratamento de erros aprimorado para exibir mensagens mais claras.
-// • Melhorias na experiência do usuário (UX) durante o envio.
+// • CORREÇÃO: Validação ajustada para ler o link de pagamento de `json.result.link_pagamento`,
+//   conforme a estrutura de retorno do Fiqon.
 // ===============================================================
 
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("🐾 AcheiMeuPet: Script PRO + State (Corrigido) carregado.");
+  console.log("🐾 AcheiMeuPet: Script FINAL carregado.");
 
-  // ============================
-  // 🔐 TOKEN DE ORIGEM
-  // ============================
-  const urlParams = new URLSearchParams(window.location.search);
-  const temToken = urlParams.has("token");
-  const tokenParam = urlParams.get("token") || "";
-
-  // ============================
-  // 🌐 WEBHOOKS
-  // ============================
-  const WEBHOOK_PAGO =
-    "https://webhook.fiqon.app/webhook/a029be45-8a23-418e-93e3-33f9b620a944/3e1595ab-b587-499b-a640-a8fe46b2d0c6";
-
-  const WEBHOOK_FREE =
-    "https://webhook.fiqon.app/webhook/019a781c-15f8-738a-93bc-5b70388445ff/faee836c-d909-4b6b-96d0-ed6433640060";
-
-  const WEBHOOK_CADASTRO = temToken ? WEBHOOK_FREE : WEBHOOK_PAGO;
-
-  console.log(`📡 Modo detectado: ${temToken ? "FREE" : "PAGO"}` );
+  // ... (todo o código anterior permanece exatamente igual até a seção de validação) ...
 
   // ==================================================
-  // 📌 ELEMENTOS DO DOM
+  // 📌 ELEMENTOS DO DOM (código omitido para brevidade, mantenha o seu)
   // ==================================================
   const form = document.getElementById("form-cadastro");
   const tipoPlano = document.getElementById("tipo_plano");
@@ -44,26 +25,22 @@ document.addEventListener("DOMContentLoaded", () => {
   const botao = document.getElementById("botao-enviar");
 
   // ==================================================
-  // 📦 MEMÓRIA LOCAL (STATE)
+  // 📦 MEMÓRIA LOCAL (STATE) (código omitido, mantenha o seu)
   // ==================================================
   function salvarState() {
     const data = new FormData(form);
     const obj = {};
-
     for (const [key, val] of data.entries()) {
       if (key.includes("foto_pet")) continue;
       obj[key] = val;
     }
-
     localStorage.setItem("form_state", JSON.stringify(obj));
   }
 
   function carregarState() {
     const state = localStorage.getItem("form_state");
     if (!state) return;
-
     const obj = JSON.parse(state);
-
     for (const key in obj) {
       const el = form.querySelector(`[name="${key}"]`);
       if (el) el.value = obj[key];
@@ -71,24 +48,20 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ==================================================
-  // 🧱 GERAR BLOCOS DE PET COM REHIDRATAÇÃO
+  // 🧱 GERAR BLOCOS DE PET (código omitido, mantenha o seu)
   // ==================================================
-  function gerarBlocoPet(i) {
+    function gerarBlocoPet(i) {
     const state = JSON.parse(localStorage.getItem("form_state") || "{}");
-
     const nome = state[`nome_pet_${i}`] || "";
     const especie = state[`especie_${i}`] || "";
     const raca = state[`raca_${i}`] || "";
     const sexo = state[`sexo_${i}`] || "";
     const ano = state[`ano_nasc_${i}`] || "";
-
     return `
       <div class="pet-group" id="bloco_pet_${i}">
         <h4>🐾 Pet ${i}</h4>
-
         <label>Nome do pet *</label>
         <input type="text" name="nome_pet_${i}" value="${nome}" required />
-
         <label>Espécie *</label>
         <select name="especie_${i}" required>
           <option value="">Selecione</option>
@@ -96,20 +69,16 @@ document.addEventListener("DOMContentLoaded", () => {
           <option value="Gato" ${especie === "Gato" ? "selected" : ""}>Gato</option>
           <option value="Outros" ${especie === "Outros" ? "selected" : ""}>Outros</option>
         </select>
-
         <label>Raça *</label>
         <input type="text" name="raca_${i}" value="${raca}" required />
-
         <label>Sexo *</label>        
         <select name="sexo_${i}" required>
           <option value="">Selecione</option>
           <option value="Macho" ${sexo === "Macho" ? "selected" : ""}>Macho</option>
           <option value="Fêmea" ${sexo === "Fêmea" ? "selected" : ""}>Fêmea</option>
         </select>
-
         <label>Ano de nascimento *</label>
         <input type="text" name="ano_nasc_${i}" maxlength="4" value="${ano}" required />
-
         <label>Foto do pet *</label>
         <input type="file" name="foto_pet_${i}" accept="image/*" required />
         <small style="color:#b00;font-size:12px;display:none;" id="aviso_foto_${i}">Reinsira a foto do pet, se necessário.</small>
@@ -118,11 +87,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ==================================================
-  // 🔁 ATUALIZAR BLOCOS DE PET
+  // 🔁 ATUALIZAR BLOCOS DE PET (código omitido, mantenha o seu)
   // ==================================================
   function atualizarBlocosPets() {
     const plano = tipoPlano.value;
-
     let qtd = 1;
     if (plano === "familia") {
       campoQtdPets.style.display = "block";
@@ -133,49 +101,36 @@ document.addEventListener("DOMContentLoaded", () => {
       qtd = 1;
       qtdPetsInput.value = 1;
     }
-
-    // Mostra o aviso de reinserir foto apenas se já houver dados salvos
     const stateExists = !!localStorage.getItem("form_state");
-
     areaPets.innerHTML = "";
     for (let i = 1; i <= qtd; i++) {
       areaPets.innerHTML += gerarBlocoPet(i);
     }
-
     if (stateExists) {
         for (let i = 1; i <= qtd; i++) {
             const aviso = document.getElementById(`aviso_foto_${i}`);
             if(aviso) aviso.style.display = 'block';
         }
     }
-
     atualizarValor();
   }
 
   // ==================================================
-  // 💰 ATUALIZAR VALOR
+  // 💰 ATUALIZAR VALOR (código omitido, mantenha o seu)
   // ==================================================
   function atualizarValor() {
     const plano = tipoPlano.value;
     const per = periodo.value;
     const qtd = parseInt(qtdPetsInput.value) || 1;
-
     if (!plano || !per) {
       valorLabel.textContent = "Selecione o plano para ver o valor";
       return;
     }
-
     let valor = 0;
     if (plano === "individual") valor = per === "mensal" ? 24.9 : 249.9;
     else valor = per === "mensal" ? 19.9 * qtd : 199 * qtd;
-
     valorLabel.textContent = `Valor total: R$ ${valor.toFixed(2).replace(".", ",")}`;
   }
-
-  // ==================================================
-  // 🖼 BASE64 (Usando a função global do HTML)
-  // ==================================================
-  // A função comprimirImagem já está no escopo global, não precisa redefinir.
 
   // ==================================================
   // 🚀 ENVIO DO FORMULÁRIO
@@ -191,9 +146,8 @@ document.addEventListener("DOMContentLoaded", () => {
       salvarState();
 
       try {
+        // ... (toda a lógica de validação e coleta de dados permanece a mesma) ...
         const fd = new FormData(form);
-        
-        // Validação customizada antes de prosseguir
         let formValido = true;
         form.querySelectorAll('[required]').forEach(input => {
             if (!input.value) {
@@ -203,12 +157,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 input.style.borderColor = '#ccc';
             }
         });
-
         if (!formValido) {
             throw new Error("Por favor, preencha todos os campos obrigatórios.");
         }
-
-        // DADOS TUTOR
         const tutor = {
           nome_tutor: fd.get("nome_tutor"),
           cpf_tutor: fd.get("cpf_tutor"),
@@ -220,18 +171,14 @@ document.addEventListener("DOMContentLoaded", () => {
           cep: fd.get("cep"),
           obs: fd.get("obs"),
         };
-
         const plano = tipoPlano.value;
         const per = periodo.value;
         const qtd = parseInt(qtdPetsInput.value) || 1;
-
         let valor = 0;
         if (!temToken) {
           if (plano === "individual") valor = per === "mensal" ? 24.9 : 249.9;
           else valor = per === "mensal" ? 19.9 * qtd : 199 * qtd;
         }
-
-        // COLETAR PETS
         const pets = [];
         for (let i = 1; i <= qtd; i++) {
           const nome = fd.get(`nome_pet_${i}`);
@@ -241,20 +188,15 @@ document.addEventListener("DOMContentLoaded", () => {
           const ano = fd.get(`ano_nasc_${i}`);
           const fileInput = form.querySelector(`[name="foto_pet_${i}"]`);
           const file = fileInput.files[0];
-
           if (!nome || !esp || !raca || !sexo || !ano)
             throw new Error(`Preencha todos os campos do Pet ${i}.`);
-
           if (!file || file.size === 0) {
             fileInput.style.borderColor = 'red';
             throw new Error(`A foto do Pet ${i} é obrigatória.`);
           } else {
             fileInput.style.borderColor = '#ccc';
           }
-
-          // Usando a função de compressão do HTML
           const base64 = await comprimirImagem(file);
-
           pets.push({
             nome_pet: nome,
             especie: esp,
@@ -264,8 +206,6 @@ document.addEventListener("DOMContentLoaded", () => {
             foto_pet: base64,
           });
         }
-
-        // PAYLOAD FINAL
         const payload = {
           ...tutor,
           plano: temToken ? "Free" : plano,
@@ -276,12 +216,8 @@ document.addEventListener("DOMContentLoaded", () => {
           token_origem: tokenParam,
           pets,
         };
-
         console.log("📤 Enviando para Fiqon:", payload);
 
-        // ============================================================
-        // ⭐ RETORNO DO FIQON — TRATAMENTO UNIVERSAL (JSON/TEXTO)
-        // ============================================================
         const req = await fetch(WEBHOOK_CADASTRO, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -300,27 +236,20 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("📦 Retorno Fiqon (parseado):", json);
 
         if (!req.ok) {
-          throw new Error(json?.message || json?.error || `Erro no servidor (HTTP ${req.status})`);
+          throw new Error(json?.result?.mensagem || json?.message || json?.error || `Erro no servidor (HTTP ${req.status})`);
         }
 
         // ============================================================
-        // ⭐ VALIDAÇÃO DO RETORNO — CORRIGIDA E MAIS ROBUSTA
+        // ⭐ VALIDAÇÃO DO RETORNO — VERSÃO FINAL E CORRIGIDA
         // ============================================================
 
         if (!temToken) {
-          // MODO PAGO — Procura o link de pagamento em vários locais possíveis
-          const linkPagamento =
-            json?.payment_link ||
-            json?.checkoutUrl ||
-            json?.invoiceUrl ||
-            json?.body?.payment_link ||
-            json?.body?.checkoutUrl ||
-            json?.body?.invoiceUrl ||
-            null;
+          // MODO PAGO — Procura o link de pagamento em json.result.link_pagamento
+          const linkPagamento = json?.result?.link_pagamento || null;
 
           if (!linkPagamento) {
-            console.error("❌ Link de pagamento não encontrado no retorno do Fiqon:", json);
-            throw new Error("Erro ao processar assinatura. Tente novamente.");
+            console.error("❌ Link de pagamento não encontrado em json.result.link_pagamento:", json);
+            throw new Error("Erro ao finalizar a assinatura. Tente novamente mais tarde.");
           }
 
           msg.style.color = "green";
@@ -358,24 +287,11 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ==================================================
-  // EVENTOS
+  // EVENTOS (código omitido, mantenha o seu)
   // ==================================================
-  tipoPlano.addEventListener("change", () => {
-    salvarState();
-    atualizarBlocosPets();
-  });
-
-  periodo.addEventListener("change", () => {
-    salvarState();
-    atualizarValor();
-  });
-
-  qtdPetsInput.addEventListener("input", () => {
-    salvarState();
-    atualizarBlocosPets();
-  });
-
-  // Carregamento inicial
+  tipoPlano.addEventListener("change", () => { salvarState(); atualizarBlocosPets(); });
+  periodo.addEventListener("change", () => { salvarState(); atualizarValor(); });
+  qtdPetsInput.addEventListener("input", () => { salvarState(); atualizarBlocosPets(); });
   carregarState();
   atualizarBlocosPets();
 });
