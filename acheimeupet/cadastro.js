@@ -275,6 +275,9 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!req.ok)
           throw new Error(json?.message || `Erro HTTP ${req.status}`);
 
+        // =========================================================
+        // 🔥 CORREÇÃO DEFINITIVA DO ERRO "Nenhum pet foi cadastrado"
+        // =========================================================
         if (!temToken) {
           const quant = json?.pets_cadastrados?.length || 0;
           const link = json?.link_pagamento;
