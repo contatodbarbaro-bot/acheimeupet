@@ -5,7 +5,7 @@
 // • Rehidratação total dos dados digitados
 // • Aviso automático para reinserir foto
 // • Validação reforçada e UX profissional
-// • Totalmente compatível com Fiqon
+// • Totalmente compatível com Fiqon (CADASTRO FREE + PAGO)
 // ===============================================================
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -23,6 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // ============================
   const WEBHOOK_PAGO =
     "https://webhook.fiqon.app/webhook/a029be45-8a23-418e-93e3-33f9b620a944/3e1595ab-b587-499b-a640-a8fe46b2d0c6";
+
   const WEBHOOK_FREE =
     "https://webhook.fiqon.app/webhook/019a781c-15f8-738a-93bc-5b70388445ff/faee836c-d909-4b6b-96d0-ed6433640060";
 
@@ -52,7 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const obj = {};
 
     for (const [key, val] of data.entries()) {
-      if (key.includes("foto_pet")) continue; // fotos não podem ser restauradas
+      if (key.includes("foto_pet")) continue;
       obj[key] = val;
     }
 
@@ -224,17 +225,14 @@ document.addEventListener("DOMContentLoaded", () => {
           const ano = fd.get(`ano_nasc_${i}`);
           const file = fd.get(`foto_pet_${i}`);
 
-          if (!nome || !esp || !raca || !sexo || !ano) {
+          if (!nome || !esp || !raca || !sexo || !ano)
             throw new Error(`Preencha todos os campos do Pet ${i}.`);
-          }
 
           if (!file || file.size === 0)
             throw new Error(`A foto do Pet ${i} é obrigatória.`);
 
           if (file.size > 1024 * 1024)
-            throw new Error(
-              `A foto do Pet ${i} excede 1MB. Envie uma imagem menor.`
-            );
+            throw new Error(`A foto do Pet ${i} excede 1MB. Envie uma imagem menor.`);
 
           const base64 = await toBase64(file);
 
@@ -262,9 +260,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         console.log("📤 Enviando para Fiqon:", payload);
 
-        // ====================================================================
-        // 🔥 CORREÇÃO COMPLETA DO RETORNO DO FIQON (JSON, TEXTO, FALLBACK, ETC)
-        // ====================================================================
+        // ============================================================
+        // ⭐ RETORNO DO FIQON — TRATAMENTO UNIVERSAL (JSON/TEXTO)
+        // ============================================================
         const req = await fetch(WEBHOOK_CADASTRO, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -275,10 +273,7 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
           json = await req.clone().json();
         } catch (e) {
-          console.warn("⚠️ Retorno não veio como JSON, tentando texto...");
           const texto = await req.text();
-          console.warn("📄 Retorno bruto:", texto);
-
           try {
             json = JSON.parse(texto);
           } catch (e2) {
@@ -292,31 +287,41 @@ document.addEventListener("DOMContentLoaded", () => {
           throw new Error(json?.message || `Erro HTTP ${req.status}`);
         }
 
-        // Normalizar chave final
-        const petsCadastrados =
-          json?.pets_cadastrados ||
-          json?.pets ||
-          [];
-
-        const quant = Array.isArray(petsCadastrados)
-          ? petsCadastrados.length
-          : 0;
+        // ============================================================
+        // ⭐ VALIDAÇÃO DO RETORNO — COMPATÍVEL COM PAY + FREE
+        // ============================================================
 
         if (!temToken) {
-          if (quant === 0) {
-            console.error("❌ Nenhum pet retornado pelo Fiqon:", json);
-            throw new Error("Nenhum pet foi cadastrado.");
+          // MODO PAGO — validação por assinatura/link_pagamento
+          const sucessoAssinatura =
+            json?.status === "ok" ||
+            json?.mensagem ||
+            json?.link_pagamento;
+
+          if (!sucessoAssinatura) {
+            console.error("❌ Retorno inesperado do Fiqon:", json);
+            throw new Error("Erro ao processar assinatura.");
           }
 
           msg.style.color = "green";
-          msg.textContent = `✅ ${quant} pet(s) cadastrado(s)! Redirecionando...`;
+          msg.textContent = `✅ Assinatura criada com sucesso! Redirecionando...`;
 
           const link = json?.link_pagamento;
           if (link) setTimeout(() => (window.location.href = link), 1500);
+
         } else {
+          // MODO FREE — usa pets retornados
+          const petsCadastrados =
+            json?.pets_cadastrados ||
+            json?.pets ||
+            [];
+
+          const quant = Array.isArray(petsCadastrados)
+            ? petsCadastrados.length
+            : 0;
+
           msg.style.color = "green";
-          msg.textContent =
-            "✅ Cadastro concluído! Seu(s) pet(s) está(ão) protegido(s).";
+          msg.textContent = `✅ Cadastro concluído! ${quant} pet(s) protegido(s)!`;
         }
 
         // Reset seguro
@@ -324,6 +329,7 @@ document.addEventListener("DOMContentLoaded", () => {
         form.reset();
         tipoPlano.value = "";
         atualizarBlocosPets();
+
       } catch (err) {
         console.error("❌ Erro no envio", err);
         msg.style.color = "red";
