@@ -1,15 +1,15 @@
 // ===============================================================
-// 🐾 AcheiMeuPet — Cadastro.js VERSÃO XEQUE-MATE (NOV 2025)
+// 🐾 AcheiMeuPet — Cadastro.js VERSÃO FINALÍSSIMA (COMPLETO)
 // ===============================================================
 // • CÓDIGO COMPLETO E FIEL AO ORIGINAL.
-// • CORREÇÃO FINAL: Validação ajustada para o caminho `json.body.result.link_pagamento`.
+// • CORREÇÃO FINALÍSSIMA: Validação ajustada para o caminho `json.body.link_pagamento`.
 // ===============================================================
 
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("🐾 AcheiMeuPet: Script XEQUE-MATE carregado.");
+  console.log("🐾 AcheiMeuPet: Script FINALÍSSIMA (Completo) carregado.");
 
   // ============================
-  // 🔐 TOKEN DE ORIGEM E WEBHOOKS (Intacto)
+  // 🔐 TOKEN DE ORIGEM E WEBHOOKS
   // ============================
   const urlParams = new URLSearchParams(window.location.search);
   const temToken = urlParams.has("token");
@@ -24,7 +24,7 @@ document.addEventListener("DOMContentLoaded", () => {
   console.log(`📡 Modo detectado: ${temToken ? "FREE" : "PAGO"}` );
 
   // ==================================================
-  // 📌 ELEMENTOS DO DOM (Intacto)
+  // 📌 ELEMENTOS DO DOM
   // ==================================================
   const form = document.getElementById("form-cadastro");
   const tipoPlano = document.getElementById("tipo_plano");
@@ -38,7 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const botao = document.getElementById("botao-enviar");
 
   // ==================================================
-  // 📦 MEMÓRIA LOCAL (STATE) (Intacto)
+  // 📦 MEMÓRIA LOCAL (STATE)
   // ==================================================
   function salvarState() {
     const data = new FormData(form);
@@ -61,7 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ==================================================
-  // 🧱 GERAR BLOCOS DE PET (Intacto)
+  // 🧱 GERAR BLOCOS DE PET
   // ==================================================
   function gerarBlocoPet(i) {
     const state = JSON.parse(localStorage.getItem("form_state") || "{}");
@@ -99,7 +99,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ==================================================
-  // 🔁 ATUALIZAR BLOCOS DE PET (Intacto)
+  // 🔁 ATUALIZAR BLOCOS DE PET
   // ==================================================
   function atualizarBlocosPets() {
     const plano = tipoPlano.value;
@@ -121,7 +121,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ==================================================
-  // 💰 ATUALIZAR VALOR (Intacto)
+  // 💰 ATUALIZAR VALOR
   // ==================================================
   function atualizarValor() {
     const plano = tipoPlano.value;
@@ -225,16 +225,16 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("📦 Retorno Fiqon (parseado):", json);
 
         if (!req.ok) {
-          throw new Error(json?.body?.result?.mensagem || json?.message || json?.error || `Erro no servidor (HTTP ${req.status})`);
+          throw new Error(json?.body?.link_pagamento || json?.message || json?.error || `Erro no servidor (HTTP ${req.status})`);
         }
 
         // ============================================================
-        // ⭐ VALIDAÇÃO FINAL — LENDO json.body.result.link_pagamento
+        // ⭐ VALIDAÇÃO FINALÍSSIMA — LENDO json.body.link_pagamento
         // ============================================================
         if (!temToken) {
-          const linkPagamento = json?.body?.result?.link_pagamento || null;
+          const linkPagamento = json?.body?.link_pagamento || null;
           if (!linkPagamento) {
-            console.error("❌ Link de pagamento não encontrado em json.body.result.link_pagamento:", json);
+            console.error("❌ Link de pagamento não encontrado em json.body.link_pagamento:", json);
             throw new Error("Erro ao finalizar a assinatura. Tente novamente mais tarde.");
           }
           msg.style.color = "green";
@@ -266,7 +266,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ==================================================
-  // EVENTOS (Intacto)
+  // EVENTOS
   // ==================================================
   tipoPlano.addEventListener("change", () => {
     salvarState();
