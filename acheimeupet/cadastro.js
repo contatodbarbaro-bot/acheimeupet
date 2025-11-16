@@ -8,9 +8,6 @@
 document.addEventListener("DOMContentLoaded", () => {
   console.log("🐾 AcheiMeuPet: Script FINAL (Completo) carregado.");
 
-  // ============================
-  // 🔐 TOKEN DE ORIGEM E WEBHOOKS
-  // ============================
   const urlParams = new URLSearchParams(window.location.search);
   const temToken = urlParams.has("token");
   const tokenParam = urlParams.get("token") || "";
@@ -25,9 +22,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   console.log(`📡 Modo detectado: ${temToken ? "FREE" : "PAGO"}`);
 
-  // ==================================================
-  // 📌 ELEMENTOS DO DOM
-  // ==================================================
   const form = document.getElementById("form-cadastro");
   const tipoPlano = document.getElementById("tipo_plano");
   const periodo = document.getElementById("periodo");
@@ -39,9 +33,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const valorLabel = document.getElementById("valor_exibido");
   const botao = document.getElementById("botao-enviar");
 
-  // ==================================================
-  // 📦 MEMÓRIA LOCAL (STATE)
-  // ==================================================
   function salvarState() {
     const data = new FormData(form);
     const obj = {};
@@ -66,9 +57,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // ==================================================
-  // 🧱 GERAR BLOCOS DE PET COM REHIDRATAÇÃO
-  // ==================================================
   function gerarBlocoPet(i) {
     const state = JSON.parse(localStorage.getItem("form_state") || {});
 
@@ -112,9 +100,6 @@ document.addEventListener("DOMContentLoaded", () => {
     `;
   }
 
-  // ==================================================
-  // 🔁 ATUALIZAR BLOCOS DE PET
-  // ==================================================
   function atualizarBlocosPets() {
     const plano = tipoPlano.value;
 
@@ -137,9 +122,6 @@ document.addEventListener("DOMContentLoaded", () => {
     atualizarValor();
   }
 
-  // ==================================================
-  // 💰 ATUALIZAR VALOR
-  // ==================================================
   function atualizarValor() {
     const plano = tipoPlano.value;
     const per = periodo.value;
@@ -159,9 +141,6 @@ document.addEventListener("DOMContentLoaded", () => {
       .replace(".", ",")}`;
   }
 
-  // ==================================================
-  // 🚀 ENVIO DO FORMULÁRIO
-  // ==================================================
   if (form) {
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -262,12 +241,10 @@ document.addEventListener("DOMContentLoaded", () => {
           );
         }
 
-        // ============================================================
-        // ⭐ VALIDAÇÃO CORRIGIDA — AGORA LÊ A RAIZ DO JSON
-        // ============================================================
-        if (!temToken) {
-          const linkPagamento = json?.link_pagamento || null;
+        // 🚨 AQUI ESTÁ A VALIDAÇÃO FINAL CORRETA
+        const linkPagamento = json?.link_pagamento || null;
 
+        if (!temToken) {
           if (!linkPagamento) {
             console.error("❌ Link não encontrado no retorno:", json);
             throw new Error(
@@ -303,9 +280,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // ==================================================
-  // EVENTOS
-  // ==================================================
   tipoPlano.addEventListener("change", () => {
     salvarState();
     atualizarBlocosPets();
