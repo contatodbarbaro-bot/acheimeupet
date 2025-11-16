@@ -2,12 +2,15 @@
 // 🐾 AcheiMeuPet — Cadastro.js Versão FINAL (2025)
 // ===============================================================
 // • CÓDIGO COMPLETO E FIEL AO ORIGINAL
-// • ÚNICA MUDANÇA: validação ajustada para json.link_pagamento
+// • ÚNICA MUDANÇA: validação ajustada para json.result.link_pagamento
 // ===============================================================
 
 document.addEventListener("DOMContentLoaded", () => {
   console.log("🐾 AcheiMeuPet: Script FINAL (Completo) carregado.");
 
+  // ============================
+  // 🔐 TOKEN DE ORIGEM E WEBHOOKS
+  // ============================
   const urlParams = new URLSearchParams(window.location.search);
   const temToken = urlParams.has("token");
   const tokenParam = urlParams.get("token") || "";
@@ -22,6 +25,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   console.log(`📡 Modo detectado: ${temToken ? "FREE" : "PAGO"}`);
 
+  // ==================================================
+  // 📌 ELEMENTOS DO DOM
+  // ==================================================
   const form = document.getElementById("form-cadastro");
   const tipoPlano = document.getElementById("tipo_plano");
   const periodo = document.getElementById("periodo");
@@ -33,6 +39,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const valorLabel = document.getElementById("valor_exibido");
   const botao = document.getElementById("botao-enviar");
 
+  // ==================================================
+  // 📦 MEMÓRIA LOCAL (STATE)
+  // ==================================================
   function salvarState() {
     const data = new FormData(form);
     const obj = {};
@@ -57,8 +66,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  // ==================================================
+  // 🧱 GERAR BLOCOS DE PET COM REHIDRATAÇÃO
+  // ==================================================
   function gerarBlocoPet(i) {
-    const state = JSON.parse(localStorage.getItem("form_state") || {});
+    const state = JSON.parse(localStorage.getItem("form_state") || "{}");
 
     const nome = state[`nome_pet_${i}`] || "";
     const especie = state[`especie_${i}`] || "";
@@ -74,7 +86,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <input type="text" name="nome_pet_${i}" value="${nome}" required />
 
         <label>Espécie *</label>
-        <select name="especie_${i}" required>
+        <select name="especie_${i}` + `" required>
           <option value="">Selecione</option>
           <option value="Cachorro" ${especie === "Cachorro" ? "selected" : ""}>Cachorro</option>
           <option value="Gato" ${especie === "Gato" ? "selected" : ""}>Gato</option>
@@ -100,6 +112,9 @@ document.addEventListener("DOMContentLoaded", () => {
     `;
   }
 
+  // ==================================================
+  // 🔁 ATUALIZAR BLOCOS DE PET
+  // ==================================================
   function atualizarBlocosPets() {
     const plano = tipoPlano.value;
 
@@ -122,6 +137,9 @@ document.addEventListener("DOMContentLoaded", () => {
     atualizarValor();
   }
 
+  // ==================================================
+  // 💰 ATUALIZAR VALOR
+  // ==================================================
   function atualizarValor() {
     const plano = tipoPlano.value;
     const per = periodo.value;
@@ -141,6 +159,9 @@ document.addEventListener("DOMContentLoaded", () => {
       .replace(".", ",")}`;
   }
 
+  // ==================================================
+  // 🚀 ENVIO DO FORMULÁRIO
+  // ==================================================
   if (form) {
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -241,10 +262,12 @@ document.addEventListener("DOMContentLoaded", () => {
           );
         }
 
-        // 🚨 AQUI ESTÁ A VALIDAÇÃO FINAL CORRETA
-        const linkPagamento = json?.link_pagamento || null;
-
+        // ============================================================
+        // ⭐ VALIDAÇÃO CORRIGIDA — LENDO json.result.link_pagamento
+        // ============================================================
         if (!temToken) {
+          const linkPagamento = json?.result?.link_pagamento || null;
+
           if (!linkPagamento) {
             console.error("❌ Link não encontrado no retorno:", json);
             throw new Error(
@@ -280,6 +303,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // ==================================================
+  // EVENTOS
+  // ==================================================
   tipoPlano.addEventListener("change", () => {
     salvarState();
     atualizarBlocosPets();
