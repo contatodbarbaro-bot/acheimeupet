@@ -1,12 +1,13 @@
 // ===============================================================
-// 🐾 AcheiMeuPet — Cadastro.js Versão FINAL (2025)
+// 🐾 AcheiMeuPet — Cadastro.js VERSÃO FINAL CORRIGIDA (NOV 2025)
 // ===============================================================
-// • CÓDIGO COMPLETO E FIEL AO ORIGINAL
-// • ÚNICA MUDANÇA: validação ajustada para json.result.link_pagamento
+// • CÓDIGO COMPLETO E FIEL AO ORIGINAL.
+// • CORREÇÃO 1: Tratamento robusto da resposta do Fiqon para evitar 'null'.
+// • CORREÇÃO 2: Validação ajustada para ler `json.result.link_pagamento`.
 // ===============================================================
 
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("🐾 AcheiMeuPet: Script FINAL (Completo) carregado.");
+  console.log("🐾 AcheiMeuPet: Script FINAL (Corrigido) carregado.");
 
   // ============================
   // 🔐 TOKEN DE ORIGEM E WEBHOOKS
@@ -17,16 +18,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const WEBHOOK_PAGO =
     "https://webhook.fiqon.app/webhook/a029be45-8a23-418e-93e3-33f9b620a944/3e1595ab-b587-499b-a640-a8fe46b2d0c6";
-
   const WEBHOOK_FREE =
     "https://webhook.fiqon.app/webhook/019a781c-15f8-738a-93bc-5b70388445ff/faee836c-d909-4b6b-96d0-ed6433640060";
-
   const WEBHOOK_CADASTRO = temToken ? WEBHOOK_FREE : WEBHOOK_PAGO;
 
-  console.log(`📡 Modo detectado: ${temToken ? "FREE" : "PAGO"}`);
+  console.log(`📡 Modo detectado: ${temToken ? "FREE" : "PAGO"}` );
 
   // ==================================================
-  // 📌 ELEMENTOS DO DOM
+  // 📌 ELEMENTOS DO DOM (Intacto)
   // ==================================================
   const form = document.getElementById("form-cadastro");
   const tipoPlano = document.getElementById("tipo_plano");
@@ -40,26 +39,22 @@ document.addEventListener("DOMContentLoaded", () => {
   const botao = document.getElementById("botao-enviar");
 
   // ==================================================
-  // 📦 MEMÓRIA LOCAL (STATE)
+  // 📦 MEMÓRIA LOCAL (STATE) (Intacto)
   // ==================================================
   function salvarState() {
     const data = new FormData(form);
     const obj = {};
-
     for (const [key, val] of data.entries()) {
       if (key.includes("foto_pet")) continue;
       obj[key] = val;
     }
-
     localStorage.setItem("form_state", JSON.stringify(obj));
   }
 
   function carregarState() {
     const state = localStorage.getItem("form_state");
     if (!state) return;
-
     const obj = JSON.parse(state);
-
     for (const key in obj) {
       const el = form.querySelector(`[name="${key}"]`);
       if (el) el.value = obj[key];
@@ -67,45 +62,37 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ==================================================
-  // 🧱 GERAR BLOCOS DE PET COM REHIDRATAÇÃO
+  // 🧱 GERAR BLOCOS DE PET (Intacto, com pequena correção de aspas)
   // ==================================================
   function gerarBlocoPet(i) {
     const state = JSON.parse(localStorage.getItem("form_state") || "{}");
-
     const nome = state[`nome_pet_${i}`] || "";
     const especie = state[`especie_${i}`] || "";
     const raca = state[`raca_${i}`] || "";
     const sexo = state[`sexo_${i}`] || "";
     const ano = state[`ano_nasc_${i}`] || "";
-
     return `
       <div class="pet-group" id="bloco_pet_${i}">
         <h4>🐾 Pet ${i}</h4>
-
         <label>Nome do pet *</label>
         <input type="text" name="nome_pet_${i}" value="${nome}" required />
-
         <label>Espécie *</label>
-        <select name="especie_${i}` + `" required>
+        <select name="especie_${i}" required>
           <option value="">Selecione</option>
           <option value="Cachorro" ${especie === "Cachorro" ? "selected" : ""}>Cachorro</option>
           <option value="Gato" ${especie === "Gato" ? "selected" : ""}>Gato</option>
           <option value="Outros" ${especie === "Outros" ? "selected" : ""}>Outros</option>
         </select>
-
         <label>Raça *</label>
         <input type="text" name="raca_${i}" value="${raca}" required />
-
         <label>Sexo *</label>
         <select name="sexo_${i}" required>
           <option value="">Selecione</option>
           <option value="Macho" ${sexo === "Macho" ? "selected" : ""}>Macho</option>
           <option value="Fêmea" ${sexo === "Fêmea" ? "selected" : ""}>Fêmea</option>
         </select>
-
         <label>Ano de nascimento *</label>
         <input type="text" name="ano_nasc_${i}" maxlength="4" value="${ano}" required />
-
         <label>Foto do pet *</label>
         <input type="file" name="foto_pet_${i}" accept="image/*" required />
       </div>
@@ -113,11 +100,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ==================================================
-  // 🔁 ATUALIZAR BLOCOS DE PET
+  // 🔁 ATUALIZAR BLOCOS DE PET (Intacto)
   // ==================================================
   function atualizarBlocosPets() {
     const plano = tipoPlano.value;
-
     let qtd = 1;
     if (plano === "familia") {
       campoQtdPets.style.display = "block";
@@ -128,35 +114,28 @@ document.addEventListener("DOMContentLoaded", () => {
       qtd = 1;
       qtdPetsInput.value = 1;
     }
-
     areaPets.innerHTML = "";
     for (let i = 1; i <= qtd; i++) {
       areaPets.innerHTML += gerarBlocoPet(i);
     }
-
     atualizarValor();
   }
 
   // ==================================================
-  // 💰 ATUALIZAR VALOR
+  // 💰 ATUALIZAR VALOR (Intacto)
   // ==================================================
   function atualizarValor() {
     const plano = tipoPlano.value;
     const per = periodo.value;
     const qtd = parseInt(qtdPetsInput.value) || 1;
-
     if (!plano || !per) {
       valorLabel.textContent = "Selecione o plano para ver o valor";
       return;
     }
-
     let valor = 0;
     if (plano === "individual") valor = per === "mensal" ? 24.9 : 249.9;
     else valor = per === "mensal" ? 19.9 * qtd : 199 * qtd;
-
-    valorLabel.textContent = `Valor total: R$ ${valor
-      .toFixed(2)
-      .replace(".", ",")}`;
+    valorLabel.textContent = `Valor total: R$ ${valor.toFixed(2).replace(".", ",")}`;
   }
 
   // ==================================================
@@ -169,12 +148,9 @@ document.addEventListener("DOMContentLoaded", () => {
       loading.style.display = "block";
       botao.disabled = true;
       botao.innerHTML = `⏳ Enviando...`;
-
       salvarState();
-
       try {
         const fd = new FormData(form);
-
         const tutor = {
           nome_tutor: fd.get("nome_tutor"),
           cpf_tutor: fd.get("cpf_tutor"),
@@ -186,17 +162,14 @@ document.addEventListener("DOMContentLoaded", () => {
           cep: fd.get("cep"),
           obs: fd.get("obs"),
         };
-
         const plano = tipoPlano.value;
         const per = periodo.value;
         const qtd = parseInt(qtdPetsInput.value) || 1;
-
         let valor = 0;
         if (!temToken) {
           if (plano === "individual") valor = per === "mensal" ? 24.9 : 249.9;
           else valor = per === "mensal" ? 19.9 * qtd : 199 * qtd;
         }
-
         const pets = [];
         for (let i = 1; i <= qtd; i++) {
           const nome = fd.get(`nome_pet_${i}`);
@@ -205,18 +178,15 @@ document.addEventListener("DOMContentLoaded", () => {
           const sexo = fd.get(`sexo_${i}`);
           const ano = fd.get(`ano_nasc_${i}`);
           const file = fd.get(`foto_pet_${i}`);
-
-          if (!file) {
+          if (!file || file.size === 0) {
             throw new Error(`A foto do Pet ${i} é obrigatória.`);
           }
-
           const base64 = await new Promise((res, rej) => {
             const reader = new FileReader();
             reader.onload = () => res(reader.result);
             reader.onerror = rej;
             reader.readAsDataURL(file);
           });
-
           pets.push({
             nome_pet: nome,
             especie: esp,
@@ -226,7 +196,6 @@ document.addEventListener("DOMContentLoaded", () => {
             foto_pet: base64,
           });
         }
-
         const payload = {
           ...tutor,
           plano: temToken ? "Free" : plano,
@@ -237,7 +206,6 @@ document.addEventListener("DOMContentLoaded", () => {
           token_origem: tokenParam,
           pets,
         };
-
         console.log("📤 Enviando para Fiqon:", payload);
 
         const req = await fetch(WEBHOOK_CADASTRO, {
@@ -246,45 +214,43 @@ document.addEventListener("DOMContentLoaded", () => {
           body: JSON.stringify(payload),
         });
 
+        // ============================================================
+        // ⭐ CORREÇÃO 1: TRATAMENTO ROBUSTO DA RESPOSTA
+        // ============================================================
         const responseText = await req.text();
         let json;
         try {
           json = JSON.parse(responseText);
         } catch (e) {
-          throw new Error("Erro de comunicação com o servidor.");
+          console.error("Fiqon não retornou um JSON válido. Resposta:", responseText);
+          throw new Error("Ocorreu um erro de comunicação com o servidor. Tente novamente.");
         }
 
-        console.log("📦 Retorno Fiqon:", json);
+        console.log("📦 Retorno Fiqon (parseado):", json);
 
         if (!req.ok) {
-          throw new Error(
-            json?.mensagem || json?.message || "Erro ao processar assinatura."
-          );
+          throw new Error(json?.result?.mensagem || json?.message || json?.error || `Erro no servidor (HTTP ${req.status})`);
         }
 
         // ============================================================
-        // ⭐ VALIDAÇÃO CORRIGIDA — LENDO json.result.link_pagamento
+        // ⭐ CORREÇÃO 2: VALIDAÇÃO AJUSTADA E COMPLETA
         // ============================================================
         if (!temToken) {
           const linkPagamento = json?.result?.link_pagamento || null;
-
           if (!linkPagamento) {
-            console.error("❌ Link não encontrado no retorno:", json);
-            throw new Error(
-              "Erro ao finalizar a assinatura. Tente novamente mais tarde."
-            );
+            console.error("❌ Link de pagamento não encontrado em json.result.link_pagamento:", json);
+            throw new Error("Erro ao finalizar a assinatura. Tente novamente mais tarde.");
           }
-
           msg.style.color = "green";
-          msg.textContent =
-            "✅ Cadastro recebido! Redirecionando para o pagamento...";
-
+          msg.textContent = "✅ Cadastro recebido! Redirecionando para o pagamento...";
           setTimeout(() => {
             window.location.href = linkPagamento;
           }, 2000);
         } else {
+          const petsCadastrados = json?.pets_cadastrados || json?.pets || [];
+          const quant = Array.isArray(petsCadastrados) ? petsCadastrados.length : 0;
           msg.style.color = "green";
-          msg.textContent = "✅ Cadastro concluído!";
+          msg.textContent = `✅ Cadastro concluído! ${quant} pet(s) protegido(s)!`;
         }
 
         localStorage.removeItem("form_state");
@@ -304,23 +270,20 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ==================================================
-  // EVENTOS
+  // EVENTOS (Intacto)
   // ==================================================
   tipoPlano.addEventListener("change", () => {
     salvarState();
     atualizarBlocosPets();
   });
-
   periodo.addEventListener("change", () => {
     salvarState();
     atualizarValor();
   });
-
   qtdPetsInput.addEventListener("input", () => {
     salvarState();
     atualizarBlocosPets();
   });
-
   carregarState();
   atualizarBlocosPets();
 });
