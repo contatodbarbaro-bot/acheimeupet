@@ -1,16 +1,15 @@
 // ===============================================================
-// 🐾 AcheiMeuPet — Cadastro.js VERSÃO FINAL CORRIGIDA (NOV 2025)
+// 🐾 AcheiMeuPet — Cadastro.js VERSÃO XEQUE-MATE (NOV 2025)
 // ===============================================================
 // • CÓDIGO COMPLETO E FIEL AO ORIGINAL.
-// • CORREÇÃO 1: Tratamento robusto da resposta do Fiqon para evitar 'null'.
-// • CORREÇÃO 2: Validação ajustada para ler `json.result.link_pagamento`.
+// • CORREÇÃO FINAL: Validação ajustada para o caminho `json.body.result.link_pagamento`.
 // ===============================================================
 
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("🐾 AcheiMeuPet: Script FINAL (Corrigido) carregado.");
+  console.log("🐾 AcheiMeuPet: Script XEQUE-MATE carregado.");
 
   // ============================
-  // 🔐 TOKEN DE ORIGEM E WEBHOOKS
+  // 🔐 TOKEN DE ORIGEM E WEBHOOKS (Intacto)
   // ============================
   const urlParams = new URLSearchParams(window.location.search);
   const temToken = urlParams.has("token");
@@ -62,7 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ==================================================
-  // 🧱 GERAR BLOCOS DE PET (Intacto, com pequena correção de aspas)
+  // 🧱 GERAR BLOCOS DE PET (Intacto)
   // ==================================================
   function gerarBlocoPet(i) {
     const state = JSON.parse(localStorage.getItem("form_state") || "{}");
@@ -214,9 +213,6 @@ document.addEventListener("DOMContentLoaded", () => {
           body: JSON.stringify(payload),
         });
 
-        // ============================================================
-        // ⭐ CORREÇÃO 1: TRATAMENTO ROBUSTO DA RESPOSTA
-        // ============================================================
         const responseText = await req.text();
         let json;
         try {
@@ -229,16 +225,16 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("📦 Retorno Fiqon (parseado):", json);
 
         if (!req.ok) {
-          throw new Error(json?.result?.mensagem || json?.message || json?.error || `Erro no servidor (HTTP ${req.status})`);
+          throw new Error(json?.body?.result?.mensagem || json?.message || json?.error || `Erro no servidor (HTTP ${req.status})`);
         }
 
         // ============================================================
-        // ⭐ CORREÇÃO 2: VALIDAÇÃO AJUSTADA E COMPLETA
+        // ⭐ VALIDAÇÃO FINAL — LENDO json.body.result.link_pagamento
         // ============================================================
         if (!temToken) {
-          const linkPagamento = json?.result?.link_pagamento || null;
+          const linkPagamento = json?.body?.result?.link_pagamento || null;
           if (!linkPagamento) {
-            console.error("❌ Link de pagamento não encontrado em json.result.link_pagamento:", json);
+            console.error("❌ Link de pagamento não encontrado em json.body.result.link_pagamento:", json);
             throw new Error("Erro ao finalizar a assinatura. Tente novamente mais tarde.");
           }
           msg.style.color = "green";
