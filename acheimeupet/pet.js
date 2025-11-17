@@ -1,13 +1,14 @@
 // =============================================
-//  AcheiMeuPet — pet.js (versão corrigida 11/11/2025)
-//  Final — totalmente compatível com o fluxo Encontro_Pet_Fiqon
+//  AcheiMeuPet — pet.js (versão corrigida)
+//  Totalmente compatível com o fluxo Encontro_Pet_Fiqon
 // =============================================
 
 // ====== ENDPOINTS ======
 const WEBHOOK_AVISO =
   "https://webhook.fiqon.app/webhook/a02b8e45-cd21-44e0-a619-be0e64fd9a4b/b9ae07d8-e7af-4b1f-9b1c-a22cc15fb9cd"; // Encontro (aviso tutor)
+
 const FIQON_API_PET =
-  "https://webhook.fiqon.app/webhook/a02b8e45-cd21-44e0-a619-be0e64fd9a4b/b9ae07d8-e7af-4b1f-9b1c-a22cc15fb9cd"; // Buscar dados do pet (fluxo Encontro_Pet_Fiqon)
+  "https://webhook.fiqon.app/webhook/a02b8e45-cd21-44e0-a619-be0e64fd9a4b/b9ae07d8-e7af-4b1f-9b1c-a22cc15fb9cd"; // Buscar dados do pet (mesmo fluxo)
 
 // === Obter ID do pet da URL ===
 function obterIdPet() {
