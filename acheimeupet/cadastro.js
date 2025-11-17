@@ -2,7 +2,7 @@
 // 🐾 AcheiMeuPet — Cadastro.js VERSÃO FINALÍSSIMA (COMPLETO)
 // ===============================================================
 // • CÓDIGO COMPLETO E FIEL AO ORIGINAL.
-// • CORREÇÃO FINALÍSSIMA: Validação ajustada para o caminho `json.body.link_pagamento`.
+// • AJUSTADO: Redirecionamento direto para os links do Asaas conforme plano escolhido.
 // ===============================================================
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -133,7 +133,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     let valor = 0;
     if (plano === "individual") valor = per === "mensal" ? 24.9 : 249.9;
-    else valor = per === "mensal" ? 19.9 * qtd : 199 * qtd;
+    else valor = per === "mensal" ? (24.9 + 19.9 * (qtd - 1)) : (249.9 + 199.9 * (qtd - 1));
     valorLabel.textContent = `Valor total: R$ ${valor.toFixed(2).replace(".", ",")}`;
   }
 
@@ -167,7 +167,7 @@ document.addEventListener("DOMContentLoaded", () => {
         let valor = 0;
         if (!temToken) {
           if (plano === "individual") valor = per === "mensal" ? 24.9 : 249.9;
-          else valor = per === "mensal" ? 19.9 * qtd : 199 * qtd;
+          else valor = per === "mensal" ? (24.9 + 19.9 * (qtd - 1)) : (249.9 + 199.9 * (qtd - 1));
         }
         const pets = [];
         for (let i = 1; i <= qtd; i++) {
@@ -229,16 +229,37 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         // ============================================================
-        // ⭐ VALIDAÇÃO FINALÍSSIMA — LENDO json.body.link_pagamento
+        // 🚀 NOVA LÓGICA: Redirecionar direto para o link Asaas adequado
         // ============================================================
         if (!temToken) {
-          const linkPagamento = json?.body?.link_pagamento || null;
+          const qtdPets = Math.min(Math.max(qtd, 1), 5); // Limita entre 1 e 5
+          let linkPagamento = null;
+
+          const linksMensal = {
+            1: "https://www.asaas.com/c/z4arsb65i8mhbn5y",
+            2: "https://www.asaas.com/c/5spsjzue371ahvcj",
+            3: "https://www.asaas.com/c/mo2gj5g9uv37d6d4",
+            4: "https://www.asaas.com/c/umbhm3wu7wumse4c",
+            5: "https://www.asaas.com/c/zgnas7wb0bcd5rg4",
+          };
+
+          const linksAnual = {
+            1: "https://www.asaas.com/c/gq22idlklk34ak5c",
+            2: "https://www.asaas.com/c/6hf9ew19lq9s51db",
+            3: "https://www.asaas.com/c/k6mteelng8wz4r91",
+            4: "https://www.asaas.com/c/3bfhn1g8e4kx4u0g",
+            5: "https://www.asaas.com/c/392hfbtgrwnx3s6c",
+          };
+
+          linkPagamento = per === "mensal" ? linksMensal[qtdPets] : linksAnual[qtdPets];
+
           if (!linkPagamento) {
-            console.error("❌ Link de pagamento não encontrado em json.body.link_pagamento:", json);
-            throw new Error("Erro ao finalizar a assinatura. Tente novamente mais tarde.");
+            throw new Error("Não foi possível identificar o link de pagamento. Verifique os dados.");
           }
+
           msg.style.color = "green";
-          msg.textContent = "✅ Cadastro recebido! Redirecionando para o pagamento...";
+          msg.textContent = `🐾 Cadastro realizado! Agora finalize sua assinatura (${qtdPets} pet${qtdPets > 1 ? 's' : ''}). Redirecionando...`;
+
           setTimeout(() => {
             window.location.href = linkPagamento;
           }, 2000);
@@ -246,7 +267,7 @@ document.addEventListener("DOMContentLoaded", () => {
           const petsCadastrados = json?.pets_cadastrados || json?.pets || [];
           const quant = Array.isArray(petsCadastrados) ? petsCadastrados.length : 0;
           msg.style.color = "green";
-          msg.textContent = `✅ Cadastro concluído! ${quant} pet(s) protegido(s)!`;
+          msg.textContent = `🐾 Cadastro concluído! ${quant} pet(s) protegido(s)!`;
         }
 
         localStorage.removeItem("form_state");
