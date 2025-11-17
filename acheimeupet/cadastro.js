@@ -3,6 +3,7 @@
 // ===============================================================
 // • CÓDIGO COMPLETO E FIEL AO ORIGINAL.
 // • AJUSTADO: Redirecionamento direto para os links do Asaas conforme plano escolhido.
+// • CORRIGIDO: VALORES MENSAIS (2+ PETS = 19,90 CADA)
 // ===============================================================
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -21,7 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "https://webhook.fiqon.app/webhook/019a781c-15f8-738a-93bc-5b70388445ff/faee836c-d909-4b6b-96d0-ed6433640060";
   const WEBHOOK_CADASTRO = temToken ? WEBHOOK_FREE : WEBHOOK_PAGO;
 
-  console.log(`📡 Modo detectado: ${temToken ? "FREE" : "PAGO"}` );
+  console.log(`📡 Modo detectado: ${temToken ? "FREE" : "PAGO"}`);
 
   // ==================================================
   // 📌 ELEMENTOS DO DOM
@@ -121,19 +122,33 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ==================================================
-  // 💰 ATUALIZAR VALOR
+  // 💰 ATUALIZAR VALOR  **(CORRIGIDO)**
   // ==================================================
   function atualizarValor() {
     const plano = tipoPlano.value;
     const per = periodo.value;
     const qtd = parseInt(qtdPetsInput.value) || 1;
+
     if (!plano || !per) {
       valorLabel.textContent = "Selecione o plano para ver o valor";
       return;
     }
+
     let valor = 0;
-    if (plano === "individual") valor = per === "mensal" ? 24.9 : 249.9;
-    else valor = per === "mensal" ? (24.9 + 19.9 * (qtd - 1)) : (249.9 + 199.9 * (qtd - 1));
+
+    if (plano === "individual") {
+      valor = per === "mensal" ? 24.9 : 249.9;
+    } else {
+      // família
+      if (per === "mensal") {
+        // CORREÇÃO: 1 pet = 24,90 | 2+ pets = 19,90 cada
+        valor = qtd === 1 ? 24.9 : (qtd * 19.9);
+      } else {
+        // anual (já estava correto)
+        valor = qtd === 1 ? 249.9 : (qtd * 199.9);
+      }
+    }
+
     valorLabel.textContent = `Valor total: R$ ${valor.toFixed(2).replace(".", ",")}`;
   }
 
@@ -147,9 +162,12 @@ document.addEventListener("DOMContentLoaded", () => {
       loading.style.display = "block";
       botao.disabled = true;
       botao.innerHTML = `⏳ Enviando...`;
+
       salvarState();
+
       try {
         const fd = new FormData(form);
+
         const tutor = {
           nome_tutor: fd.get("nome_tutor"),
           cpf_tutor: fd.get("cpf_tutor"),
@@ -161,14 +179,19 @@ document.addEventListener("DOMContentLoaded", () => {
           cep: fd.get("cep"),
           obs: fd.get("obs"),
         };
+
         const plano = tipoPlano.value;
         const per = periodo.value;
         const qtd = parseInt(qtdPetsInput.value) || 1;
+
         let valor = 0;
         if (!temToken) {
           if (plano === "individual") valor = per === "mensal" ? 24.9 : 249.9;
-          else valor = per === "mensal" ? (24.9 + 19.9 * (qtd - 1)) : (249.9 + 199.9 * (qtd - 1));
+          else valor = per === "mensal"
+            ? (qtd === 1 ? 24.9 : qtd * 19.9)
+            : (qtd === 1 ? 249.9 : qtd * 199.9);
         }
+
         const pets = [];
         for (let i = 1; i <= qtd; i++) {
           const nome = fd.get(`nome_pet_${i}`);
@@ -177,15 +200,18 @@ document.addEventListener("DOMContentLoaded", () => {
           const sexo = fd.get(`sexo_${i}`);
           const ano = fd.get(`ano_nasc_${i}`);
           const file = fd.get(`foto_pet_${i}`);
+
           if (!file || file.size === 0) {
             throw new Error(`A foto do Pet ${i} é obrigatória.`);
           }
+
           const base64 = await new Promise((res, rej) => {
             const reader = new FileReader();
             reader.onload = () => res(reader.result);
             reader.onerror = rej;
             reader.readAsDataURL(file);
           });
+
           pets.push({
             nome_pet: nome,
             especie: esp,
@@ -195,6 +221,7 @@ document.addEventListener("DOMContentLoaded", () => {
             foto_pet: base64,
           });
         }
+
         const payload = {
           ...tutor,
           plano: temToken ? "Free" : plano,
@@ -205,6 +232,7 @@ document.addEventListener("DOMContentLoaded", () => {
           token_origem: tokenParam,
           pets,
         };
+
         console.log("📤 Enviando para Fiqon:", payload);
 
         const req = await fetch(WEBHOOK_CADASTRO, {
@@ -229,11 +257,10 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         // ============================================================
-        // 🚀 NOVA LÓGICA: Redirecionar direto para o link Asaas adequado
+        // 🚀 REDIRECIONAMENTO AUTOMÁTICO AO ASAAS (PAGO)
         // ============================================================
         if (!temToken) {
-          const qtdPets = Math.min(Math.max(qtd, 1), 5); // Limita entre 1 e 5
-          let linkPagamento = null;
+          const qtdPets = Math.min(Math.max(qtd, 1), 5);
 
           const linksMensal = {
             1: "https://www.asaas.com/c/z4arsb65i8mhbn5y",
@@ -251,14 +278,15 @@ document.addEventListener("DOMContentLoaded", () => {
             5: "https://www.asaas.com/c/392hfbtgrwnx3s6c",
           };
 
-          linkPagamento = per === "mensal" ? linksMensal[qtdPets] : linksAnual[qtdPets];
+          const linkPagamento =
+            per === "mensal" ? linksMensal[qtdPets] : linksAnual[qtdPets];
 
           if (!linkPagamento) {
-            throw new Error("Não foi possível identificar o link de pagamento. Verifique os dados.");
+            throw new Error("Não foi possível identificar o link de pagamento.");
           }
 
           msg.style.color = "green";
-          msg.textContent = `🐾 Cadastro realizado! Agora finalize sua assinatura (${qtdPets} pet${qtdPets > 1 ? 's' : ''}). Redirecionando...`;
+          msg.textContent = `🐾 Cadastro realizado! Agora finalize sua assinatura (${qtdPets} pet${qtdPets > 1 ? "s" : ""}). Redirecionando...`;
 
           setTimeout(() => {
             window.location.href = linkPagamento;
@@ -293,14 +321,17 @@ document.addEventListener("DOMContentLoaded", () => {
     salvarState();
     atualizarBlocosPets();
   });
+
   periodo.addEventListener("change", () => {
     salvarState();
     atualizarValor();
   });
+
   qtdPetsInput.addEventListener("input", () => {
     salvarState();
     atualizarBlocosPets();
   });
+
   carregarState();
   atualizarBlocosPets();
 });
