@@ -1,16 +1,13 @@
 // =============================================
-//  AcheiMeuPet — pet.js (versão estável)
-//  Consulta dados do pet direto no Apps Script
-//  e usa o Fiqon apenas para avisar o tutor.
+//  AcheiMeuPet — pet.js (versão corrigida 18/11)
+//  Consulta dados direto no Apps Script
+//  Envia aviso completo ao Fiqon (Encontro_Pet_fluxo)
 // =============================================
 
-// ====== ENDPOINTS ======
-
-// Apps Script que busca o PET na planilha Banco_de_dados_clientes
+// ===== ENDPOINTS =====
 const API_PET =
   "https://script.google.com/macros/s/AKfycbz5pxePvVWe6zYI6hqIAXT1mMO0-0NNViyA2PfkFWvdsmD55bFBNT5tlwqxQdsOyEnq7w/exec";
 
-// Webhook Fiqon para avisar o tutor (Encontro_Pet_fluxo)
 const WEBHOOK_AVISO =
   "https://webhook.fiqon.app/webhook/a02b8e45-cd21-44e0-a619-be0e64fd9a4b/b9ae07d8-e7af-4b1f-9b1c-a22cc15fb9cd";
 
@@ -21,42 +18,33 @@ function obterIdPet() {
   return params.get("id");
 }
 
-// === Buscar dados do pet (direto no Apps Script) ===
+// === Buscar dados do pet ===
 async function buscarDadosPet(id_pet) {
   try {
-    console.log("📡 Buscando dados do pet no Apps Script...", id_pet);
-
     const url = `${API_PET}?id_pet=${encodeURIComponent(id_pet)}`;
     const resposta = await fetch(url);
-
     const json = await resposta.json();
-    console.log("🔍 Retorno completo da API PET:", json);
 
-    // Valida retorno
     if (!json || json.status !== "sucesso" || !json.pet) {
-      const msg = json && json.mensagem
-        ? json.mensagem
-        : "Pet não encontrado ou resposta inválida";
-      throw new Error(msg);
+      throw new Error(json?.mensagem || "Pet não encontrado");
     }
 
     return json.pet;
+
   } catch (e) {
     console.error("❌ Erro buscarDadosPet:", e);
     return null;
   }
 }
 
-// === Preencher dados na interface ===
+// === Preencher interface ===
 function preencherDadosPet(d) {
   const nomePet = d.nome_pet || "Pet não identificado";
   const nomeTutor = d.nome_tutor || "Tutor não identificado";
 
-  // Foto
   document.getElementById("foto_pet").src =
     d.foto_pet || "https://cdn-icons-png.flaticon.com/512/616/616408.png";
 
-  // Textos
   document.getElementById("nome_pet").textContent = nomePet;
   document.getElementById("nome_pet_label").textContent = nomePet;
   document.getElementById("especie_pet").textContent = d.especie || "-";
@@ -67,18 +55,22 @@ function preencherDadosPet(d) {
   document.getElementById("whatsapp_tutor").textContent =
     d.whatsapp_tutor || "-";
 
-  // Botão WhatsApp
+  // Configura botão WhatsApp
   const numeroWhats = (d.whatsapp_tutor || "").replace(/\D/g, "");
-  const texto = `Olá! Encontrei o pet ${nomePet} através do AcheiMeuPet 🐾`;
-  const contatoLink = `https://wa.me/55${numeroWhats}?text=${encodeURIComponent(
-    texto
-  )}`;
-  document.getElementById("btn_contato").href = contatoLink;
 
-  console.log("✅ Dados preenchidos na interface com sucesso.");
+  const btn = document.getElementById("btn_contato");
+
+  if (!numeroWhats || numeroWhats.length < 10) {
+    btn.style.display = "none"; // some se inválido
+  } else {
+    const texto = `Olá! Encontrei o pet ${nomePet} através do AcheiMeuPet 🐾`;
+    btn.href = `https://wa.me/55${numeroWhats}?text=${encodeURIComponent(
+      texto
+    )}`;
+  }
 }
 
-// === Enviar aviso para o tutor (via Fiqon) ===
+// === Enviar aviso ao tutor via Fiqon ===
 async function enviarAviso(formData) {
   try {
     const r = await fetch(WEBHOOK_AVISO, {
@@ -88,15 +80,15 @@ async function enviarAviso(formData) {
     });
 
     const json = await r.json();
-    console.log("📤 Retorno do aviso:", json);
     return json;
+
   } catch (err) {
     console.error("❌ Erro ao enviar aviso:", err);
     return null;
   }
 }
 
-// === Execução ao carregar página ===
+// === Execução ===
 document.addEventListener("DOMContentLoaded", async () => {
   const id_pet = obterIdPet();
 
@@ -106,17 +98,29 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
-  document.getElementById("nome_pet").textContent = "Carregando...";
-
   const dados = await buscarDadosPet(id_pet);
+
   if (!dados) {
     document.getElementById("conteudo-pet").innerHTML =
-      `<p class="erro">⚠️ Pet não encontrado no sistema.</p>`;
+      `<p class="erro">⚠️ Pet não encontrado.</p>`;
     return;
   }
 
-  // Preenche tela
   preencherDadosPet(dados);
+
+  // CAPTURAR LOCALIZAÇÃO
+  let latitude = null;
+  let longitude = null;
+
+  if ("geolocation" in navigator) {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        latitude = pos.coords.latitude;
+        longitude = pos.coords.longitude;
+      },
+      () => console.warn("Geolocalização negada.")
+    );
+  }
 
   // === Formulário “Avisar que encontrei” ===
   const form = document.getElementById("formAviso");
@@ -127,19 +131,30 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const payload = {
       id_pet,
-      nome_encontrador:
-        document.getElementById("nome_encontrador").value.trim(),
-      telefone_encontrador:
-        document.getElementById("telefone_encontrador").value.trim(),
+
+      nome_encontrador: document
+        .getElementById("nome_encontrador")
+        .value.trim(),
+
+      telefone_encontrador: document
+        .getElementById("telefone_encontrador")
+        .value.trim(),
+
       observacoes: document.getElementById("observacoes").value.trim(),
-      // dados do pet/tutor para o Fiqon montar a mensagem
-      nome_pet: dados.nome_pet || "",
-      nome_tutor: dados.nome_tutor || "",
-      whatsapp_tutor: dados.whatsapp_tutor || "",
-      email_tutor: dados.email_tutor || "",
+
+      // Dados para fluxo Fiqon
+      nome_pet: dados.nome_pet,
+      nome_tutor: dados.nome_tutor,
+      whatsapp_tutor: dados.whatsapp_tutor,
+      email_tutor: dados.email_tutor,
+
+      // Localização
+      latitude,
+      longitude,
     };
 
     const resp = await enviarAviso(payload);
+
     if (resp && (resp.ok || resp.success)) {
       msgOk.style.display = "block";
       setTimeout(() => (msgOk.style.display = "none"), 4000);
