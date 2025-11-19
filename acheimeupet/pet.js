@@ -1,7 +1,7 @@
 // =============================================
 //  AcheiMeuPet — pet.js (versão corrigida 18/11)
 //  Consulta dados direto no Apps Script
-//  Envia aviso completo ao Fiqon
+//  Envia aviso completo ao Fiqon (Encontro_Pet_fluxo)
 // =============================================
 
 // ===== ENDPOINTS =====
@@ -52,12 +52,11 @@ function preencherDadosPet(d) {
   document.getElementById("sexo_pet").textContent = d.sexo || "-";
   document.getElementById("cidade_pet").textContent = d.cidade || "-";
   document.getElementById("nome_tutor").textContent = nomeTutor;
+  document.getElementById("whatsapp_tutor").textContent = d.whatsapp_tutor || "-";
 
-  // Forçar string no número do WhatsApp
-  let numeroWhats = (d.whatsapp_tutor || "").toString().replace(/\D/g, "");
-
-  document.getElementById("whatsapp_tutor").textContent =
-    numeroWhats || "-";
+  // === CORREÇÃO CRÍTICA ===
+  // Garante que vamos trabalhar sempre com string
+  const numeroWhats = String(d.whatsapp_tutor || "").replace(/\D/g, "");
 
   const btn = document.getElementById("btn_contato");
 
@@ -68,7 +67,6 @@ function preencherDadosPet(d) {
     btn.href = `https://wa.me/55${numeroWhats}?text=${encodeURIComponent(texto)}`;
   }
 }
-
 
 // === Enviar aviso ao tutor via Fiqon ===
 async function enviarAviso(formData) {
@@ -88,11 +86,8 @@ async function enviarAviso(formData) {
   }
 }
 
-
-
 // === Execução ===
 document.addEventListener("DOMContentLoaded", async () => {
-
   const id_pet = obterIdPet();
 
   if (!id_pet) {
@@ -110,7 +105,6 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   preencherDadosPet(dados);
-
 
   // CAPTURAR LOCALIZAÇÃO
   let latitude = null;
@@ -140,11 +134,13 @@ document.addEventListener("DOMContentLoaded", async () => {
       telefone_encontrador: document.getElementById("telefone_encontrador").value.trim(),
       observacoes: document.getElementById("observacoes").value.trim(),
 
+      // Dados do tutor e pet
       nome_pet: dados.nome_pet,
       nome_tutor: dados.nome_tutor,
       whatsapp_tutor: dados.whatsapp_tutor,
       email_tutor: dados.email_tutor,
 
+      // Localização
       latitude,
       longitude,
     };
@@ -159,5 +155,4 @@ document.addEventListener("DOMContentLoaded", async () => {
       alert("Não foi possível enviar o aviso ao tutor.");
     }
   });
-
 });
