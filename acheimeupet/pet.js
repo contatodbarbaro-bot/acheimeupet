@@ -147,12 +147,16 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const resp = await enviarAviso(payload);
 
-    if (resp && (resp.ok || resp.success)) {
-      msgOk.style.display = "block";
-      setTimeout(() => (msgOk.style.display = "none"), 4000);
-      form.reset();
-    } else {
-      alert("Não foi possível enviar o aviso ao tutor.");
-    }
+// só pra debug, depois podemos remover
+console.log("Resposta do Fiqon:", resp);
+
+if (resp && resp.result && resp.result.enviado_whatsapp === true) {
+  msgOk.style.display = "block";
+  setTimeout(() => (msgOk.style.display = "none"), 4000);
+  form.reset();
+} else {
+  alert("Não foi possível enviar o aviso ao tutor.");
+}
   });
 });
+
