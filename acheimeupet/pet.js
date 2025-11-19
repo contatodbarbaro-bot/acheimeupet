@@ -1,7 +1,6 @@
 // =============================================
-//  AcheiMeuPet — pet.js (versão corrigida 18/11)
-//  Consulta dados direto no Apps Script
-//  Envia aviso completo ao Fiqon (Encontro_Pet_fluxo)
+//  AcheiMeuPet — pet.js (versão corrigida DEFINITIVA)
+//  Compatível com o fluxo Encontro_Pet_Fiqon
 // =============================================
 
 // ===== ENDPOINTS =====
@@ -17,6 +16,7 @@ function obterIdPet() {
   const params = new URLSearchParams(window.location.search);
   return params.get("id");
 }
+
 
 // === Buscar dados do pet ===
 async function buscarDadosPet(id_pet) {
@@ -36,6 +36,7 @@ async function buscarDadosPet(id_pet) {
     return null;
   }
 }
+
 
 // === Preencher interface ===
 function preencherDadosPet(d) {
@@ -57,11 +58,10 @@ function preencherDadosPet(d) {
 
   // Configura botão WhatsApp
   const numeroWhats = (d.whatsapp_tutor || "").replace(/\D/g, "");
-
   const btn = document.getElementById("btn_contato");
 
   if (!numeroWhats || numeroWhats.length < 10) {
-    btn.style.display = "none"; // some se inválido
+    btn.style.display = "none";
   } else {
     const texto = `Olá! Encontrei o pet ${nomePet} através do AcheiMeuPet 🐾`;
     btn.href = `https://wa.me/55${numeroWhats}?text=${encodeURIComponent(
@@ -69,6 +69,7 @@ function preencherDadosPet(d) {
     )}`;
   }
 }
+
 
 // === Enviar aviso ao tutor via Fiqon ===
 async function enviarAviso(formData) {
@@ -79,14 +80,19 @@ async function enviarAviso(formData) {
       body: JSON.stringify(formData),
     });
 
-    const json = await r.json();
-    return json;
+    // 💡 Mesmo se o fluxo retornar texto puro, isso evita erro:
+    try {
+      return await r.json();
+    } catch {
+      return { ok: true };
+    }
 
   } catch (err) {
     console.error("❌ Erro ao enviar aviso:", err);
     return null;
   }
 }
+
 
 // === Execução ===
 document.addEventListener("DOMContentLoaded", async () => {
@@ -129,27 +135,21 @@ document.addEventListener("DOMContentLoaded", async () => {
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
+    // 🎯 PAYLOAD SIMPLIFICADO E PERFEITO PARA O FIQON
     const payload = {
-      id_pet,
+      id_pet,                                           // Identificação do pet
 
       nome_encontrador: document
         .getElementById("nome_encontrador")
-        .value.trim(),
+        .value.trim(),                                  // Nome do encontrador
 
-      telefone_encontrador: document
+      contato_encontrador: document
         .getElementById("telefone_encontrador")
-        .value.trim(),
+        .value.trim(),                                  // Telefone do encontrador
 
-      observacoes: document.getElementById("observacoes").value.trim(),
+      obs: document.getElementById("observacoes").value.trim(), // Observação
 
-      // Dados para fluxo Fiqon
-      nome_pet: dados.nome_pet,
-      nome_tutor: dados.nome_tutor,
-      whatsapp_tutor: dados.whatsapp_tutor,
-      email_tutor: dados.email_tutor,
-
-      // Localização
-      latitude,
+      latitude,                                         // Localização
       longitude,
     };
 
