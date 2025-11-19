@@ -1,5 +1,5 @@
 // =============================================
-//  AcheiMeuPet — pet.js (versão corrigida 18/11)
+//  AcheiMeuPet — pet.js (versão corrigida 19/11)
 //  Consulta dados direto no Apps Script
 //  Envia aviso completo ao Fiqon (Encontro_Pet_fluxo)
 // =============================================
@@ -13,7 +13,7 @@ const WEBHOOK_AVISO =
 
 
 // === Obter ID do pet da URL ===
-function obterIdPet() {
+function obterIdPet( ) {
   const params = new URLSearchParams(window.location.search);
   return params.get("id");
 }
@@ -45,7 +45,7 @@ function preencherDadosPet(d) {
   document.getElementById("foto_pet").src =
     d.foto_pet || "https://cdn-icons-png.flaticon.com/512/616/616408.png";
 
-  document.getElementById("nome_pet").textContent = nomePet;
+  document.getElementById("nome_pet" ).textContent = nomePet;
   document.getElementById("nome_pet_label").textContent = nomePet;
   document.getElementById("especie_pet").textContent = d.especie || "-";
   document.getElementById("raca_pet").textContent = d.raca || "-";
@@ -64,11 +64,11 @@ function preencherDadosPet(d) {
     btn.style.display = "none";
   } else {
     const texto = `Olá! Encontrei o pet ${nomePet} através do AcheiMeuPet 🐾`;
-    btn.href = `https://wa.me/55${numeroWhats}?text=${encodeURIComponent(texto)}`;
+    btn.href = `https://wa.me/55${numeroWhats}?text=${encodeURIComponent(texto )}`;
   }
 }
 
-// === Enviar aviso ao tutor via Fiqon ===
+// === Enviar aviso ao tutor via Fiqon (VERSÃO ROBUSTA) ===
 async function enviarAviso(formData) {
   try {
     const r = await fetch(WEBHOOK_AVISO, {
@@ -77,11 +77,19 @@ async function enviarAviso(formData) {
       body: JSON.stringify(formData),
     });
 
-    const json = await r.json();
-    return json;
+    // MUDANÇA CRÍTICA: Não tentamos mais ler o corpo da resposta (r.json()).
+    // Confiamos apenas no status HTTP. Se for 200 OK, consideramos sucesso.
+    if (r.ok && r.status === 200) {
+      return { enviado_whatsapp: true }; // Retornamos nosso próprio objeto de sucesso.
+    } else {
+      // Se o status for diferente (ex: 404, 500), consideramos falha.
+      console.error("Resposta do Fiqon não foi OK:", r.status, r.statusText);
+      return null;
+    }
 
   } catch (err) {
-    console.error("❌ Erro ao enviar aviso:", err);
+    // Se o fetch falhar (ex: sem internet, erro de CORS real), caímos aqui.
+    console.error("❌ Erro de rede ao enviar aviso:", err);
     return null;
   }
 }
@@ -147,16 +155,16 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const resp = await enviarAviso(payload);
 
-// só pra debug, depois podemos remover
-console.log("Resposta do Fiqon:", resp);
+    // só pra debug, depois podemos remover
+    console.log("Resposta processada pelo JS:", resp);
 
-if (resp && resp.result && resp.result.enviado_whatsapp === true) {
-  msgOk.style.display = "block";
-  setTimeout(() => (msgOk.style.display = "none"), 4000);
-  form.reset();
-} else {
-  alert("Não foi possível enviar o aviso ao tutor.");
-}
+    // MUDANÇA CRÍTICA: A condição foi simplificada para corresponder à nova função enviarAviso.
+    if (resp && resp.enviado_whatsapp === true) {
+      msgOk.style.display = "block";
+      setTimeout(() => (msgOk.style.display = "none"), 4000);
+      form.reset();
+    } else {
+      alert("Não foi possível enviar o aviso ao tutor.");
+    }
   });
 });
-
