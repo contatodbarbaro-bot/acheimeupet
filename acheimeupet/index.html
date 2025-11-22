@@ -4,7 +4,8 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>AcheiMeuPet – A tag que encontra seu melhor amigo</title>
-<meta name="description" content="AcheiMeuPet: a tag com QR Code que protege e reconecta animais aos seus tutores em segundos.">
+<meta name="description" content="AcheiMeuPet: a tag com QR Code que protege, reconecta e salva pets, usando tecnologia, propósito e muita história real. Em memória do Picolé.">
+
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
 
@@ -96,6 +97,14 @@ section {
   font-weight: 500;
 }
 
+/* Texto introdutório de seção */
+.section-intro {
+  max-width: 720px;
+  margin: 10px 0 25px;
+  color: #444;
+  font-size: 15px;
+}
+
 /* Como Funciona */
 .steps {
   display: grid;
@@ -118,17 +127,58 @@ section {
   margin-bottom: 10px;
 }
 
+/* Blocos de dados (cenário pet) */
+.dados-pet {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 18px;
+  margin-top: 24px;
+}
+.dado-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 18px 20px;
+  border: 1px solid #e3ded5;
+  box-shadow: 0 2px 6px #0001;
+}
+.dado-card strong {
+  display: block;
+  font-size: 22px;
+  color: var(--escuro);
+}
+.dado-card span {
+  display: block;
+  margin-top: 6px;
+  font-size: 14px;
+  color: #555;
+}
+.dado-card small.fonte {
+  display: block;
+  margin-top: 10px;
+  font-size: 11px;
+  color: #888;
+}
+
 /* História */
 .historia {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 30px;
   align-items: center;
+  opacity: 0;
+  animation: fadeIn 1.2s ease forwards;
 }
 .historia img {
   width: 100%;
   border: 4px solid var(--caramelo);
   border-radius: 14px;
+}
+.historia-sub {
+  font-size: 15px;
+  margin-top: -8px;
+  margin-bottom: 15px;
+  color: var(--escuro);
+  opacity: 0.8;
 }
 
 /* FAQ */
@@ -172,6 +222,7 @@ footer a { color: #fff; }
 <header>
   <nav>
     <a href="#como-funciona">Como Funciona</a>
+    <a href="#por-que-proteger">Por que Proteger</a>
     <a href="#nossa-historia">Nossa História</a>
     <a href="#faq">FAQ</a>
     <a href="#contato">Contato</a>
@@ -186,7 +237,6 @@ footer a { color: #fff; }
 
   <div>
     <a href="cadastro.html" class="btn">Cadastrar Pet</a>
-    <a href="tag-demo.html" class="btn" style="background:var(--azul); color:var(--escuro);">Ver Tag em Ação</a>
   </div>
 
   <div class="counter">
@@ -194,34 +244,98 @@ footer a { color: #fff; }
   </div>
 </section>
 
+<!-- RESTO DO ARQUIVO CONTINUA IGUAL (SEM ALTERAÇÕES) -->
+
 <section id="como-funciona">
   <h2>Como Funciona</h2>
+  <p class="section-intro">
+    Em poucos passos, seu pet ganha uma identidade digital com QR Code que facilita o reencontro em caso de perda.
+  </p>
+
   <div class="steps">
     <div class="step">
       <i class="ri-hand-heart-line"></i>
       <h3>1. Cadastre seu pet</h3>
-      <p>Preencha o perfil e ative a proteção.</p>
+      <p>Informe seus dados e os do seu pet, escolha o plano e ative a proteção em poucos minutos.</p>
     </div>
     <div class="step">
       <i class="ri-qr-scan-2-line"></i>
       <h3>2. Receba sua tag gratuita</h3>
-      <p>Enviamos sua tag em até 24h após a assinatura — você paga apenas o frete.</p>
+      <p>Geramos sua tag com QR Code exclusivo e enviamos em até 24h após a assinatura — você paga apenas o frete.</p>
     </div>
     <div class="step">
       <i class="ri-shield-check-line"></i>
       <h3>3. Proteção garantida</h3>
-      <p>Se seu pet for encontrado, você recebe a localização e contato do encontrador na hora.</p>
+      <p>Se seu pet for encontrado, quem escanear a tag acessa a página segura do pet, pode enviar a localização e falar com você pelo WhatsApp.</p>
     </div>
   </div>
 </section>
 
+<!-- 🔹 NOVA SEÇÃO: Por que Proteger -->
+<section id="por-que-proteger">
+  <h2>Por que essa proteção é tão necessária?</h2>
+  <p class="section-intro">
+    O Brasil está entre os países com mais cães e gatos do mundo — e, ao mesmo tempo, milhões de animais ainda vivem em situação de vulnerabilidade ou se perdem todos os anos. A tag certa faz diferença na hora do reencontro.
+  </p>
+
+  <div class="dados-pet">
+    <div class="dado-card">
+      <strong>≈ 68 milhões</strong>
+      <span>de cães vivem hoje nos lares brasileiros.</span>
+      <small class="fonte">Fonte: dados setoriais ABINPET/Instituto Pet Brasil.</small>
+    </div>
+    <div class="dado-card">
+      <strong>≈ 34 milhões</strong>
+      <span>de gatos fazem parte das famílias do país.</span>
+      <small class="fonte">Fonte: dados setoriais ABINPET/Instituto Pet Brasil.</small>
+    </div>
+    <div class="dado-card">
+      <strong>56% dos lares</strong>
+      <span>têm pelo menos um cão ou gato em casa.</span>
+      <small class="fonte">Fonte: COMAC / ABINPET (2022).</small>
+    </div>
+  </div>
+
+  <div class="dados-pet">
+    <div class="dado-card">
+      <strong>4,8 milhões</strong>
+      <span>de cães e gatos estão em situação de vulnerabilidade — nas ruas, abrigos ou sob tutela de ONGs.</span>
+      <small class="fonte">Fonte: Instituto Pet Brasil (2024).</small>
+    </div>
+    <div class="dado-card">
+      <strong>15% dos tutores</strong>
+      <span>já relataram pelo menos um caso de desaparecimento de cão ou gato em casa.</span>
+      <small class="fonte">Fonte: pesquisa ASPCA (estudo internacional).</small>
+    </div>
+  </div>
+
+  <p class="section-intro">
+    Com tanta gente convivendo com cães e gatos, uma fuga por portão aberto, barulho de fogos ou um simples susto na rua não é “caso raro” — é questão de tempo. 
+    A tag AcheiMeuPet transforma esse momento de desespero em uma chance real de reencontro rápido e seguro.
+  </p>
+</section>
+
+<!-- ⭐⭐ SEÇÃO Nossa História ⭐⭐ -->
 <section id="nossa-historia" class="historia">
   <div>
     <h2>Nossa História</h2>
+    <p class="historia-sub">Um projeto que nasceu do amor, da saudade e de um propósito maior.</p>
+
     <p>O AcheiMeuPet nasceu de uma história real, marcada por amor, amizade e propósito.</p>
-    <p>Criamos este projeto para que nenhum tutor precise viver o desespero de perder seu companheiro sem ter uma forma de reencontrá-lo.</p>
+
+    <p>Durante anos, o Picolé foi meu companheiro de vida — presente em fases boas e ruins, sempre com aquele olhar doce e leal. Quando ele ficou velhinho e partiu por causas naturais, ficou um vazio enorme e a necessidade de transformar esse amor em algo maior, algo que ajudasse outros animais.</p>
+
+    <p>No meio da dor, ficou também a certeza de que ele tinha cumprido sua missão ao meu lado com maestria.</p>
+
+    <p>O AcheiMeuPet não nasceu porque o Picolé se perdeu; nasceu porque o amor que ele deixou não cabia só em mim. Da saudade veio a ideia de criar uma forma simples e acessível de proteger pets e facilitar reencontros.</p>
+
+    <p>Com o tempo, o AcheiMeuPet cresceu como movimento pela causa animal. Estamos estruturando a ONG AcheiMeuPet, dedicada a apoiar protetores e incentivar a adoção responsável — oferecendo tags gratuitas e vitalícias para pets adotados por ONGs parceiras.</p>
+
+    <p>Cada reencontro, cada tag enviada e cada pet protegido carrega um pouco da história do Picolé — e de todos os animais que merecem amor, segurança e um lar de verdade.</p>
+
     <p><strong>AcheiMeuPet — Em memória do Picolé 💙</strong></p>
   </div>
+
   <div>
     <img src="picole.png" alt="Picolé - inspiração do AcheiMeuPet">
   </div>
@@ -259,5 +373,6 @@ let updateCounter = () => {
 };
 updateCounter();
 </script>
+
 </body>
 </html>
