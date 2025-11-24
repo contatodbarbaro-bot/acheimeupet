@@ -15,12 +15,17 @@ const WEBHOOK_AVISO =
 // === Obter ID do pet da URL ===
 function obterIdPet() {
   const params = new URLSearchParams(window.location.search);
+  // O ID é passado na URL como '?id=PXXXX', então buscamos por 'id'
   return params.get("id");
 }
 
 // === Buscar dados do pet ===
 async function buscarDadosPet(id_pet) {
   try {
+    // CORREÇÃO: O Apps Script (codigo.gs) espera o parâmetro 'id' ou 'id_pet'.
+    // O código original estava enviando 'id_pet', mas o Apps Script estava buscando 'id'.
+    // Para garantir a compatibilidade com o codigo.gs corrigido, que aceita 'id_pet',
+    // vamos manter o envio de 'id_pet' aqui.
     const url = `${API_PET}?id_pet=${encodeURIComponent(id_pet)}`;
     const resposta = await fetch(url);
     const json = await resposta.json();
@@ -42,6 +47,8 @@ function preencherDadosPet(d) {
   const nomePet = d.nome_pet || "Pet não identificado";
   const nomeTutor = d.nome_tutor || "Tutor não identificado";
 
+  // O campo no Apps Script é 'foto_pet', mas o campo no HTML é 'foto_pet'
+  // O Apps Script está retornando 'foto_pet' (linha 69 do codigo.gs)
   document.getElementById("foto_pet").src =
     d.foto_pet || "https://cdn-icons-png.flaticon.com/512/616/616408.png";
 
@@ -92,16 +99,18 @@ document.addEventListener("DOMContentLoaded", async () => {
   const id_pet = obterIdPet();
 
   if (!id_pet) {
+    // A mensagem de erro no HTML já existe, mas vamos garantir que o conteúdo seja substituído
     document.getElementById("conteudo-pet").innerHTML =
-      `<p class="erro">❌ ID do pet não informado.</p>`;
+      `<p class="erro" style="font-size:1.2em; color:red; margin-top:20px;">❌ ID do pet não informado na URL.</p>`;
     return;
   }
 
   const dados = await buscarDadosPet(id_pet);
 
   if (!dados) {
+    // O HTML original já tem uma estrutura para "Pet não encontrado", mas vamos garantir a mensagem de erro
     document.getElementById("conteudo-pet").innerHTML =
-      `<p class="erro">⚠️ Pet não encontrado.</p>`;
+      `<p class="erro" style="font-size:1.2em; color:orange; margin-top:20px;">⚠️ Pet não encontrado. Verifique o ID.</p>`;
     return;
   }
 
