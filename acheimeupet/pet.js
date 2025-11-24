@@ -13,7 +13,7 @@ const WEBHOOK_AVISO =
 
 
 // === Obter ID do pet da URL ===
-function obterIdPet( ) {
+function obterIdPet() {
   const params = new URLSearchParams(window.location.search);
   return params.get("id");
 }
@@ -45,7 +45,7 @@ function preencherDadosPet(d) {
   document.getElementById("foto_pet").src =
     d.foto_pet || "https://cdn-icons-png.flaticon.com/512/616/616408.png";
 
-  document.getElementById("nome_pet" ).textContent = nomePet;
+  document.getElementById("nome_pet").textContent = nomePet;
   document.getElementById("nome_pet_label").textContent = nomePet;
   document.getElementById("especie_pet").textContent = d.especie || "-";
   document.getElementById("raca_pet").textContent = d.raca || "-";
@@ -54,17 +54,14 @@ function preencherDadosPet(d) {
   document.getElementById("nome_tutor").textContent = nomeTutor;
   document.getElementById("whatsapp_tutor").textContent = d.whatsapp_tutor || "-";
 
-  // === CORREÇÃO CRÍTICA ===
-  // Garante que vamos trabalhar sempre com string
   const numeroWhats = String(d.whatsapp_tutor || "").replace(/\D/g, "");
-
   const btn = document.getElementById("btn_contato");
 
   if (!numeroWhats || numeroWhats.length < 10) {
     btn.style.display = "none";
   } else {
     const texto = `Olá! Encontrei o pet ${nomePet} através do AcheiMeuPet 🐾`;
-    btn.href = `https://wa.me/55${numeroWhats}?text=${encodeURIComponent(texto )}`;
+    btn.href = `https://wa.me/55${numeroWhats}?text=${encodeURIComponent(texto)}`;
   }
 }
 
@@ -77,18 +74,14 @@ async function enviarAviso(formData) {
       body: JSON.stringify(formData),
     });
 
-    // MUDANÇA CRÍTICA: Não tentamos mais ler o corpo da resposta (r.json()).
-    // Confiamos apenas no status HTTP. Se for 200 OK, consideramos sucesso.
     if (r.ok && r.status === 200) {
-      return { enviado_whatsapp: true }; // Retornamos nosso próprio objeto de sucesso.
+      return { enviado_whatsapp: true };
     } else {
-      // Se o status for diferente (ex: 404, 500), consideramos falha.
       console.error("Resposta do Fiqon não foi OK:", r.status, r.statusText);
       return null;
     }
 
   } catch (err) {
-    // Se o fetch falhar (ex: sem internet, erro de CORS real), caímos aqui.
     console.error("❌ Erro de rede ao enviar aviso:", err);
     return null;
   }
@@ -114,26 +107,54 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   preencherDadosPet(dados);
 
-  // CAPTURAR LOCALIZAÇÃO
+  // =====================================================
+  // CAPTURAR LOCALIZAÇÃO — VERSÃO ROBUSTA E CONSISTENTE
+  // =====================================================
   let latitude = null;
   let longitude = null;
 
-  if ("geolocation" in navigator) {
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        latitude = pos.coords.latitude;
-        longitude = pos.coords.longitude;
-      },
-      () => console.warn("Geolocalização negada.")
-    );
+  async function capturarLocalizacao() {
+    return new Promise((resolve) => {
+      if (!("geolocation" in navigator)) {
+        console.warn("❌ Geolocalização não suportada.");
+        return resolve(null);
+      }
+
+      const opcoes = {
+        enableHighAccuracy: true,
+        timeout: 8000,
+        maximumAge: 0
+      };
+
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          latitude = pos.coords.latitude;
+          longitude = pos.coords.longitude;
+          console.log("📍 Localização obtida:", latitude, longitude);
+          resolve(true);
+        },
+        (err) => {
+          console.warn("⚠️ Falha ao obter localização:", err);
+          resolve(null);
+        },
+        opcoes
+      );
+    });
   }
 
-  // === Formulário “Avisar que encontrei” ===
+  await capturarLocalizacao();
+  // =====================================================
+
   const form = document.getElementById("formAviso");
   const msgOk = document.getElementById("mensagem_sucesso");
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
+
+    // Fallback: última chance de obter localização se o usuário só liberar ao enviar
+    if (latitude === null || longitude === null) {
+      await capturarLocalizacao();
+    }
 
     const payload = {
       id_pet,
@@ -142,23 +163,19 @@ document.addEventListener("DOMContentLoaded", async () => {
       telefone_encontrador: document.getElementById("telefone_encontrador").value.trim(),
       observacoes: document.getElementById("observacoes").value.trim(),
 
-      // Dados do tutor e pet
       nome_pet: dados.nome_pet,
       nome_tutor: dados.nome_tutor,
       whatsapp_tutor: dados.whatsapp_tutor,
       email_tutor: dados.email_tutor,
 
-      // Localização
       latitude,
       longitude,
     };
 
     const resp = await enviarAviso(payload);
 
-    // só pra debug, depois podemos remover
     console.log("Resposta processada pelo JS:", resp);
 
-    // MUDANÇA CRÍTICA: A condição foi simplificada para corresponder à nova função enviarAviso.
     if (resp && resp.enviado_whatsapp === true) {
       msgOk.style.display = "block";
       setTimeout(() => (msgOk.style.display = "none"), 4000);
@@ -168,4 +185,3 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   });
 });
-
