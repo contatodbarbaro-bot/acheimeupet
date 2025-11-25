@@ -1,0 +1,8 @@
+{
+  "name": "acheimeupet-netlify",
+  "version": "1.0.0",
+  "description": "Dependencies for AcheiMeuPet Netlify deployment",
+  "dependencies": {
+    "node-fetch": "^2.6.1"
+  }
+}
