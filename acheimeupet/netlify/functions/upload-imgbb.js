@@ -5,12 +5,14 @@ const FormData = require('form-data');
 const IMGBB_API_KEY = "a09e3d0d9088118e413e29f2edeaadc5";
 const IMGBB_URL = "https://api.imgbb.com/1/upload";
 
-exports.handler = async (event ) => {
-  if (event.httpMethod !== 'POST' ) {
+exports.handler = async (event) => {
+  if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method Not Allowed' };
   }
 
   try {
+    // O Netlify Functions codifica o corpo da requisição em Base64 se o Content-Type for application/json.
+    // Precisamos decodificar o corpo da requisição antes de fazer o JSON.parse.
     const body = event.isBase64Encoded ? Buffer.from(event.body, 'base64').toString('utf8') : event.body;
     const { base64Image } = JSON.parse(body);
 
@@ -18,6 +20,7 @@ exports.handler = async (event ) => {
       return { statusCode: 400, body: JSON.stringify({ error: 'Missing base64Image in request body.' }) };
     }
 
+    // O ImgBB espera a imagem como Base64 sem o prefixo "data:image/jpeg;base64,"
     const base64Data = base64Image.replace(/^data:image\/(png|jpeg|jpg|gif);base64,/, "");
 
     const form = new FormData();
