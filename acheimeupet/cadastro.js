@@ -167,6 +167,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const formData = new FormData();
     formData.append("key", IMGBB_API_KEY);
     formData.append("image", file);
+    formData.append("expiration", 600); // Adiciona expiração de 10 minutos (600 segundos) para evitar o erro de chave.
 
     const req = await fetch(IMGBB_URL, {
       method: "POST",
