@@ -155,33 +155,38 @@ document.addEventListener("DOMContentLoaded", () => {
   // ==================================================
   // 🖼️ UPLOAD DIRETO PARA IMGBB (OTIMIZAÇÃO MOBILE)
   // ==================================================
-  const IMGBB_API_KEY = "a09e3d0d9088118e413e29f2edeaadc5";
-  const IMGBB_URL = "https://api.imgbb.com/1/upload";
+  // A chave de API do ImgBB foi movida para a Netlify Function (proxy) por segurança.
+  const UPLOAD_PROXY_URL = "/.netlify/functions/upload-imgbb";
 
   /**
-   * Faz o upload do arquivo de imagem binário diretamente para o ImgBB.
+   * Converte o arquivo de imagem para Base64 e envia para a Netlify Function (proxy).
    * @param {File} file O arquivo de imagem a ser enviado.
    * @returns {Promise<string>} A URL da imagem hospedada.
    */
   async function uploadToImgBB(file) {
-    const formData = new FormData();
-    formData.append("key", IMGBB_API_KEY);
-    formData.append("image", file);
-    formData.append("expiration", 600); // Adiciona expiração de 10 minutos (600 segundos) para evitar o erro de chave.
+    // 1. Converte o arquivo para Base64 (necessário para enviar via JSON para a Netlify Function)
+    const base64 = await new Promise((res, rej) => {
+      const reader = new FileReader();
+      reader.onload = () => res(reader.result);
+      reader.onerror = rej;
+      reader.readAsDataURL(file);
+    });
 
-    const req = await fetch(IMGBB_URL, {
+    // 2. Envia o Base64 para a Netlify Function (proxy)
+    const req = await fetch(UPLOAD_PROXY_URL, {
       method: "POST",
-      body: formData,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ base64Image: base64 }),
     });
 
     const json = await req.json();
 
-    if (!req.ok || json.success !== true) {
-      console.error("Erro no upload ImgBB:", json);
-      throw new Error(json.error?.message || "Falha ao fazer upload da foto para o ImgBB.");
+    if (!req.ok) {
+      console.error("Erro no upload ImgBB via Proxy:", json);
+      throw new Error(json.error || "Falha ao fazer upload da foto para o ImgBB via proxy.");
     }
 
-    return json.data.url;
+    return json.url;
   }
 
   // ==================================================
@@ -237,12 +242,10 @@ document.addEventListener("DOMContentLoaded", () => {
             throw new Error(`A foto do Pet ${i} é obrigatória.`);
           }
 
-          // ⚠️ MUDANÇA CRÍTICA: UPLOAD DIRETO E OBTENÇÃO DA URL
-          // Isso substitui a conversão lenta para Base64.
+          // ⚠️ UPLOAD VIA PROXY SEGURO (Netlify Function)
           msg.textContent = `⏳ Enviando foto do Pet ${i}...`;
           const foto_url = await uploadToImgBB(file);
           msg.textContent = `⏳ Enviando dados...`;
-          // ----------------------------------------------------
 
           pets.push({
             nome_pet: nome,
