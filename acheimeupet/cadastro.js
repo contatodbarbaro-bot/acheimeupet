@@ -155,7 +155,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // ==================================================
   // 🖼️ UPLOAD DIRETO PARA IMGBB (OTIMIZAÇÃO MOBILE)
   // ==================================================
-  const IMGBB_API_KEY = "27dd0278f37d3f6825af6ae103990941";
+  const IMGBB_API_KEY = "a09e3d0d9088118e413e29f2edeaadc5";
   const IMGBB_URL = "https://api.imgbb.com/1/upload";
 
   /**
