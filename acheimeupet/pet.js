@@ -116,43 +116,50 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   preencherDadosPet(dados);
 
-  // =====================================================
-  // CAPTURAR LOCALIZAÇÃO — VERSÃO ROBUSTA E CONSISTENTE
-  // =====================================================
-  let latitude = null;
-  let longitude = null;
+// =====================================================
+// CAPTURAR LOCALIZAÇÃO — VERSÃO ROBUSTA E CONSISTENTE
+// =====================================================
+let latitude = null;
+let longitude = null;
 
-  async function capturarLocalizacao() {
-    return new Promise((resolve) => {
-      if (!("geolocation" in navigator)) {
-        console.warn("❌ Geolocalização não suportada.");
-        return resolve(null);
-      }
+/**
+ * Tenta capturar a localização do usuário.
+ * @returns {Promise<boolean>} True se a localização foi obtida, false caso contrário.
+ */
+async function capturarLocalizacao() {
+  return new Promise((resolve) => {
+    if (!("geolocation" in navigator)) {
+      console.warn("❌ Geolocalização não suportada.");
+      return resolve(false);
+    }
 
-      const opcoes = {
-        enableHighAccuracy: true,
-        timeout: 8000,
-        maximumAge: 0
-      };
+    const opcoes = {
+      enableHighAccuracy: true,
+      timeout: 8000,
+      maximumAge: 0
+    };
 
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          latitude = pos.coords.latitude;
-          longitude = pos.coords.longitude;
-          console.log("📍 Localização obtida:", latitude, longitude);
-          resolve(true);
-        },
-        (err) => {
-          console.warn("⚠️ Falha ao obter localização:", err);
-          resolve(null);
-        },
-        opcoes
-      );
-    });
-  }
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        latitude = pos.coords.latitude;
+        longitude = pos.coords.longitude;
+        console.log("📍 Localização obtida:", latitude, longitude);
+        resolve(true);
+      },
+      (err) => {
+        // Se o usuário negar, não é um erro fatal, apenas não teremos a localização.
+        console.warn("⚠️ Falha ao obter localização:", err.code, err.message);
+        resolve(false);
+      },
+      opcoes
+    );
+  });
+}
 
-  await capturarLocalizacao();
-  // =====================================================
+// Tenta capturar a localização assim que a página carrega.
+// O usuário verá o pedido de permissão imediatamente.
+await capturarLocalizacao();
+// =====================================================
 
   const form = document.getElementById("formAviso");
   const msgOk = document.getElementById("mensagem_sucesso");
@@ -177,8 +184,10 @@ document.addEventListener("DOMContentLoaded", async () => {
       whatsapp_tutor: dados.whatsapp_tutor,
       email_tutor: dados.email_tutor,
 
-      latitude,
-      longitude,
+      latitude: latitude,
+      longitude: longitude,
+      // Adiciona o link do Google Maps para facilitar o uso no Fiqon
+      localizacao_url: (latitude && longitude) ? `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}` : 'Localização não disponível',
     };
 
     const resp = await enviarAviso(payload);
