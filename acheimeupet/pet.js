@@ -158,6 +158,9 @@ async function capturarLocalizacao() {
 
 // Tenta capturar a localização assim que a página carrega.
 // O usuário verá o pedido de permissão imediatamente.
+// Adicionamos um pequeno delay para garantir que o DOM esteja totalmente pronto
+// e que o usuário tenha tempo de ver o pedido de permissão.
+await new Promise(resolve => setTimeout(resolve, 500)); // Pequeno delay
 await capturarLocalizacao();
 // =====================================================
 
@@ -167,9 +170,16 @@ await capturarLocalizacao();
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    // Fallback: última chance de obter localização se o usuário só liberar ao enviar
+    // Se a localização ainda não foi obtida (usuário pode ter negado ou o timeout expirou),
+    // fazemos uma última tentativa, mas sem bloquear o envio do formulário.
     if (latitude === null || longitude === null) {
       await capturarLocalizacao();
+    }
+    
+    // Se a localização for nula, alertamos o usuário, mas permitimos o envio
+    // para não impedir o contato com o tutor.
+    if (latitude === null || longitude === null) {
+        alert("⚠️ Não foi possível obter sua localização exata. O aviso será enviado, mas o tutor receberá apenas a localização aproximada.");
     }
 
     const payload = {
