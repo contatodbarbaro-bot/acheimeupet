@@ -153,6 +153,37 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ==================================================
+  // 🖼️ UPLOAD DIRETO PARA IMGBB (OTIMIZAÇÃO MOBILE)
+  // ==================================================
+  const IMGBB_API_KEY = "27dd0278f37d3f6825af6ae103990941";
+  const IMGBB_URL = "https://api.imgbb.com/1/upload";
+
+  /**
+   * Faz o upload do arquivo de imagem binário diretamente para o ImgBB.
+   * @param {File} file O arquivo de imagem a ser enviado.
+   * @returns {Promise<string>} A URL da imagem hospedada.
+   */
+  async function uploadToImgBB(file) {
+    const formData = new FormData();
+    formData.append("key", IMGBB_API_KEY);
+    formData.append("image", file);
+
+    const req = await fetch(IMGBB_URL, {
+      method: "POST",
+      body: formData,
+    });
+
+    const json = await req.json();
+
+    if (!req.ok || json.success !== true) {
+      console.error("Erro no upload ImgBB:", json);
+      throw new Error(json.error?.message || "Falha ao fazer upload da foto para o ImgBB.");
+    }
+
+    return json.data.url;
+  }
+
+  // ==================================================
   // 🚀 ENVIO DO FORMULÁRIO
   // ==================================================
   if (form) {
@@ -205,12 +236,12 @@ document.addEventListener("DOMContentLoaded", () => {
             throw new Error(`A foto do Pet ${i} é obrigatória.`);
           }
 
-          const base64 = await new Promise((res, rej) => {
-            const reader = new FileReader();
-            reader.onload = () => res(reader.result);
-            reader.onerror = rej;
-            reader.readAsDataURL(file);
-          });
+          // ⚠️ MUDANÇA CRÍTICA: UPLOAD DIRETO E OBTENÇÃO DA URL
+          // Isso substitui a conversão lenta para Base64.
+          msg.textContent = `⏳ Enviando foto do Pet ${i}...`;
+          const foto_url = await uploadToImgBB(file);
+          msg.textContent = `⏳ Enviando dados...`;
+          // ----------------------------------------------------
 
           pets.push({
             nome_pet: nome,
@@ -218,7 +249,7 @@ document.addEventListener("DOMContentLoaded", () => {
             raca,
             sexo,
             ano_nascimento: ano,
-            foto_pet: base64,
+            foto_url: foto_url, // ⚠️ MUDANÇA: Agora é a URL, não o Base64
           });
         }
 
