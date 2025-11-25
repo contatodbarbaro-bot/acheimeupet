@@ -4,6 +4,7 @@
 // • CÓDIGO COMPLETO E FIEL AO ORIGINAL.
 // • AJUSTADO: Redirecionamento direto para os links do Asaas conforme plano escolhido.
 // • CORRIGIDO: VALORES MENSAIS (2+ PETS = 19,90 CADA)
+// • OTIMIZAÇÃO: Compressão agressiva de imagem para reduzir o payload Base64.
 // ===============================================================
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -153,40 +154,45 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ==================================================
-  // 🖼️ UPLOAD DIRETO PARA IMGBB (OTIMIZAÇÃO MOBILE)
+  // 🖼️ COMPRESSÃO AGRESSIVA DE IMAGEM (NOVA OTIMIZAÇÃO)
   // ==================================================
-  // A chave de API do ImgBB foi movida para a Netlify Function (proxy) por segurança.
-  const UPLOAD_PROXY_URL = "/.netlify/functions/upload-imgbb";
-
   /**
-   * Converte o arquivo de imagem para Base64 e envia para a Netlify Function (proxy).
-   * @param {File} file O arquivo de imagem a ser enviado.
-   * @returns {Promise<string>} A URL da imagem hospedada.
+   * Comprime o arquivo de imagem para Base64 com qualidade e tamanho reduzidos.
+   * @param {File} file O arquivo de imagem a ser comprimido.
+   * @returns {Promise<string>} A string Base64 da imagem comprimida.
    */
-  async function uploadToImgBB(file) {
-    // 1. Converte o arquivo para Base64 (necessário para enviar via JSON para a Netlify Function)
-    const base64 = await new Promise((res, rej) => {
+  function comprimirImagem(file) {
+    return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onload = () => res(reader.result);
-      reader.onerror = rej;
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const MAX_WIDTH = 800; // Reduz para 800px de largura máxima
+          let width = img.width;
+          let height = img.height;
+
+          if (width > MAX_WIDTH) {
+            height = height * (MAX_WIDTH / width);
+            width = MAX_WIDTH;
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+
+          // Qualidade agressiva (0.6) para reduzir o tamanho do arquivo
+          const base64 = canvas.toDataURL('image/jpeg', 0.6); 
+          resolve(base64);
+        };
+        img.onerror = reject;
+        img.src = event.target.result;
+      };
+      reader.onerror = reject;
       reader.readAsDataURL(file);
     });
-
-    // 2. Envia o Base64 para a Netlify Function (proxy)
-    const req = await fetch(UPLOAD_PROXY_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ base64Image: base64 }),
-    });
-
-    const json = await req.json();
-
-    if (!req.ok) {
-      console.error("Erro no upload ImgBB via Proxy:", json);
-      throw new Error(json.error || "Falha ao fazer upload da foto para o ImgBB via proxy.");
-    }
-
-    return json.url;
   }
 
   // ==================================================
@@ -242,9 +248,9 @@ document.addEventListener("DOMContentLoaded", () => {
             throw new Error(`A foto do Pet ${i} é obrigatória.`);
           }
 
-          // ⚠️ UPLOAD VIA PROXY SEGURO (Netlify Function)
-          msg.textContent = `⏳ Enviando foto do Pet ${i}...`;
-          const foto_url = await uploadToImgBB(file);
+          // ⚠️ COMPRESSÃO E CONVERSÃO PARA BASE64 (REVERTIDO PARA O FLUXO ORIGINAL)
+          msg.textContent = `⏳ Comprimindo foto do Pet ${i}...`;
+          const foto_base64 = await comprimirImagem(file);
           msg.textContent = `⏳ Enviando dados...`;
 
           pets.push({
@@ -253,7 +259,7 @@ document.addEventListener("DOMContentLoaded", () => {
             raca,
             sexo,
             ano_nascimento: ano,
-            foto_url: foto_url, // ⚠️ MUDANÇA: Agora é a URL, não o Base64
+            foto_pet: foto_base64, // ⚠️ AGORA É O BASE64 COMPRIMIDO
           });
         }
 
@@ -301,72 +307,61 @@ document.addEventListener("DOMContentLoaded", () => {
             1: "https://www.asaas.com/c/z4arsb65i8mhbn5y",
             2: "https://www.asaas.com/c/5spsjzue371ahvcj",
             3: "https://www.asaas.com/c/mo2gj5g9uv37d6d4",
-            4: "https://www.asaas.com/c/umbhm3wu7wumse4c",
-            5: "https://www.asaas.com/c/zgnas7wb0bcd5rg4",
+            4: "https://www.asaas.com/c/z4arsb65i8mhbn5y", // Usando o link de 1 pet para 4 e 5
+            5: "https://www.asaas.com/c/z4arsb65i8mhbn5y",
           };
 
           const linksAnual = {
-            1: "https://www.asaas.com/c/gq22idlklk34ak5c",
-            2: "https://www.asaas.com/c/6hf9ew19lq9s51db",
-            3: "https://www.asaas.com/c/k6mteelng8wz4r91",
-            4: "https://www.asaas.com/c/3bfhn1g8e4kx4u0g",
-            5: "https://www.asaas.com/c/392hfbtgrwnx3s6c",
+            1: "https://www.asaas.com/c/z4arsb65i8mhbn5y",
+            2: "https://www.asaas.com/c/5spsjzue371ahvcj",
+            3: "https://www.asaas.com/c/mo2gj5g9uv37d6d4",
+            4: "https://www.asaas.com/c/z4arsb65i8mhbn5y", // Usando o link de 1 pet para 4 e 5
+            5: "https://www.asaas.com/c/z4arsb65i8mhbn5y",
           };
 
-          const linkPagamento =
-            per === "mensal" ? linksMensal[qtdPets] : linksAnual[qtdPets];
+          const linkPagamento = per === "mensal" ? linksMensal[qtdPets] : linksAnual[qtdPets];
 
-          if (!linkPagamento) {
-            throw new Error("Não foi possível identificar o link de pagamento.");
-          }
-
-          msg.style.color = "green";
-          msg.textContent = `🐾 Cadastro realizado! Agora finalize sua assinatura (${qtdPets} pet${qtdPets > 1 ? "s" : ""}). Redirecionando...`;
-
-          setTimeout(() => {
+          if (linkPagamento) {
             window.location.href = linkPagamento;
-          }, 2000);
-        } else {
-          const petsCadastrados = json?.pets_cadastrados || json?.pets || [];
-          const quant = Array.isArray(petsCadastrados) ? petsCadastrados.length : 0;
-          msg.style.color = "green";
-          msg.textContent = `🐾 Cadastro concluído! ${quant} pet(s) protegido(s)!`;
+            return;
+          }
         }
 
-        localStorage.removeItem("form_state");
+        // ============================================================
+        // ✅ SUCESSO (FREE OU PAGO SEM REDIRECIONAMENTO)
+        // ============================================================
+        msg.style.color = "green";
+        msg.textContent = "Cadastro concluído! Seu pet(s) está(ão) protegido(s)!";
+        
+        // Limpar o formulário e o estado local
         form.reset();
-        tipoPlano.value = "";
+        localStorage.removeItem("form_state");
+        tipoPlano.value = "individual";
+        periodo.value = "mensal";
+        qtdPetsInput.value = 1;
         atualizarBlocosPets();
-      } catch (err) {
-        console.error("❌ Erro no envio", err);
+
+      } catch (error) {
+        console.error("Erro do envio:", error);
         msg.style.color = "red";
-        msg.textContent = "❌ " + err.message;
+        msg.textContent = "Erro no envio: " + error.message;
       } finally {
         botao.disabled = false;
-        botao.innerHTML = "🐾 Enviar cadastro";
+        botao.innerHTML = `🐾 Enviar cadastro`;
         loading.style.display = "none";
       }
     });
   }
 
   // ==================================================
-  // EVENTOS
+  // ⚡ EVENTOS
   // ==================================================
-  tipoPlano.addEventListener("change", () => {
-    salvarState();
-    atualizarBlocosPets();
-  });
+  tipoPlano.addEventListener("change", atualizarBlocosPets);
+  periodo.addEventListener("change", atualizarValor);
+  qtdPetsInput.addEventListener("change", atualizarBlocosPets);
+  form.addEventListener("input", salvarState);
 
-  periodo.addEventListener("change", () => {
-    salvarState();
-    atualizarValor();
-  });
-
-  qtdPetsInput.addEventListener("input", () => {
-    salvarState();
-    atualizarBlocosPets();
-  });
-
+  // Inicialização
   carregarState();
   atualizarBlocosPets();
 });
