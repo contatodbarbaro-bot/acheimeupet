@@ -265,6 +265,94 @@ footer a { color: #fff; }
   color: var(--caramelo);
   margin-bottom: 12px;
 }
+
+/* Container geral */
+.planos-dark {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 70px 20px;
+  text-align: center;
+  background: #000; 
+  border-radius: 20px;
+  margin-top: 40px;
+}
+
+/* Títulos */
+.planos-dark-titulo {
+  font-size: 2.4rem;
+  margin-bottom: 10px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.planos-dark-subtitulo {
+  font-size: 1.1rem;
+  margin-bottom: 40px;
+  color: #ddd;
+}
+
+/* Cards */
+.planos-dark-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 30px;
+  justify-content: center;
+}
+
+.plano-dark-card {
+  background: #111;
+  border: 1px solid #C58B49;
+  border-radius: 16px;
+  padding: 30px;
+  width: 500px;
+  text-align: left;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+}
+
+.plano-dark-card h3 {
+  font-size: 1.4rem;
+  color: #fff;
+  margin-bottom: 15px;
+}
+
+/* Preços */
+.preco {
+  font-size: 1.1rem;
+  margin-top: 10px;
+  color: #C58B49;
+}
+
+.dia {
+  font-size: 0.95rem;
+  color: #ccc;
+  margin-bottom: 8px;
+}
+
+/* Lista */
+.beneficios-dark {
+  margin-top: 20px;
+  line-height: 1.7;
+  padding-left: 18px;
+}
+
+.beneficios-dark li {
+  margin-bottom: 6px;
+  color: #ccc;
+}
+
+/* Bloco ONG */
+.ong-dark-box {
+  margin-top: 50px;
+  background: #111;
+  border-left: 6px solid #C58B49;
+  padding: 20px 25px;
+  border-radius: 12px;
+  color: #eee;
+}
+
+.ong-dark-box h4 {
+  color: #C58B49;
+}
 </style>
 </head>
 
@@ -274,6 +362,7 @@ footer a { color: #fff; }
     <a href="#como-funciona">Como Funciona</a>
     <a href="#por-que-proteger">Por que Proteger</a>
     <a href="#nossa-historia">Nossa História</a>
+    <a href="#planos">Planos e Valores</a>
     <a href="#faq">FAQ</a>
     <a href="#contato">Contato</a>
     <a href="cadastro.html"><b>Cadastrar Pet</b></a>
@@ -425,13 +514,96 @@ footer a { color: #fff; }
   </div>
 </section>
 
+<!-- NOVA SEÇÃO: PLANOS E VALORES -->
+<section id="planos">
+  <div class="planos-dark">
+    <h2 class="planos-dark-titulo">Planos e Valores</h2>
+    <p class="planos-dark-subtitulo">Proteção inteligente para o seu pet, com total transparência.</p>
+
+    <div class="planos-dark-cards">
+
+      <!-- Plano Individual -->
+      <div class="plano-dark-card">
+        <h3>🐾 Plano Individual — 1 Pet</h3>
+
+        <p class="preco"><strong>Mensal: R$ 24,90/mês</strong></p>
+        <p class="dia">Menos de <strong>R$ 0,83 por dia</strong></p>
+
+        <p class="preco"><strong>Anual: R$ 249,90/ano</strong></p>
+        <p class="dia">Apenas <strong>R$ 0,68 por dia</strong></p>
+
+        <ul class="beneficios-dark">
+          <li>Notificações automáticas</li>
+          <li>Página segura do pet</li>
+          <li>Envio de localização</li>
+          <li>Contato via WhatsApp</li>
+          <li>Atualizações ilimitadas</li>
+          <li>Suporte 24/7 automatizado</li>
+          <li>Suporte humanizado (Seg–Sex · 9h–17h)</li>
+          <li>Fallback inteligente</li>
+        </ul>
+      </div>
+
+      <!-- Plano Família -->
+      <div class="plano-dark-card">
+        <h3>🐶🐱 Plano Família — 2 pets ou mais</h3>
+
+        <p class="preco"><strong>Mensal: R$ 19,90/mês por pet</strong></p>
+        <p class="dia">Menos de <strong>R$ 0,66 por dia</strong> por pet</p>
+
+        <p class="preco"><strong>Anual: R$ 199,00/ano por pet</strong></p>
+        <p class="dia">Apenas <strong>R$ 0,54 por dia</strong> por pet</p>
+
+        <ul class="beneficios-dark">
+          <li>Mesmo nível completo de proteção</li>
+          <li>Economia para casas com mais pets</li>
+          <li>Todos os recursos incluídos</li>
+          <li>Atualizações ilimitadas</li>
+          <li>Suporte 24/7 automatizado</li>
+          <li>Suporte humanizado (Seg–Sex · 9h–17h)</li>
+          <li>Fallback inteligente</li>
+        </ul>
+      </div>
+
+    </div>
+
+    <div class="ong-dark-box">
+      <h4>💙 Você protege o seu — e ajuda a proteger outro</h4>
+      <p>Parte do valor é destinada ao <strong>Programa Social AcheiMeuPet</strong>, que entrega tags de proteção para pets resgatados por ONGs parceiras, alinhado com nosso propósito de incentivar a adoção.</p>
+      <p>Pets adotados recebem a tag <strong>vitalícia</strong> e vão protegidos para a nova família.</p>
+    </div>
+  </div>
+</section>
+<!-- FIM NOVA SEÇÃO: PLANOS E VALORES -->
+
 <section id="faq">
   <h2>Perguntas Frequentes</h2>
-  <details><summary>Preciso de aplicativo?</summary><p>Não. Basta escanear o QR da tag — tudo acontece direto no navegador.</p></details>
-  <details><summary>Existe mensalidade?</summary><p>Sim. Os planos incluem atualizações ilimitadas, notificações automáticas e suporte humanizado.</p></details>
-  <details><summary>O que acontece quando alguém escaneia o QR Code?</summary><p>A pessoa acessa o perfil do pet, pode enviar a localização e falar com o tutor pelo WhatsApp.</p></details>
-  <details><summary>Posso usar em qualquer animal?</summary><p>Sim — cães, gatos, aves, coelhos e mais.</p></details>
-  <details><summary>E se eu perder minha tag?</summary><p>Você recebe adesivos reservas e pode imprimir novas pelo site.</p></details>
+  <details><summary>O AcheiMeuPet faz resgate?</summary><p>Não. O AcheiMeuPet não faz resgate físico. Somos a ponte rápida e segura entre quem encontrou o pet e o tutor. Nosso sistema conecta vocês em segundos, agilizando o reencontro.</p></details>
+  <details><summary>Preciso instalar algum aplicativo?</summary><p>Não. Todo o processo funciona direto pelo navegador ao escanear o QR Code da tag — rápido, leve e compatível com qualquer celular.</p></details>
+  <details><summary>Existe mensalidade?</summary><p>Sim. A assinatura mantém seu pet sempre protegido com:
+    <ul>
+      <li>Atualizações ilimitadas no perfil;</li>
+      <li>Notificações automáticas ao tutor;</li>
+      <li>Fallback inteligente (se o alerta falhar, nossa central é avisada);</li>
+      <li>Suporte 24/7 automatizado + suporte humanizado de segunda a sexta, das 9h às 17h;</li>
+      <li>Manutenção contínua do sistema e melhorias constantes.</li>
+    </ul>
+  </p></details>
+  <details><summary>O que acontece quando alguém escaneia a tag?</summary><p>A pessoa vê o perfil do pet, pode enviar localização, informar observações e falar diretamente com o tutor via WhatsApp. Tudo acontece sem cadastro e sem burocracia — é simples, rápido e seguro.</p></details>
+  <details><summary>E se a notificação não chegar ao tutor?</summary><p>O sistema conta com um mecanismo de fallback: Se o alerta automático falhar por qualquer motivo, nossa central recebe um aviso e iniciamos novas tentativas até garantir que o tutor seja notificado.</p></details>
+  <details><summary>Posso usar em qualquer animal?</summary><p>Sim. Funciona para cães, gatos, aves, coelhos, porquinhos-da-índia e qualquer pet que use coleira ou possa carregar uma tag.</p></details>
+  <details><summary>E se eu perder minha tag?</summary><p>Você recebe adesivos reservas no kit e também pode gerar novas tags e imprimir pelo site, sem custo adicional dentro do plano.</p></details>
+  <details><summary>O AcheiMeuPet ajuda ONGs?</summary><p>Sim. Parte do valor da assinatura é destinada ao Projeto Social AcheiMeuPet, que oferece tags gratuitas para animais resgatados e apoiados por ONGs parceiras. Ao assinar, você também ajuda outro pet a ter uma chance de reencontro.</p></details>
+  <details><summary>Por que assinar o AcheiMeuPet?</summary><p>Porque você garante:
+    <ul>
+      <li>Tecnologia real que funciona em segundos;</li>
+      <li>Sistema confiável e rastreável;</li>
+      <li>Suporte humano quando necessário;</li>
+      <li>Fallback automático para evitar falhas;</li>
+      <li>Propósito social em cada assinatura;</li>
+      <li>Segurança emocional para você e seu pet.</li>
+    </ul>
+  </p></details>
 </section>
 
 <footer id="contato">
