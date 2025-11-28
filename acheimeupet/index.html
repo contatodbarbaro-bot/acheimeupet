@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -377,10 +378,6 @@ footer a { color: #fff; }
   <div>
     <a href="cadastro.html" class="btn">Cadastrar Pet</a>
   </div>
-
-  <div class="counter">
-    <span id="petCount">0</span> pets já protegidos com AcheiMeuPet 💙
-  </div>
 </section>
 
 <!-- NOVA SEÇÃO INSERIDA APÓS HERO -->
@@ -614,21 +611,7 @@ footer a { color: #fff; }
   <p>© 2025 AcheiMeuPet — Em memória do Picolé 💙</p>
 </footer>
 
-<script>
-// contador (valor inicial real, depois pode puxar da planilha via Fiqon)
-let countEl = document.getElementById("petCount");
-let start = 0;
-let end = 12; // número real inicial de pets cadastrados
-let speed = 60;
-let updateCounter = () => {
-  if (start < end) {
-    start++;
-    countEl.innerText = start.toLocaleString("pt-BR");
-    setTimeout(updateCounter, speed);
-  }
-};
-updateCounter();
-</script>
+
 
 </body>
 </html>
