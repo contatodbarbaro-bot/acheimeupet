@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -51,43 +50,21 @@ section {
   max-width: 1100px;
   margin: auto;
 }
-.hero {
-  text-align: center;
-  background: var(--claro);
-  padding-top: 80px;
-  padding-bottom: 80px;
+
+/* NOVO HERO COM VÍDEO */
+.hero-video-container {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
 }
-.hero img {
-  width: 260px;
-  margin-bottom: 25px;
-  filter: drop-shadow(0 2px 4px #0002);
-  animation: fadeIn 1.4s ease;
-}
-.hero h1 {
-  font-size: clamp(26px, 4vw, 40px);
-  color: var(--escuro);
-  margin-bottom: 10px;
-}
-.hero p {
-  font-size: 17px;
-  max-width: 700px;
-  margin: 0 auto 25px;
-  color: #333;
-}
-.btn {
-  background: var(--caramelo);
-  color: #fff;
-  padding: 12px 22px;
-  border-radius: 10px;
-  border: none;
-  cursor: pointer;
-  font-weight: 600;
-  transition: 0.3s;
-  text-decoration: none;
-}
-.btn:hover {
-  background: var(--azul);
-  color: var(--escuro);
+.hero-video {
+  width: 100%;
+  height: auto;
+  display: block;
+  max-height: 580px;
+  object-fit: cover;
 }
 
 /* Contador */
@@ -370,14 +347,11 @@ footer a { color: #fff; }
   </nav>
 </header>
 
-<section class="hero">
-  <img src="logoacheimeupet.jpeg" alt="AcheiMeuPet">
-  <h1>AcheiMeuPet: a tag que encontra seu melhor amigo.</h1>
-  <p>Um QR Code que conecta histórias, reencontros e corações — em segundos.</p>
-
-  <div>
-    <a href="cadastro.html" class="btn">Cadastrar Pet</a>
-  </div>
+<!-- 🔥 NOVO HERO COM VÍDEO -->
+<section class="hero-video-container">
+  <video class="hero-video" autoplay muted loop playsinline>
+    <source src="banner-acheimeupet.mp4" type="video/mp4">
+  </video>
 </section>
 
 <!-- NOVA SEÇÃO INSERIDA APÓS HERO -->
@@ -414,8 +388,6 @@ footer a { color: #fff; }
   </div>
 </section>
 
-<!-- RESTO DO ARQUIVO CONTINUA IGUAL (SEM ALTERAÇÕES) -->
-
 <section id="como-funciona">
   <h2>Como Funciona</h2>
   <p class="section-intro">
@@ -441,7 +413,6 @@ footer a { color: #fff; }
   </div>
 </section>
 
-<!-- 🔹 NOVA SEÇÃO: Por que Proteger -->
 <section id="por-que-proteger">
   <h2>Por que essa proteção é tão necessária?</h2>
   <p class="section-intro">
@@ -485,7 +456,6 @@ footer a { color: #fff; }
   </p>
 </section>
 
-<!-- ⭐⭐ SEÇÃO Nossa História ⭐⭐ -->
 <section id="nossa-historia" class="historia">
   <div>
     <h2>Nossa História</h2>
@@ -511,7 +481,6 @@ footer a { color: #fff; }
   </div>
 </section>
 
-<!-- NOVA SEÇÃO: PLANOS E VALORES -->
 <section id="planos">
   <div class="planos-dark">
     <h2 class="planos-dark-titulo">Planos e Valores</h2>
@@ -519,7 +488,6 @@ footer a { color: #fff; }
 
     <div class="planos-dark-cards">
 
-      <!-- Plano Individual -->
       <div class="plano-dark-card">
         <h3>🐾 Plano Individual — 1 Pet</h3>
 
@@ -541,7 +509,6 @@ footer a { color: #fff; }
         </ul>
       </div>
 
-      <!-- Plano Família -->
       <div class="plano-dark-card">
         <h3>🐶🐱 Plano Família — 2 pets ou mais</h3>
 
@@ -571,7 +538,6 @@ footer a { color: #fff; }
     </div>
   </div>
 </section>
-<!-- FIM NOVA SEÇÃO: PLANOS E VALORES -->
 
 <section id="faq">
   <h2>Perguntas Frequentes</h2>
@@ -582,25 +548,14 @@ footer a { color: #fff; }
       <li>Atualizações ilimitadas no perfil;</li>
       <li>Notificações automáticas ao tutor;</li>
       <li>Fallback inteligente (se o alerta falhar, nossa central é avisada);</li>
-      <li>Suporte 24/7 automatizado + suporte humanizado de segunda a sexta, das 9h às 17h;</li>
-      <li>Manutenção contínua do sistema e melhorias constantes.</li>
+      <li>Suporte 24/7 automatizado + suporte humanizado;</li>
     </ul>
   </p></details>
-  <details><summary>O que acontece quando alguém escaneia a tag?</summary><p>A pessoa vê o perfil do pet, pode enviar localização, informar observações e falar diretamente com o tutor via WhatsApp. Tudo acontece sem cadastro e sem burocracia — é simples, rápido e seguro.</p></details>
-  <details><summary>E se a notificação não chegar ao tutor?</summary><p>O sistema conta com um mecanismo de fallback: Se o alerta automático falhar por qualquer motivo, nossa central recebe um aviso e iniciamos novas tentativas até garantir que o tutor seja notificado.</p></details>
-  <details><summary>Posso usar em qualquer animal?</summary><p>Sim. Funciona para cães, gatos, aves, coelhos, porquinhos-da-índia e qualquer pet que use coleira ou possa carregar uma tag.</p></details>
-  <details><summary>E se eu perder minha tag?</summary><p>Você recebe adesivos reservas no kit e também pode gerar novas tags e imprimir pelo site, sem custo adicional dentro do plano.</p></details>
-  <details><summary>O AcheiMeuPet ajuda ONGs?</summary><p>Sim. Parte do valor da assinatura é destinada ao Projeto Social AcheiMeuPet, que oferece tags gratuitas para animais resgatados e apoiados por ONGs parceiras. Ao assinar, você também ajuda outro pet a ter uma chance de reencontro.</p></details>
-  <details><summary>Por que assinar o AcheiMeuPet?</summary><p>Porque você garante:
-    <ul>
-      <li>Tecnologia real que funciona em segundos;</li>
-      <li>Sistema confiável e rastreável;</li>
-      <li>Suporte humano quando necessário;</li>
-      <li>Fallback automático para evitar falhas;</li>
-      <li>Propósito social em cada assinatura;</li>
-      <li>Segurança emocional para você e seu pet.</li>
-    </ul>
-  </p></details>
+  <details><summary>O que acontece quando alguém escaneia a tag?</summary><p>A pessoa vê o perfil do pet, pode enviar localização, informar observações e falar diretamente com o tutor via WhatsApp.</p></details>
+  <details><summary>E se a notificação não chegar ao tutor?</summary><p>O sistema conta com fallback: se o alerta falhar, nossa central recebe aviso.</p></details>
+  <details><summary>Posso usar em qualquer animal?</summary><p>Sim. Funciona para cães, gatos, aves, coelhos e qualquer pet com coleira.</p></details>
+  <details><summary>E se eu perder minha tag?</summary><p>Você pode gerar novas tags pelo site, sem custo adicional dentro do plano.</p></details>
+  <details><summary>O AcheiMeuPet ajuda ONGs?</summary><p>Sim. Parte da assinatura financia tags gratuitas para pets resgatados.</p></details>
 </section>
 
 <footer id="contato">
@@ -611,8 +566,5 @@ footer a { color: #fff; }
   <p>© 2025 AcheiMeuPet — Em memória do Picolé 💙</p>
 </footer>
 
-
-
 </body>
 </html>
-
