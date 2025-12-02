@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -26,15 +27,30 @@ body {
 header {
   background: var(--escuro);
   color: #fff;
-  padding: 15px 0;
+  padding: 15px 20px;
   position: sticky;
   top: 0;
   z-index: 10;
 }
+.header-content {
+  max-width: 1200px;
+  margin: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.header-logo {
+  height: 40px;
+  filter: brightness(0) invert(1);
+}
+.logo-link {
+  display: block;
+}
 nav {
   display: flex;
-  justify-content: center;
-  gap: 25px;
+  justify-content: flex-end;
+  gap: 20px;
   flex-wrap: wrap;
 }
 nav a {
@@ -42,29 +58,69 @@ nav a {
   text-decoration: none;
   font-weight: 500;
   transition: 0.3s;
+  padding: 5px 0;
 }
 nav a:hover { color: var(--caramelo); }
+
+@media (max-width: 800px) {
+  .header-content {
+    justify-content: center;
+    gap: 15px;
+  }
+  nav {
+    justify-content: center;
+    margin-top: 10px;
+  }
+}
 
 section {
   padding: 60px 20px;
   max-width: 1100px;
   margin: auto;
 }
-
-/* NOVO HERO COM VÍDEO */
-.hero-video-container {
+.main-banner {
   width: 100%;
-  max-width: 100%;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
+  margin-top: 0;
 }
-.hero-video {
+.banner-img {
   width: 100%;
   height: auto;
   display: block;
-  max-height: 580px;
-  object-fit: cover;
+}
+
+.transicao-frase {
+  max-width: 1100px;
+  margin: 40px auto 40px;
+  text-align: center;
+  padding: 0 20px;
+}
+
+.transicao-frase p {
+  font-size: 1.2rem;
+  color: var(--escuro);
+  font-weight: 400;
+  border-bottom: 2px solid var(--caramelo);
+  padding-bottom: 15px;
+  display: inline-block;
+}
+
+.transicao-frase strong {
+  font-weight: 600;
+}
+.btn {
+  background: var(--caramelo);
+  color: #fff;
+  padding: 12px 22px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.3s;
+  text-decoration: none;
+}
+.btn:hover {
+  background: var(--azul);
+  color: var(--escuro);
 }
 
 /* Contador */
@@ -336,23 +392,29 @@ footer a { color: #fff; }
 
 <body>
 <header>
-  <nav>
-    <a href="#como-funciona">Como Funciona</a>
-    <a href="#por-que-proteger">Por que Proteger</a>
-    <a href="#nossa-historia">Nossa História</a>
-    <a href="#planos">Planos e Valores</a>
-    <a href="#faq">FAQ</a>
-    <a href="#contato">Contato</a>
-    <a href="cadastro.html"><b>Cadastrar Pet</b></a>
-  </nav>
+  <div class="header-content">
+    <a href="#" class="logo-link">
+      <img src="logoacheimeupet.jpeg" alt="AcheiMeuPet Logo" class="header-logo">
+    </a>
+    <nav>
+      <a href="#como-funciona">Como Funciona</a>
+      <a href="#por-que-proteger">Por que Proteger</a>
+      <a href="#nossa-historia">Nossa História</a>
+      <a href="#planos">Planos e Valores</a>
+      <a href="#faq">FAQ</a>
+      <a href="#contato">Contato</a>
+      <a href="cadastro.html" class="btn"><b>Cadastrar Pet</b></a>
+    </nav>
+  </div>
 </header>
 
-<!-- 🔥 NOVO HERO COM VÍDEO -->
-<section class="hero-video-container">
-  <video class="hero-video" autoplay muted loop playsinline>
-    <source src="banner-acheimeupet.mp4" type="video/mp4">
-  </video>
+<section class="main-banner">
+  <img src="banner-acheimeupet.jpg" alt="Banner AcheiMeuPet" class="banner-img">
 </section>
+
+<div class="transicao-frase">
+  <p><strong>Mais do que uma tag, um sistema de proteção inteligente que trabalha 24h pelo seu pet.</strong></p>
+</div>
 
 <!-- NOVA SEÇÃO INSERIDA APÓS HERO -->
 <section class="protecao-box">
@@ -388,6 +450,8 @@ footer a { color: #fff; }
   </div>
 </section>
 
+<!-- RESTO DO ARQUIVO CONTINUA IGUAL (SEM ALTERAÇÕES) -->
+
 <section id="como-funciona">
   <h2>Como Funciona</h2>
   <p class="section-intro">
@@ -413,6 +477,7 @@ footer a { color: #fff; }
   </div>
 </section>
 
+<!-- 🔹 NOVA SEÇÃO: Por que Proteger -->
 <section id="por-que-proteger">
   <h2>Por que essa proteção é tão necessária?</h2>
   <p class="section-intro">
@@ -456,6 +521,7 @@ footer a { color: #fff; }
   </p>
 </section>
 
+<!-- ⭐⭐ SEÇÃO Nossa História ⭐⭐ -->
 <section id="nossa-historia" class="historia">
   <div>
     <h2>Nossa História</h2>
@@ -481,6 +547,7 @@ footer a { color: #fff; }
   </div>
 </section>
 
+<!-- NOVA SEÇÃO: PLANOS E VALORES -->
 <section id="planos">
   <div class="planos-dark">
     <h2 class="planos-dark-titulo">Planos e Valores</h2>
@@ -488,6 +555,7 @@ footer a { color: #fff; }
 
     <div class="planos-dark-cards">
 
+      <!-- Plano Individual -->
       <div class="plano-dark-card">
         <h3>🐾 Plano Individual — 1 Pet</h3>
 
@@ -509,6 +577,7 @@ footer a { color: #fff; }
         </ul>
       </div>
 
+      <!-- Plano Família -->
       <div class="plano-dark-card">
         <h3>🐶🐱 Plano Família — 2 pets ou mais</h3>
 
@@ -538,6 +607,7 @@ footer a { color: #fff; }
     </div>
   </div>
 </section>
+<!-- FIM NOVA SEÇÃO: PLANOS E VALORES -->
 
 <section id="faq">
   <h2>Perguntas Frequentes</h2>
@@ -548,14 +618,25 @@ footer a { color: #fff; }
       <li>Atualizações ilimitadas no perfil;</li>
       <li>Notificações automáticas ao tutor;</li>
       <li>Fallback inteligente (se o alerta falhar, nossa central é avisada);</li>
-      <li>Suporte 24/7 automatizado + suporte humanizado;</li>
+      <li>Suporte 24/7 automatizado + suporte humanizado de segunda a sexta, das 9h às 17h;</li>
+      <li>Manutenção contínua do sistema e melhorias constantes.</li>
     </ul>
   </p></details>
-  <details><summary>O que acontece quando alguém escaneia a tag?</summary><p>A pessoa vê o perfil do pet, pode enviar localização, informar observações e falar diretamente com o tutor via WhatsApp.</p></details>
-  <details><summary>E se a notificação não chegar ao tutor?</summary><p>O sistema conta com fallback: se o alerta falhar, nossa central recebe aviso.</p></details>
-  <details><summary>Posso usar em qualquer animal?</summary><p>Sim. Funciona para cães, gatos, aves, coelhos e qualquer pet com coleira.</p></details>
-  <details><summary>E se eu perder minha tag?</summary><p>Você pode gerar novas tags pelo site, sem custo adicional dentro do plano.</p></details>
-  <details><summary>O AcheiMeuPet ajuda ONGs?</summary><p>Sim. Parte da assinatura financia tags gratuitas para pets resgatados.</p></details>
+  <details><summary>O que acontece quando alguém escaneia a tag?</summary><p>A pessoa vê o perfil do pet, pode enviar localização, informar observações e falar diretamente com o tutor via WhatsApp. Tudo acontece sem cadastro e sem burocracia — é simples, rápido e seguro.</p></details>
+  <details><summary>E se a notificação não chegar ao tutor?</summary><p>O sistema conta com um mecanismo de fallback: Se o alerta automático falhar por qualquer motivo, nossa central recebe um aviso e iniciamos novas tentativas até garantir que o tutor seja notificado.</p></details>
+  <details><summary>Posso usar em qualquer animal?</summary><p>Sim. Funciona para cães, gatos, aves, coelhos, porquinhos-da-índia e qualquer pet que use coleira ou possa carregar uma tag.</p></details>
+  <details><summary>E se eu perder minha tag?</summary><p>Você recebe adesivos reservas no kit e também pode gerar novas tags e imprimir pelo site, sem custo adicional dentro do plano.</p></details>
+  <details><summary>O AcheiMeuPet ajuda ONGs?</summary><p>Sim. Parte do valor da assinatura é destinada ao Projeto Social AcheiMeuPet, que oferece tags gratuitas para animais resgatados e apoiados por ONGs parceiras. Ao assinar, você também ajuda outro pet a ter uma chance de reencontro.</p></details>
+  <details><summary>Por que assinar o AcheiMeuPet?</summary><p>Porque você garante:
+    <ul>
+      <li>Tecnologia real que funciona em segundos;</li>
+      <li>Sistema confiável e rastreável;</li>
+      <li>Suporte humano quando necessário;</li>
+      <li>Fallback automático para evitar falhas;</li>
+      <li>Propósito social em cada assinatura;</li>
+      <li>Segurança emocional para você e seu pet.</li>
+    </ul>
+  </p></details>
 </section>
 
 <footer id="contato">
@@ -565,6 +646,8 @@ footer a { color: #fff; }
   <p><i class="ri-mail-line"></i> <a href="mailto:contatodbarbaro@gmail.com">contatodbarbaro@gmail.com</a></p>
   <p>© 2025 AcheiMeuPet — Em memória do Picolé 💙</p>
 </footer>
+
+
 
 </body>
 </html>
