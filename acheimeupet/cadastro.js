@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const tokenParam = urlParams.get("token") || "";
 
   const WEBHOOK_PAGO =
-    https://webhook.fiqon.app/webhook/019ae12c-0d88-703f-8112-83a3069621e3/83e227af-cbed-43ee-974d-c9603f589a29;
+    "https://webhook.fiqon.app/webhook/019ae12c-0d88-703f-8112-83a3069621e3/83e227af-cbed-43ee-974d-c9603f589a29";
   const WEBHOOK_FREE =
     "https://webhook.fiqon.app/webhook/019a781c-15f8-738a-93bc-5b70388445ff/faee836c-d909-4b6b-96d0-ed6433640060";
   const WEBHOOK_CADASTRO = temToken ? WEBHOOK_FREE : WEBHOOK_PAGO;
@@ -365,4 +365,5 @@ document.addEventListener("DOMContentLoaded", () => {
   carregarState();
   atualizarBlocosPets();
 });
+
 
