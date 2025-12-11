@@ -117,16 +117,17 @@ function preencherDadosPet(pet) {
         btnContato.classList.add("d-none");
     }
 
-    // Exibir a seção de dados e esconder o loader
-    document.getElementById("loader").classList.add("d-none");
-    document.getElementById("pet-data-section").classList.remove("d-none");
+    // O texto "Carregando..." é substituído pelo nome do pet na linha 71.
+    // Os elementos 'loader' e 'pet-data-section' não existem no HTML.
+    // Removendo as linhas que causavam o erro de 'classList' em elementos nulos.
 }
 
 // === Exibir mensagem de erro ===
 function exibirErro(mensagem) {
-    document.getElementById("loader").classList.add("d-none");
-    document.getElementById("error-message").textContent = mensagem;
-    document.getElementById("error-section").classList.remove("d-none");
+    // Os elementos 'loader' e 'error-section' não existem no HTML.
+    // Apenas exibimos a mensagem de erro no console e no h2 principal.
+    document.getElementById("nome_pet").textContent = "ERRO: " + mensagem;
+    document.getElementById("nome_pet").classList.add("erro"); // Adiciona classe de erro para estilização
 }
 
 // === Enviar aviso de pet encontrado (Fiqon Webhook) ===
