@@ -1,215 +1,185 @@
 // =============================================
-//  AcheiMeuPet — pet.js (versão corrigida 19/11)
-//  Consulta dados direto no Apps Script
-//  Envia aviso completo ao Fiqon (Encontro_Pet_fluxo)
+// AcheiMeuPet — pet.js (versão corrigida 19/11)
+// Consulta dados direto no Apps Script
+// Envia aviso completo ao Fiqon (Encontro_Pet_fluxo)
 // =============================================
 
 // ===== ENDPOINTS =====
-const API_PET =
-  "https://script.google.com/macros/s/AKfycbz5pxePvVWe6zYI6hqIAXT1mMO0-0NNViyA2PfkFWvdsmD55bFBNT5tlwqxQdsOyEnq7w/exec";
+const API_PET = "https://script.google.com/macros/s/AKfycbz5pxePvvWe6zYI6hqIAXT1mM00-0NNViYA2PfkFwvdsmd55bFBNT5t1wqxQds0yEnq7w/exec";
 
-const WEBHOOK_AVISO =
-  "https://webhook.fiqon.app/webhook/a02b8e45-cd21-44e0-a619-be0e64fd9a4b/b9ae07d8-e7af-4b1f-9b1c-a22cc15fb9cd";
-
+const WEBHOOK_AVISO = "https://webhook.fiqon.app/webhook/a02b8e45-cd21-44e0-a619-be0e64fd9a4b/b9ae07d8-e7af-4b1f-9b1c-a22cc15fb9cd";
 
 // === Obter ID do pet da URL ===
 function obterIdPet() {
-  const params = new URLSearchParams(window.location.search);
-  // O ID é passado na URL como '?id=PXXXX', então buscamos por 'id'
-  return params.get("id");
+    const params = new URLSearchParams(window.location.search);
+    // O ID é passado na URL como '?id=PXXXXX', então buscamos por 'id'
+    return params.get("id");
 }
 
 // === Buscar dados do pet ===
 async function buscarDadosPet(id_pet) {
-  try {
-    // CORREÇÃO: O Apps Script (codigo.gs) espera o parâmetro 'id' ou 'id_pet'.
-    // O código original estava enviando 'id_pet', mas o Apps Script estava buscando 'id'.
-    // Para garantir a compatibilidade com o codigo.gs corrigido, que aceita 'id_pet',
-    // vamos manter o envio de 'id_pet' aqui.
-    const url = `${API_PET}?id_pet=${encodeURIComponent(id_pet)}`;
-    const resposta = await fetch(url);
-    const json = await resposta.json();
+    try {
+        // CORREÇÃO: O Apps Script (codigo.gs) espera o parâmetro 'id' ou 'id_pet'.
+        // O código original estava enviando 'id_pet', mas o Apps Script estava buscando 'id'.
+        // Para garantir a compatibilidade com o codigo.gs corrigido, que aceita 'id_pet',
+        // vamos manter o envio de 'id_pet' aqui.
+        const url = `${API_PET}?id_pet=${id_pet}`;
+        
+        const response = await fetch(url);
+        
+        // Verifica se a resposta é JSON antes de tentar o parse
+        const contentType = response.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+            console.error("Erro: Resposta do Apps Script não é JSON. Conteúdo:", await response.text());
+            exibirErro("Erro de comunicação com o servidor. Tente novamente mais tarde.");
+            return null;
+        }
 
-    if (!json || json.status !== "sucesso" || !json.pet) {
-      throw new Error(json?.mensagem || "Pet não encontrado");
+        const data = await response.json();
+        
+        console.log("Resposta do Apps Script:", data);
+
+        if (data.status === "sucesso") {
+            return data.pet;
+        } else {
+            // O Apps Script retorna status: "erro" e mensagem: "Pet não encontrado"
+            exibirErro(data.mensagem || "Pet não encontrado. Verifique o ID.");
+            return null;
+        }
+
+    } catch (error) {
+        console.error("Erro ao buscar dados do pet:", error);
+        exibirErro("Erro ao buscar dados do pet. Verifique sua conexão ou tente novamente.");
+        return null;
+    }
+}
+
+// === Preencher dados na página ===
+function preencherDadosPet(pet) {
+    if (!pet) {
+        return;
     }
 
-    return json.pet;
-
-  } catch (e) {
-    console.error("❌ Erro buscarDadosPet:", e);
-    return null;
-  }
-}
-
-// === Preencher interface ===
-function preencherDadosPet(d) {
-  const nomePet = d.nome_pet || "Pet não identificado";
-  const nomeTutor = d.nome_tutor || "Tutor não identificado";
-
-  // O campo no Apps Script é 'foto_pet', mas o campo no HTML é 'foto_pet'
-  // O Apps Script está retornando 'foto_pet' (linha 69 do codigo.gs)
-  document.getElementById("foto_pet").src =
-    d.foto_pet || "https://cdn-icons-png.flaticon.com/512/616/616408.png";
-
-  document.getElementById("nome_pet").textContent = nomePet;
-  document.getElementById("nome_pet_label").textContent = nomePet;
-  document.getElementById("especie_pet").textContent = d.especie || "-";
-  document.getElementById("raca_pet").textContent = d.raca || "-";
-  document.getElementById("sexo_pet").textContent = d.sexo || "-";
-  document.getElementById("cidade_pet").textContent = d.cidade || "-";
-  document.getElementById("nome_tutor").textContent = nomeTutor;
-  document.getElementById("whatsapp_tutor").textContent = d.whatsapp_tutor || "-";
-
-  const numeroWhats = String(d.whatsapp_tutor || "").replace(/\D/g, "");
-  const btn = document.getElementById("btn_contato");
-
-  if (!numeroWhats || numeroWhats.length < 10) {
-    btn.style.display = "none";
-  } else {
-    const texto = `Olá! Encontrei o pet ${nomePet} através do AcheiMeuPet 🐾`;
-    btn.href = `https://wa.me/55${numeroWhats}?text=${encodeURIComponent(texto)}`;
-  }
-}
-
-// === Enviar aviso ao tutor via Fiqon (VERSÃO ROBUSTA) ===
-async function enviarAviso(formData) {
-  try {
-    const r = await fetch(WEBHOOK_AVISO, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData),
-    });
-
-    if (r.ok && r.status === 200) {
-      return { enviado_whatsapp: true };
+    // === DADOS DO PET ===
+    document.getElementById("nome-pet").textContent = pet.nome_pet || "Pet não cadastrado";
+    document.getElementById("especie-pet").textContent = pet.especie || "Não informado";
+    document.getElementById("raca-pet").textContent = pet.raca || "Não informado";
+    document.getElementById("sexo-pet").textContent = pet.sexo || "Não informado";
+    document.getElementById("ano-nascimento-pet").textContent = pet.ano_nascimento || "Não informado";
+    
+    // Imagem do Pet
+    const imgPet = document.getElementById("foto-pet");
+    if (pet.foto_pet) {
+        imgPet.src = pet.foto_pet;
+        imgPet.alt = `Foto de ${pet.nome_pet}`;
     } else {
-      console.error("Resposta do Fiqon não foi OK:", r.status, r.statusText);
-      return null;
+        // Imagem placeholder se não houver foto
+        imgPet.src = "placeholder.png"; 
+        imgPet.alt = "Foto não disponível";
     }
 
-  } catch (err) {
-    console.error("❌ Erro de rede ao enviar aviso:", err);
-    return null;
-  }
-}
+    // === DADOS DO TUTOR ===
+    const nomeTutor = pet.nome_tutor || "Tutor não informado";
+    const whatsappTutor = pet.whatsapp_tutor || "";
+    const emailTutor = pet.email_tutor || "";
+    const ufTutor = pet.uf || "";
+    // O campo 'cidade' pode estar ausente no fluxo pago (cadastro_pets), mas 'uf' deve estar presente.
+    // Se 'cidade' estiver ausente, usamos apenas 'uf'.
+    const cidadeTutor = pet.cidade || ""; 
 
-// === Execução ===
-document.addEventListener("DOMContentLoaded", async () => {
-  const id_pet = obterIdPet();
-
-  if (!id_pet) {
-    // A mensagem de erro no HTML já existe, mas vamos garantir que o conteúdo seja substituído
-    document.getElementById("conteudo-pet").innerHTML =
-      `<p class="erro" style="font-size:1.2em; color:red; margin-top:20px;">❌ ID do pet não informado na URL.</p>`;
-    return;
-  }
-
-  const dados = await buscarDadosPet(id_pet);
-
-  if (!dados) {
-    // O HTML original já tem uma estrutura para "Pet não encontrado", mas vamos garantir a mensagem de erro
-    document.getElementById("conteudo-pet").innerHTML =
-      `<p class="erro" style="font-size:1.2em; color:orange; margin-top:20px;">⚠️ Pet não encontrado. Verifique o ID.</p>`;
-    return;
-  }
-
-  preencherDadosPet(dados);
-
-// =====================================================
-// CAPTURAR LOCALIZAÇÃO — VERSÃO ROBUSTA E CONSISTENTE
-// =====================================================
-let latitude = null;
-let longitude = null;
-
-/**
- * Tenta capturar a localização do usuário.
- * @returns {Promise<boolean>} True se a localização foi obtida, false caso contrário.
- */
-async function capturarLocalizacao() {
-  return new Promise((resolve) => {
-    if (!("geolocation" in navigator)) {
-      console.warn("❌ Geolocalização não suportada.");
-      return resolve(false);
-    }
-
-    const opcoes = {
-      enableHighAccuracy: true,
-      timeout: 8000,
-      maximumAge: 0
-    };
-
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        latitude = pos.coords.latitude;
-        longitude = pos.coords.longitude;
-        console.log("📍 Localização obtida:", latitude, longitude);
-        resolve(true);
-      },
-      (err) => {
-        // Se o usuário negar, não é um erro fatal, apenas não teremos a localização.
-        console.warn("⚠️ Falha ao obter localização:", err.code, err.message);
-        resolve(false);
-      },
-      opcoes
-    );
-  });
-}
-
-// Tenta capturar a localização assim que a página carrega.
-// O usuário verá o pedido de permissão imediatamente.
-// Adicionamos um pequeno delay para garantir que o DOM esteja totalmente pronto
-// e que o usuário tenha tempo de ver o pedido de permissão.
-await new Promise(resolve => setTimeout(resolve, 500)); // Pequeno delay
-await capturarLocalizacao();
-// =====================================================
-
-  const form = document.getElementById("formAviso");
-  const msgOk = document.getElementById("mensagem_sucesso");
-
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-
-    // Se a localização ainda não foi obtida (usuário pode ter negado ou o timeout expirou),
-    // fazemos uma última tentativa, mas sem bloquear o envio do formulário.
-    if (latitude === null || longitude === null) {
-      await capturarLocalizacao();
+    document.getElementById("nome-tutor").textContent = nomeTutor;
+    
+    let localizacao = "";
+    if (cidadeTutor && ufTutor) {
+        localizacao = `${cidadeTutor} - ${ufTutor}`;
+    } else if (ufTutor) {
+        localizacao = ufTutor;
+    } else if (cidadeTutor) {
+        localizacao = cidadeTutor;
     }
     
-    // Se a localização for nula, alertamos o usuário, mas permitimos o envio
-    // para não impedir o contato com o tutor.
-    if (latitude === null || longitude === null) {
-        alert("⚠️ Não foi possível obter sua localização exata. O aviso será enviado, mas o tutor receberá apenas a localização aproximada.");
+    document.getElementById("localizacao-tutor").textContent = localizacao || "Localização não informada";
+
+    // Botão de Contato
+    const btnContato = document.getElementById("btn-contato");
+    if (whatsappTutor) {
+        btnContato.href = `https://wa.me/55${whatsappTutor.replace(/\D/g, '')}?text=Olá!%20Encontrei%20o%20seu%20pet%20${pet.nome_pet}.%20Ele%20está%20bem!`;
+        btnContato.classList.remove("d-none");
+    } else {
+        btnContato.classList.add("d-none");
     }
 
-    const payload = {
-      id_pet,
+    // Exibir a seção de dados e esconder o loader
+    document.getElementById("loader").classList.add("d-none");
+    document.getElementById("pet-data-section").classList.remove("d-none");
+}
 
-      nome_encontrador: document.getElementById("nome_encontrador").value.trim(),
-      telefone_encontrador: document.getElementById("telefone_encontrador").value.trim(),
-      observacoes: document.getElementById("observacoes").value.trim(),
+// === Exibir mensagem de erro ===
+function exibirErro(mensagem) {
+    document.getElementById("loader").classList.add("d-none");
+    document.getElementById("error-message").textContent = mensagem;
+    document.getElementById("error-section").classList.remove("d-none");
+}
 
-      nome_pet: dados.nome_pet,
-      nome_tutor: dados.nome_tutor,
-      whatsapp_tutor: dados.whatsapp_tutor,
-      email_tutor: dados.email_tutor,
+// === Enviar aviso de pet encontrado (Fiqon Webhook) ===
+async function enviarAviso(pet) {
+    if (!pet || !pet.link_pet) {
+        console.warn("Não foi possível enviar aviso: dados do pet incompletos.");
+        return;
+    }
 
-      latitude: latitude,
-      longitude: longitude,
-      // Adiciona o link do Google Maps para facilitar o uso no Fiqon
-      localizacao_url: (latitude && longitude) ? `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}` : 'Localização não disponível',
+    const data = {
+        pet_id: pet.id_pet,
+        nome_pet: pet.nome_pet,
+        nome_tutor: pet.nome_tutor,
+        whatsapp_tutor: pet.whatsapp_tutor,
+        email_tutor: pet.email_tutor,
+        link_pet: pet.link_pet,
+        data_hora_encontro: new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }),
+        // Adicionar dados de localização do usuário que acessou a página (se disponíveis)
+        // Exemplo: latitude: '...', longitude: '...'
     };
 
-    const resp = await enviarAviso(payload);
+    try {
+        const response = await fetch(WEBHOOK_AVISO, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+        });
 
-    console.log("Resposta processada pelo JS:", resp);
-
-    if (resp && resp.enviado_whatsapp === true) {
-      msgOk.style.display = "block";
-      setTimeout(() => (msgOk.style.display = "none"), 4000);
-      form.reset();
-    } else {
-      alert("Não foi possível enviar o aviso ao tutor.");
+        if (response.ok) {
+            console.log("Aviso de pet encontrado enviado com sucesso para o Fiqon.");
+        } else {
+            console.error("Erro ao enviar aviso para o Fiqon:", response.status, await response.text());
+        }
+    } catch (error) {
+        console.error("Erro de rede ao enviar aviso para o Fiqon:", error);
     }
-  });
-});
+}
+
+// === Inicialização ===
+async function init() {
+    const id_pet = obterIdPet();
+
+    if (!id_pet) {
+        exibirErro("ID do pet não encontrado na URL.");
+        return;
+    }
+
+    const pet = await buscarDadosPet(id_pet);
+
+    if (pet) {
+        preencherDadosPet(pet);
+        // Não enviar aviso se o pet for do fluxo pago (Cadastro Pets)
+        // O aviso deve ser enviado apenas quando um pet é *encontrado* por um terceiro.
+        // O fluxo pago já deve ter um mecanismo de notificação diferente.
+        // Vamos assumir que o aviso é para o fluxo free/pre-cadastro, onde o link é lido por um terceiro.
+        if (pet.origem !== "cadastro_pets") {
+             enviarAviso(pet);
+        }
+    }
+}
+
+document.addEventListener("DOMContentLoaded", init);
