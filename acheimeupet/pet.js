@@ -68,14 +68,14 @@ function preencherDadosPet(pet) {
     }
 
     // === DADOS DO PET ===
-    document.getElementById("nome-pet").textContent = pet.nome_pet || "Pet não cadastrado";
-    document.getElementById("especie-pet").textContent = pet.especie || "Não informado";
-    document.getElementById("raca-pet").textContent = pet.raca || "Não informado";
-    document.getElementById("sexo-pet").textContent = pet.sexo || "Não informado";
-    document.getElementById("ano-nascimento-pet").textContent = pet.ano_nascimento || "Não informado";
+    document.getElementById("nome_pet_label").textContent = pet.nome_pet || "Pet não cadastrado";
+    document.getElementById("especie_pet").textContent = pet.especie || "Não informado";
+    document.getElementById("raca_pet").textContent = pet.raca || "Não informado";
+    document.getElementById("sexo_pet").textContent = pet.sexo || "Não informado";
+    // document.getElementById("ano_nascimento_pet").textContent = pet.ano_nascimento || "Não informado"; // Removido: ID não existe em pet.html
     
     // Imagem do Pet
-    const imgPet = document.getElementById("foto-pet");
+    const imgPet = document.getElementById("foto_pet");
     if (pet.foto_pet) {
         imgPet.src = pet.foto_pet;
         imgPet.alt = `Foto de ${pet.nome_pet}`;
@@ -94,7 +94,8 @@ function preencherDadosPet(pet) {
     // Se 'cidade' estiver ausente, usamos apenas 'uf'.
     const cidadeTutor = pet.cidade || ""; 
 
-    document.getElementById("nome-tutor").textContent = nomeTutor;
+    document.getElementById("nome_tutor").textContent = nomeTutor;
+    document.getElementById("whatsapp_tutor").textContent = whatsappTutor || "Não informado";
     
     let localizacao = "";
     if (cidadeTutor && ufTutor) {
@@ -105,10 +106,10 @@ function preencherDadosPet(pet) {
         localizacao = cidadeTutor;
     }
     
-    document.getElementById("localizacao-tutor").textContent = localizacao || "Localização não informada";
+    document.getElementById("cidade_pet").textContent = localizacao || "Localização não informada";
 
     // Botão de Contato
-    const btnContato = document.getElementById("btn-contato");
+    const btnContato = document.getElementById("btn_contato");
     if (whatsappTutor) {
         btnContato.href = `https://wa.me/55${whatsappTutor.replace(/\D/g, '')}?text=Olá!%20Encontrei%20o%20seu%20pet%20${pet.nome_pet}.%20Ele%20está%20bem!`;
         btnContato.classList.remove("d-none");
