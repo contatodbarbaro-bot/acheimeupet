@@ -5,7 +5,7 @@
 // =============================================
 
 // ===== ENDPOINTS =====
-const API_PET = "https://script.google.com/macros/s/AKfycbz5pxePvvWe6zYI6hqIAXT1mM00-0NNViYA2PfkFwvdsmd55bFBNT5t1wqxQds0yEnq7w/exec";
+const API_PET = "https://script.google.com/macros/s/AKfycbzFiM604SBy2ICG8l1It_q1lkum6V3Qy5OKA3gGnO1tcJeGmR4nIOk-wtznsw2i42kgiw/exec";
 
 const WEBHOOK_AVISO = "https://webhook.fiqon.app/webhook/a02b8e45-cd21-44e0-a619-be0e64fd9a4b/b9ae07d8-e7af-4b1f-9b1c-a22cc15fb9cd";
 
@@ -183,3 +183,4 @@ async function init() {
 }
 
 document.addEventListener("DOMContentLoaded", init);
+
