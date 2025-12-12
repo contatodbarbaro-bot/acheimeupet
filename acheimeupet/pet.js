@@ -71,6 +71,10 @@ function preencherDadosPet(pet) {
         imgPet.alt = "Foto não disponível";
     }
 
+    // TAREFA 2: Garantir que o título "Carregando..." seja substituído
+    const titulo = document.getElementById("nome_pet");
+    if (titulo) titulo.textContent = pet.nome_pet || "Pet não cadastrado";
+
     document.getElementById("nome_pet_label").textContent = pet.nome_pet || "Pet não cadastrado";
     document.getElementById("especie_pet").textContent = pet.especie || "Não informado";
     document.getElementById("raca_pet").textContent = pet.raca || "Não informado";
@@ -109,64 +113,69 @@ function preencherDadosPet(pet) {
         // CORREÇÃO 1: Forçar o valor a ser string antes de usar .replace()
         const whatsappString = String(whatsappTutor);
         
-        btnContato.href = `https://wa.me/55${whatsappString.replace(/[\D]/g, '')}?text=Ol%C3%A1%20Encontrei%20o%20seu%20pet%20${pet.nome_pet}!`;
+        btnContato.href = `https://wa.me/55${whatsappString.replace(/[\D]/g, '')}?text=Olá%20Encontrei%20o%20seu%20pet%20${pet.nome_pet}!`;
         
         btnContato.classList.remove("d-none");
     } else {
         btnContato.classList.add("d-none");
     }
 
- // === Formulário de Aviso ===
-const formAviso = document.getElementById("formAviso");
-if (formAviso) {
-  formAviso.addEventListener("submit", async (e) => {
-    e.preventDefault();
+    // TAREFA 1: Inserir bloco de exibição do conteúdo
+    // === Exibir conteúdo após carregar dados ===
+    document.getElementById("conteudo-pet")?.classList.remove("d-none");
 
-    const nomeEncontrador = document.getElementById("nome_encontrador")?.value?.trim();
-    const telefoneEncontrador = document.getElementById("telefone_encontrador")?.value?.trim();
-    const observacoes = document.getElementById("observacoes")?.value?.trim();
+    // === Formulário de Aviso === (MOVIDO PARA DENTRO DA FUNÇÃO)
+    const formAviso = document.getElementById("formAviso");
+    if (formAviso) {
+      formAviso.addEventListener("submit", async (e) => {
+        e.preventDefault();
 
-    if (!nomeEncontrador || !telefoneEncontrador) {
-      alert("Por favor, preencha nome e telefone.");
-      return;
-    }
+        const nomeEncontrador = document.getElementById("nome_encontrador")?.value?.trim();
+        const telefoneEncontrador = document.getElementById("telefone_encontrador")?.value?.trim();
+        const observacoes = document.getElementById("observacoes")?.value?.trim();
 
-    const dadosAviso = {
-      id_pet: pet.id_pet,
-      nome_pet: pet.nome_pet,
-      nome_tutor: pet.nome_tutor,
-      whatsapp_tutor: pet.whatsapp_tutor,
-      email_tutor: pet.email_tutor,
-      nome_encontrador: nomeEncontrador,
-      telefone_encontrador: telefoneEncontrador,
-      mensagem: observacoes || "",   // aqui vai o texto do textarea
-      link_pet: window.location.href
-    };
+        if (!nomeEncontrador || !telefoneEncontrador) {
+          alert("Por favor, preencha nome e telefone.");
+          return;
+        }
 
-    try {
-      console.log("Enviando aviso para o webhook...", dadosAviso);
+        const dadosAviso = {
+          id_pet: pet.id_pet,
+          nome_pet: pet.nome_pet,
+          nome_tutor: pet.nome_tutor,
+          whatsapp_tutor: pet.whatsapp_tutor,
+          email_tutor: pet.email_tutor,
+          nome_encontrador: nomeEncontrador,
+          telefone_encontrador: telefoneEncontrador,
+          mensagem: observacoes || "",   // aqui vai o texto do textarea
+          link_pet: window.location.href
+        };
 
-      await fetch(WEBHOOK_AVISO, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(dadosAviso)
+        try {
+          console.log("Enviando aviso para o webhook...", dadosAviso);
+
+          await fetch(WEBHOOK_AVISO, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(dadosAviso)
+          });
+
+          // Exibe sucesso (no seu HTML ele não usa "d-none", ele usa display:none)
+          const ok = document.getElementById("mensagem_sucesso");
+          if (ok) ok.style.display = "block";
+
+          formAviso.reset();
+          console.log("Aviso enviado (no-cors):", dadosAviso);
+
+        } catch (error) {
+          console.error("Erro ao enviar aviso:", error);
+          alert("Ocorreu um erro ao tentar enviar o aviso. Tente novamente.");
+        }
       });
-
-      // Exibe sucesso (no seu HTML ele não usa "d-none", ele usa display:none)
-      const ok = document.getElementById("mensagem_sucesso");
-      if (ok) ok.style.display = "block";
-
-      formAviso.reset();
-      console.log("Aviso enviado (no-cors):", dadosAviso);
-
-    } catch (error) {
-      console.error("Erro ao enviar aviso:", error);
-      alert("Ocorreu um erro ao tentar enviar o aviso. Tente novamente.");
+    } else {
+      console.warn("Formulário #formAviso não encontrado no HTML.");
     }
-  });
-} else {
-  console.warn("Formulário #formAviso não encontrado no HTML.");
 }
 
 // ===== Inicialização =====
@@ -184,8 +193,7 @@ async function init() {
 }
 
 document.addEventListener("DOMContentLoaded", init);
-
-
-
-
-
+function exibirErro(mensagem) {
+  console.error("Erro:", mensagem);
+  alert(mensagem);
+}
