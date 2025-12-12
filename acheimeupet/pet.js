@@ -7,7 +7,7 @@
 // ===== ENDPOINTS =====
 // CORREÇÃO 3: A URL da API deve ser a URL de execução do Apps Script.
 // A URL de execução correta é: https://script.google.com/macros/s/AKfycbzFiM604SBy2ICG8L1It_qllkum6V3Qy50KA3gGn01tcJeGmR4nIOk-w/exec
-const API_PET = "https://script.google.com/macros/s/AKfycbzFiM604SBy2ICG8L1It_qllkum6V3Qy50KA3gGn01tcJeGmR4nIOk-w/exec";
+const API_PET = "https://script.google.com/macros/s/AKfycbzFiM604SBy2ICG8l1It_q1lkum6V3Qy5OKA3gGnO1tcJeGmR4nIOk-wtznsw2i42kgiw/exec";
 const WEBHOOK_AVISO = "https://webhook.fiqon.app/webhook/a02b8e45-cd21-44e0-a619-be0e64fd9a4b/b9ae07d8-e7af-4b1f-9467-331580918731";
 
 // ===== Obter ID do pet da URL =====
@@ -204,3 +204,4 @@ async function init() {
 }
 
 document.addEventListener("DOMContentLoaded", init);
+
