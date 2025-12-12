@@ -23,13 +23,9 @@ async function buscarDadosPet(id_pet) {
         // Para garantir a compatibilidade com o codigo.gs corrigido, que aceita 'id_pet',
         // vamos manter o envio de 'id_pet' aqui.
         const url = `${API_PET}?id_pet=${id_pet}`;
-        
-        // CORREÇÃO DE CORS: Adicionar 'mode: "cors"' e 'credentials: "include"'
-        // O Google Apps Script (exec) exige CORS.
-        const response = await fetch(url, {
-            mode: "cors",
-            credentials: "include"
-        });
+        // CORREÇÃO DE CORS: não usar credentials "include" com Apps Script
+        // Fazendo fetch simples para evitar bloqueio de CORS
+        const response = await fetch(url);
 
         // Verifica se a resposta é JSON antes de tentar o parse
         const contentType = response.headers.get("content-type");
@@ -180,12 +176,16 @@ function preencherDadosPet(pet) {
 
 // ===== Exibir Erro =====
 function exibirErro(mensagem) {
-    // CORREÇÃO 2: Usar optional chaining para evitar erro de 'classList' se o elemento não existir
-    document.getElementById("loading_container")?.classList.add("d-none");
-    document.getElementById("conteudo_pet")?.classList.add("d-none");
-    document.getElementById("erro_container")?.classList.remove("d-none");
-    document.getElementById("mensagem_erro").textContent = mensagem;
+  document.getElementById("loading_container")?.classList.add("d-none");
+  document.getElementById("conteudo_pet")?.classList.add("d-none");
+  document.getElementById("erro_container")?.classList.remove("d-none");
+
+  const el = document.getElementById("mensagem_erro");
+  if (el) {
+    el.textContent = mensagem;
+  }
 }
+
 
 // ===== Inicialização =====
 async function init() {
@@ -202,5 +202,6 @@ async function init() {
 }
 
 document.addEventListener("DOMContentLoaded", init);
+
 
 
