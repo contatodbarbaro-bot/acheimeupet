@@ -5,35 +5,9 @@
 // =============================================
 
 // ===== ENDPOINTS =====
-// CORREÇÃO 3: A URL da API deve ser a URL de execução do Apps Script.
-// A URL de execução correta é: https://script.google.com/macros/s/AKfycbzFiM604SBy2ICG8L1It_qllkum6V3Qy50KA3gGn01tcJeGmR4nIOk-w/exec
-const API_PET = "https://script.google.com/macros/s/AKfycbzFiM604SBy2ICG8L1It_qllkum6V3Qy50KA3gGn01tcJeGmR4nIOk-w/exec";
-const WEBHOOK_AVISO = "https://webhook.fiqon.app/webhook/a02b8e45-cd21-44e0-a619-be0e64fd9a4b/b9ae07d8-e7af-4b1f-9467-331580918731";
-
-// ===== GEO (Localização do encontrador) =====
-let GEO = { lat: null, lng: null, accuracy: null };
-
-function capturarLocalizacao() {
-  return new Promise((resolve) => {
-    if (!navigator.geolocation) return resolve(null);
-
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        GEO.lat = pos.coords.latitude;
-        GEO.lng = pos.coords.longitude;
-        GEO.accuracy = pos.coords.accuracy;
-        console.log("GPS OK:", GEO);
-        resolve(GEO);
-      },
-      (err) => {
-        console.warn("GPS negado/erro:", err);
-        resolve(null);
-      },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-    );
-  });
-}
-
+const API_PET = "https://script.google.com/macros/s/AKfycbzFiM604SBy2ICG8l1It_q1lkum6V3Qy5OKA3gGnO1tcJeGmR4nIOk-wtznsw2i42kgiw/exec";
+const WEBHOOK_AVISO = "https://webhook.fiqon.app/webhook/a02b8e45-cd21-44e0-a619-be0e64fd9a4b/b9ae07d8-e7af-4b1f-9b1c-a22cc15fb9cd";
+                        
 // ===== Obter ID do pet da URL =====
 function obterIdPet() {
     const params = new URLSearchParams(window.location.search);
@@ -49,13 +23,9 @@ async function buscarDadosPet(id_pet) {
         // Para garantir a compatibilidade com o codigo.gs corrigido, que aceita 'id_pet',
         // vamos manter o envio de 'id_pet' aqui.
         const url = `${API_PET}?id_pet=${id_pet}`;
-        
-        // CORREÇÃO DE CORS: Adicionar 'mode: "cors"' e 'credentials: "include"'
-        // O Google Apps Script (exec) exige CORS.
-        const response = await fetch(url, {
-            mode: "cors",
-            credentials: "include"
-        });
+        // CORREÇÃO DE CORS: não usar credentials "include" com Apps Script
+        // Fazendo fetch simples para evitar bloqueio de CORS
+        const response = await fetch(url);
 
         // Verifica se a resposta é JSON antes de tentar o parse
         const contentType = response.headers.get("content-type");
@@ -101,15 +71,17 @@ function preencherDadosPet(pet) {
         imgPet.alt = "Foto não disponível";
     }
 
+    // TAREFA 2: Garantir que o título "Carregando..." seja substituído
+    const titulo = document.getElementById("nome_pet");
+    if (titulo) titulo.textContent = pet.nome_pet || "Pet não cadastrado";
+
     document.getElementById("nome_pet_label").textContent = pet.nome_pet || "Pet não cadastrado";
     document.getElementById("especie_pet").textContent = pet.especie || "Não informado";
     document.getElementById("raca_pet").textContent = pet.raca || "Não informado";
     document.getElementById("sexo_pet").textContent = pet.sexo || "Não informado";
-    
-    // MUDANÇA 1 (SOLICITADA PELO USUÁRIO): proteger a linha do ano de nascimento
     const anoEl = document.getElementById("ano_nascimento_pet");
     if (anoEl) {
-      anoEl.textContent = pet.ano_nascimento || "Não informado";
+    anoEl.textContent = pet.ano_nascimento || "Não informado";
     }
 
     // === DADOS DO TUTOR ===
@@ -141,95 +113,73 @@ function preencherDadosPet(pet) {
         // CORREÇÃO 1: Forçar o valor a ser string antes de usar .replace()
         const whatsappString = String(whatsappTutor);
         
-        btnContato.href = `https://wa.me/55${whatsappString.replace(/[\D]/g, '')}?text=Ol%C3%A1%20Encontrei%20o%20seu%20pet%20${pet.nome_pet}!`;
+        btnContato.href = `https://wa.me/55${whatsappString.replace(/[\D]/g, '')}?text=Olá%20Encontrei%20o%20seu%20pet%20${pet.nome_pet}!`;
         
         btnContato.classList.remove("d-none");
     } else {
         btnContato.classList.add("d-none");
     }
 
-    // === Formulário de Aviso ===
-    const formAviso = document.getElementById("form_aviso");
-    formAviso.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        
-        const nomeEncontrador = document.getElementById("nome_encontrador").value;
-        const telefoneEncontrador = document.getElementById("telefone_encontrador").value;
-        const emailEncontrador = document.getElementById("email_encontrador").value;
-        const mensagem = document.getElementById("mensagem_aviso").value;
+    // TAREFA 1: Inserir bloco de exibição do conteúdo
+    // === Exibir conteúdo após carregar dados ===
+    document.getElementById("conteudo-pet")?.classList.remove("d-none");
 
-        if (!nomeEncontrador || !telefoneEncontrador || !emailEncontrador || !mensagem) {
-            alert("Por favor, preencha todos os campos do formulário.");
-            return;
+    // === Formulário de Aviso === (MOVIDO PARA DENTRO DA FUNÇÃO)
+    const formAviso = document.getElementById("formAviso");
+    if (formAviso) {
+      formAviso.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const nomeEncontrador = document.getElementById("nome_encontrador")?.value?.trim();
+        const telefoneEncontrador = document.getElementById("telefone_encontrador")?.value?.trim();
+        const observacoes = document.getElementById("observacoes")?.value?.trim();
+
+        if (!nomeEncontrador || !telefoneEncontrador) {
+          alert("Por favor, preencha nome e telefone.");
+          return;
         }
 
         const dadosAviso = {
-            id_pet: pet.id_pet,
-            nome_pet: pet.nome_pet,
-            nome_tutor: pet.nome_tutor,
-            whatsapp_tutor: pet.whatsapp_tutor,
-            email_tutor: pet.email_tutor,
-            nome_encontrador: nomeEncontrador,
-            telefone_encontrador: telefoneEncontrador,
-            email_encontrador: emailEncontrador,
-            mensagem: mensagem,
-            link_pet: window.location.href, // Adiciona o link completo da página
-
-            geo_lat: GEO.lat,
-            geo_lng: GEO.lng,
-            geo_accuracy: GEO.accuracy
+          id_pet: pet.id_pet,
+          nome_pet: pet.nome_pet,
+          nome_tutor: pet.nome_tutor,
+          whatsapp_tutor: pet.whatsapp_tutor,
+          email_tutor: pet.email_tutor,
+          nome_encontrador: nomeEncontrador,
+          telefone_encontrador: telefoneEncontrador,
+          mensagem: observacoes || "",   // aqui vai o texto do textarea
+          link_pet: window.location.href
         };
 
         try {
-            const response = await fetch(WEBHOOK_AVISO, {
-                method: 'POST',
-                mode: 'no-cors', // Necessário para evitar erros de CORS com webhooks simples
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(dadosAviso)
-            });
+          console.log("Enviando aviso para o webhook...", dadosAviso);
 
-            // Como o modo é 'no-cors', a resposta será opaca e não podemos verificar o status.
-            // Assumimos o sucesso se não houver erro de rede.
-            
-            // Exibe a mensagem de sucesso
-            document.getElementById("mensagem_sucesso").classList.remove("d-none");
-            document.getElementById("form_aviso_container").classList.add("d-none");
-            
-            // Limpa o formulário (opcional, mas boa prática)
-            formAviso.reset();
+          await fetch(WEBHOOK_AVISO, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(dadosAviso)
+          });
 
-            console.log("Aviso enviado com sucesso (resposta opaca devido a 'no-cors'). Dados enviados:", dadosAviso);
+          // Exibe sucesso (no seu HTML ele não usa "d-none", ele usa display:none)
+          const ok = document.getElementById("mensagem_sucesso");
+          if (ok) ok.style.display = "block";
+
+          formAviso.reset();
+          console.log("Aviso enviado (no-cors):", dadosAviso);
 
         } catch (error) {
-            console.error("Erro ao enviar aviso:", error);
-            alert("Ocorreu um erro ao tentar enviar o aviso. Por favor, tente novamente mais tarde.");
+          console.error("Erro ao enviar aviso:", error);
+          alert("Ocorreu um erro ao tentar enviar o aviso. Tente novamente.");
         }
-    });
-    
-    // Remove o "Carregando..." e exibe o conteúdo
-    document.getElementById("loading_container")?.classList.add("d-none");
-    document.getElementById("conteudo_pet")?.classList.remove("d-none");
-}
-
-// ===== Exibir Erro =====
-function exibirErro(mensagem) {
-    // CORREÇÃO 2: Usar optional chaining para evitar erro de 'classList' se o elemento não existir
-    document.getElementById("loading_container")?.classList.add("d-none");
-    document.getElementById("conteudo_pet")?.classList.add("d-none");
-    document.getElementById("erro_container")?.classList.remove("d-none");
-    
-    // MUDANÇA 2 (SOLICITADA PELO USUÁRIO): proteger o “mensagem_erro”
-    const el = document.getElementById("mensagem_erro");
-    if (el) {
-      el.textContent = mensagem;
+      });
+    } else {
+      console.warn("Formulário #formAviso não encontrado no HTML.");
     }
 }
 
 // ===== Inicialização =====
 async function init() {
-  await capturarLocalizacao(); // <-- ADICIONAR ESTA LINHA
     const id_pet = obterIdPet();
     if (!id_pet) {
         exibirErro("ID do pet não encontrado na URL.");
@@ -243,3 +193,7 @@ async function init() {
 }
 
 document.addEventListener("DOMContentLoaded", init);
+function exibirErro(mensagem) {
+  console.error("Erro:", mensagem);
+  alert(mensagem);
+}
