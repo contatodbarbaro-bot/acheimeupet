@@ -75,7 +75,10 @@ function preencherDadosPet(pet) {
     document.getElementById("especie_pet").textContent = pet.especie || "Não informado";
     document.getElementById("raca_pet").textContent = pet.raca || "Não informado";
     document.getElementById("sexo_pet").textContent = pet.sexo || "Não informado";
-    document.getElementById("ano_nascimento_pet").textContent = pet.ano_nascimento || "Não informado";
+    const anoEl = document.getElementById("ano_nascimento_pet");
+    if (anoEl) {
+    anoEl.textContent = pet.ano_nascimento || "Não informado";
+    }
 
     // === DADOS DO TUTOR ===
     const nomeTutor = pet.nome_tutor || "Tutor não informado";
@@ -186,7 +189,6 @@ function exibirErro(mensagem) {
   }
 }
 
-
 // ===== Inicialização =====
 async function init() {
     const id_pet = obterIdPet();
@@ -202,6 +204,7 @@ async function init() {
 }
 
 document.addEventListener("DOMContentLoaded", init);
+
 
 
 
