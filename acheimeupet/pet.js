@@ -192,3 +192,73 @@ async function init() {
 }
 
 document.addEventListener("DOMContentLoaded", init);
+
+// === Tratamento do Formulário de Aviso ===
+const formAviso = document.getElementById("formAviso");
+if (formAviso) {
+    formAviso.addEventListener("submit", async function(event) {
+        event.preventDefault(); // Impede o recarregamento da página
+
+        const id_pet = obterIdPet();
+        if (!id_pet) {
+            alert("Erro: ID do pet não encontrado na URL. Por favor, recarregue a página.");
+            return;
+        }
+
+        // Desabilita o botão e mostra que está enviando
+        const btnEnviar = document.querySelector("#formAviso button[type='submit']");
+        btnEnviar.disabled = true;
+        btnEnviar.textContent = "Enviando aviso...";
+
+        // Coleta os dados do formulário
+        const nome_encontrador = document.getElementById("nome_encontrador").value;
+        const telefone_encontrador = document.getElementById("telefone_encontrador").value;
+        const observacoes = document.getElementById("observacoes").value;
+
+        // Busca os dados do pet novamente para ter o link_pet e dados do tutor
+        const pet = await buscarDadosPet(id_pet);
+
+        if (pet) {
+            // Cria o objeto de dados para o webhook (Fiqon)
+            const data = {
+                pet_id: pet.id_pet,
+                nome_pet: pet.nome_pet,
+                nome_tutor: pet.nome_tutor,
+                whatsapp_tutor: pet.whatsapp_tutor,
+                link_pet: pet.link_pet,
+                nome_encontrador: nome_encontrador,
+                telefone_encontrador: telefone_encontrador,
+                observacoes: observacoes,
+                data_hora_encontro: new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }),
+            };
+
+            try {
+                const response = await fetch(WEBHOOK_AVISO, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                });
+
+                if (response.ok) {
+                    document.getElementById("mensagem_sucesso").style.display = "block";
+                    formAviso.reset(); // Limpa o formulário
+                    console.log("Aviso de pet encontrado enviado com sucesso para o Fiqon.");
+                } else {
+                    alert("Erro ao enviar aviso. Tente novamente mais tarde.");
+                    console.error("Erro ao enviar aviso para o Fiqon:", response.status, await response.text());
+                }
+            } catch (error) {
+                alert("Erro de rede ao enviar aviso. Verifique sua conexão.");
+                console.error("Erro de rede ao enviar aviso para o Fiqon:", error);
+            }
+        } else {
+            alert("Erro: Não foi possível obter os dados do pet para enviar o aviso.");
+        }
+
+        // Restaura o botão
+        btnEnviar.disabled = false;
+        btnEnviar.textContent = "📍 Enviar aviso ao tutor";
+    });
+}
