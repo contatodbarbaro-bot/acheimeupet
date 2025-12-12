@@ -24,7 +24,12 @@ async function buscarDadosPet(id_pet) {
         // vamos manter o envio de 'id_pet' aqui.
         const url = `${API_PET}?id_pet=${id_pet}`;
         
-        const response = await fetch(url);
+        // CORREÇÃO DE CORS: Adicionar 'mode: "cors"' e 'credentials: "include"'
+        // O Google Apps Script (exec) exige CORS.
+        const response = await fetch(url, {
+            mode: "cors",
+            credentials: "include"
+        });
 
         // Verifica se a resposta é JSON antes de tentar o parse
         const contentType = response.headers.get("content-type");
@@ -60,6 +65,7 @@ function preencherDadosPet(pet) {
     }
 
     // === DADOS DO PET ===
+    const imgPet = document.getElementById("foto_pet"); // Definido aqui para evitar erro de referência
     if (pet.foto_pet) {
         imgPet.src = pet.foto_pet;
         imgPet.alt = `Foto de ${pet.nome_pet}`;
@@ -101,17 +107,10 @@ function preencherDadosPet(pet) {
     // === Botão de Contato ===
     const btnContato = document.getElementById("btn_contato");
     if (whatsappTutor) {
-        // =================================================================================
-        // CORREÇÃO: Forçar o valor a ser string antes de usar .replace()
-        // O erro ocorre porque o Apps Script envia o número como tipo 'number'.
+        // CORREÇÃO 1: Forçar o valor a ser string antes de usar .replace()
         const whatsappString = String(whatsappTutor);
         
-        // A linha 114 original era:
-        // btnContato.href = `https://wa.me/55${whatsappTutor.replace(/[\D]/g, '')}?text=Ol%C3%A1%20Encontrei%20o%20seu%20pet%20${pet.nome_pet}!`;
-        
-        // Nova linha 114 corrigida:
         btnContato.href = `https://wa.me/55${whatsappString.replace(/[\D]/g, '')}?text=Ol%C3%A1%20Encontrei%20o%20seu%20pet%20${pet.nome_pet}!`;
-        // =================================================================================
         
         btnContato.classList.remove("d-none");
     } else {
@@ -175,15 +174,16 @@ function preencherDadosPet(pet) {
     });
     
     // Remove o "Carregando..." e exibe o conteúdo
-    document.getElementById("loading_container").classList.add("d-none");
-    document.getElementById("conteudo_pet").classList.remove("d-none");
+    document.getElementById("loading_container")?.classList.add("d-none");
+    document.getElementById("conteudo_pet")?.classList.remove("d-none");
 }
 
 // ===== Exibir Erro =====
 function exibirErro(mensagem) {
-    document.getElementById("loading_container").classList.add("d-none");
-    document.getElementById("conteudo_pet").classList.add("d-none");
-    document.getElementById("erro_container").classList.remove("d-none");
+    // CORREÇÃO 2: Usar optional chaining para evitar erro de 'classList' se o elemento não existir
+    document.getElementById("loading_container")?.classList.add("d-none");
+    document.getElementById("conteudo_pet")?.classList.add("d-none");
+    document.getElementById("erro_container")?.classList.remove("d-none");
     document.getElementById("mensagem_erro").textContent = mensagem;
 }
 
