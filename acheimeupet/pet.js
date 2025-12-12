@@ -116,77 +116,57 @@ function preencherDadosPet(pet) {
         btnContato.classList.add("d-none");
     }
 
-    // === Formulário de Aviso ===
-    const formAviso = document.getElementById("form_aviso");
-    formAviso.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        
-        const nomeEncontrador = document.getElementById("nome_encontrador").value;
-        const telefoneEncontrador = document.getElementById("telefone_encontrador").value;
-        const emailEncontrador = document.getElementById("email_encontrador").value;
-        const mensagem = document.getElementById("mensagem_aviso").value;
+ // === Formulário de Aviso ===
+const formAviso = document.getElementById("formAviso");
+if (formAviso) {
+  formAviso.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-        if (!nomeEncontrador || !telefoneEncontrador || !emailEncontrador || !mensagem) {
-            alert("Por favor, preencha todos os campos do formulário.");
-            return;
-        }
+    const nomeEncontrador = document.getElementById("nome_encontrador")?.value?.trim();
+    const telefoneEncontrador = document.getElementById("telefone_encontrador")?.value?.trim();
+    const observacoes = document.getElementById("observacoes")?.value?.trim();
 
-        const dadosAviso = {
-            id_pet: pet.id_pet,
-            nome_pet: pet.nome_pet,
-            nome_tutor: pet.nome_tutor,
-            whatsapp_tutor: pet.whatsapp_tutor,
-            email_tutor: pet.email_tutor,
-            nome_encontrador: nomeEncontrador,
-            telefone_encontrador: telefoneEncontrador,
-            email_encontrador: emailEncontrador,
-            mensagem: mensagem,
-            link_pet: window.location.href // Adiciona o link completo da página
-        };
+    if (!nomeEncontrador || !telefoneEncontrador) {
+      alert("Por favor, preencha nome e telefone.");
+      return;
+    }
 
-        try {
-            const response = await fetch(WEBHOOK_AVISO, {
-                method: 'POST',
-                mode: 'no-cors', // Necessário para evitar erros de CORS com webhooks simples
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify(dadosAviso)
-            });
+    const dadosAviso = {
+      id_pet: pet.id_pet,
+      nome_pet: pet.nome_pet,
+      nome_tutor: pet.nome_tutor,
+      whatsapp_tutor: pet.whatsapp_tutor,
+      email_tutor: pet.email_tutor,
+      nome_encontrador: nomeEncontrador,
+      telefone_encontrador: telefoneEncontrador,
+      mensagem: observacoes || "",   // aqui vai o texto do textarea
+      link_pet: window.location.href
+    };
 
-            // Como o modo é 'no-cors', a resposta será opaca e não podemos verificar o status.
-            // Assumimos o sucesso se não houver erro de rede.
-            
-            // Exibe a mensagem de sucesso
-            document.getElementById("mensagem_sucesso").classList.remove("d-none");
-            document.getElementById("form_aviso_container").classList.add("d-none");
-            
-            // Limpa o formulário (opcional, mas boa prática)
-            formAviso.reset();
+    try {
+      console.log("Enviando aviso para o webhook...", dadosAviso);
 
-            console.log("Aviso enviado com sucesso (resposta opaca devido a 'no-cors'). Dados enviados:", dadosAviso);
+      await fetch(WEBHOOK_AVISO, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(dadosAviso)
+      });
 
-        } catch (error) {
-            console.error("Erro ao enviar aviso:", error);
-            alert("Ocorreu um erro ao tentar enviar o aviso. Por favor, tente novamente mais tarde.");
-        }
-    });
-    
-    // Remove o "Carregando..." e exibe o conteúdo
-    document.getElementById("loading_container")?.classList.add("d-none");
-    document.getElementById("conteudo_pet")?.classList.remove("d-none");
-}
+      // Exibe sucesso (no seu HTML ele não usa "d-none", ele usa display:none)
+      const ok = document.getElementById("mensagem_sucesso");
+      if (ok) ok.style.display = "block";
 
-// ===== Exibir Erro =====
-function exibirErro(mensagem) {
-  document.getElementById("loading_container")?.classList.add("d-none");
-  document.getElementById("conteudo_pet")?.classList.add("d-none");
-  document.getElementById("erro_container")?.classList.remove("d-none");
+      formAviso.reset();
+      console.log("Aviso enviado (no-cors):", dadosAviso);
 
-  const el = document.getElementById("mensagem_erro");
-  if (el) {
-    el.textContent = mensagem;
-  }
+    } catch (error) {
+      console.error("Erro ao enviar aviso:", error);
+      alert("Ocorreu um erro ao tentar enviar o aviso. Tente novamente.");
+    }
+  });
+} else {
+  console.warn("Formulário #formAviso não encontrado no HTML.");
 }
 
 // ===== Inicialização =====
@@ -204,6 +184,7 @@ async function init() {
 }
 
 document.addEventListener("DOMContentLoaded", init);
+
 
 
 
