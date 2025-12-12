@@ -6,8 +6,8 @@
 
 // ===== ENDPOINTS =====
 const API_PET = "https://script.google.com/macros/s/AKfycbzFiM604SBy2ICG8l1It_q1lkum6V3Qy5OKA3gGnO1tcJeGmR4nIOk-wtznsw2i42kgiw/exec";
-const WEBHOOK_AVISO = "https://webhook.fiqon.app/webhook/a02b8e45-cd21-44e0-a619-be0e64fd9a4b/b9ae07d8-e7af-4b1f-9467-331580918731";
-
+const WEBHOOK_AVISO = "https://webhook.fiqon.app/webhook/a02b8e45-cd21-44e0-a619-be0e64fd9a4b/b9ae07d8-e7af-4b1f-9b1c-a22cc15fb9cd";
+                        
 // ===== Obter ID do pet da URL =====
 function obterIdPet() {
     const params = new URLSearchParams(window.location.search);
@@ -197,3 +197,4 @@ function exibirErro(mensagem) {
   console.error("Erro:", mensagem);
   alert(mensagem);
 }
+
