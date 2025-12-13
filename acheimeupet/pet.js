@@ -8,6 +8,78 @@
 const API_PET = "https://script.google.com/macros/s/AKfycbzFiM604SBy2ICG8l1It_q1lkum6V3Qy5OKA3gGnO1tcJeGmR4nIOk-wtznsw2i42kgiw/exec";
 const WEBHOOK_AVISO = "https://webhook.fiqon.app/webhook/a02b8e45-cd21-44e0-a619-be0e64fd9a4b/b9ae07d8-e7af-4b1f-9b1c-a22cc15fb9cd";
 
+// =========================================================
+// ✅ MELHORIA: Localização robusta (GPS -> IP -> vazio)
+// + devolve diagnóstico do motivo (loc_error) p/ debugar
+// =========================================================
+async function obterLocalizacaoRobusta() {
+  const resultado = {
+    latitude: "",
+    longitude: "",
+    accuracy: "",
+    source: "indefinido",
+    error: ""
+  };
+
+  const tentarIP = async () => {
+    try {
+      const ipRes = await fetch("https://ipapi.co/json/");
+      const ipData = await ipRes.json();
+      if (ipData?.latitude && ipData?.longitude) {
+        resultado.latitude = Number(ipData.latitude).toFixed(6);
+        resultado.longitude = Number(ipData.longitude).toFixed(6);
+        resultado.source = "ip";
+      } else {
+        resultado.error = resultado.error || "ip_sem_lat_lng";
+      }
+    } catch (e) {
+      resultado.error = resultado.error || "ip_fetch_error";
+    }
+    return resultado;
+  };
+
+  // Debug rápido (ajuda a entender na hora)
+  console.log("GPS debug:", {
+    protocol: location.protocol,
+    isSecureContext: window.isSecureContext,
+    hasGeo: "geolocation" in navigator
+  });
+
+  // 1) Tenta GPS
+  if ("geolocation" in navigator) {
+    try {
+      await new Promise((resolve) => {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            resultado.latitude = pos.coords.latitude.toFixed(6);
+            resultado.longitude = pos.coords.longitude.toFixed(6);
+            resultado.accuracy = String(Math.round(pos.coords.accuracy || 0));
+            resultado.source = "gps";
+            resolve();
+          },
+          (err) => {
+            // Guarda código e mensagem exata
+            resultado.error = `gps_${err.code}_${err.message}`;
+            resolve();
+          },
+          { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+        );
+      });
+    } catch (e) {
+      resultado.error = resultado.error || "gps_exception";
+    }
+  } else {
+    resultado.error = "geo_not_supported";
+  }
+
+  // 2) Se GPS falhou/vazio, tenta IP
+  if (!resultado.latitude || !resultado.longitude) {
+    await tentarIP();
+  }
+
+  return resultado;
+}
+
 // ===== Obter ID do pet da URL =====
 function obterIdPet() {
     const params = new URLSearchParams(window.location.search);
@@ -140,33 +212,10 @@ function preencherDadosPet(pet) {
         }
 
         // ============================
-        // MELHORIA: COLETAR LOCALIZAÇÃO
+        // ✅ MELHORIA: LOCALIZAÇÃO ROBUSTA
         // ============================
-        let latitude = "";
-        let longitude = "";
-
-        if ("geolocation" in navigator && window.isSecureContext) {
-          try {
-            await new Promise((resolve) => {
-              navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                  latitude = pos.coords.latitude;
-                  longitude = pos.coords.longitude;
-                  resolve();
-                },
-                (err) => {
-                  console.warn("Localização negada/indisponível:", err);
-                  resolve();
-                },
-                { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
-              );
-            });
-          } catch (err) {
-            console.warn("Erro ao tentar obter localização:", err);
-          }
-        } else {
-          console.warn("Geolocation não disponível ou contexto não seguro (HTTPS).");
-        }
+        const loc = await obterLocalizacaoRobusta();
+        console.log("Localização capturada:", loc);
 
         const dadosAviso = {
           id_pet: pet.id_pet,
@@ -179,9 +228,14 @@ function preencherDadosPet(pet) {
           mensagem: observacoes || "",   // aqui vai o texto do textarea
           link_pet: window.location.href,
 
-          // NOVOS CAMPOS (LOCALIZAÇÃO)
-          latitude: latitude,
-          longitude: longitude
+          // LOCALIZAÇÃO
+          latitude: loc.latitude,
+          longitude: loc.longitude,
+
+          // DIAGNÓSTICO (pra você ver o motivo quando vier vazio)
+          loc_source: loc.source,       // gps | ip | indefinido
+          loc_accuracy: loc.accuracy,   // metros (quando gps)
+          loc_error: loc.error          // motivo (quando falha)
         };
 
         try {
