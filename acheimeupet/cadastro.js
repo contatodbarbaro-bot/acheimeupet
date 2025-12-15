@@ -299,39 +299,22 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // ============================================================
         // 🚀 REDIRECIONAMENTO AUTOMÁTICO AO ASAAS (PAGO)
+        // O código de redirecionamento estático foi removido para evitar a dupla criação de pagamentos.
+        // O fluxo Fiqon deve retornar o link de pagamento dinâmico ou a lógica de redirecionamento deve ser
+        // movida para o Fiqon.
         // ============================================================
-        if (!temToken) {
-          const qtdPets = Math.min(Math.max(qtd, 1), 5);
-
-          const linksMensal = {
-            1: "https://www.asaas.com/c/z4arsb65i8mhbn5y",
-            2: "https://www.asaas.com/c/5spsjzue371ahvcj",
-            3: "https://www.asaas.com/c/mo2gj5g9uv37d6d4",
-            4: "https://www.asaas.com/c/z4arsb65i8mhbn5y", // Usando o link de 1 pet para 4 e 5
-            5: "https://www.asaas.com/c/z4arsb65i8mhbn5y",
-          };
-
-          const linksAnual = {
-            1: "https://www.asaas.com/c/z4arsb65i8mhbn5y",
-            2: "https://www.asaas.com/c/5spsjzue371ahvcj",
-            3: "https://www.asaas.com/c/mo2gj5g9uv37d6d4",
-            4: "https://www.asaas.com/c/z4arsb65i8mhbn5y", // Usando o link de 1 pet para 4 e 5
-            5: "https://www.asaas.com/c/z4arsb65i8mhbn5y",
-          };
-
-          const linkPagamento = per === "mensal" ? linksMensal[qtdPets] : linksAnual[qtdPets];
-
-          if (linkPagamento) {
-            window.location.href = linkPagamento;
+        
+        // Se o Fiqon retornar um link de pagamento, redirecionar para ele.
+        if (json?.link_pagamento) {
+            window.location.href = json.link_pagamento;
             return;
-          }
         }
 
         // ============================================================
         // ✅ SUCESSO (FREE OU PAGO SEM REDIRECIONAMENTO)
         // ============================================================
         msg.style.color = "green";
-        msg.textContent = "Cadastro concluído! Seu pet(s) está(ão) protegido(s)!";
+        msg.textContent = "Cadastro concluído! Seu pet(s) está(ão) protegido(s)! Verifique seu e-mail para o link de pagamento.";
         
         // Limpar o formulário e o estado local
         form.reset();
