@@ -3,7 +3,9 @@
 // ===============================================================
 // • CÓDIGO COMPLETO E FIEL AO ORIGINAL.
 // • AJUSTADO: Redirecionamento direto para os links do Asaas conforme plano escolhido.
-// • CORRIGIDO: VALORES MENSAIS (2+ PETS = 19,90 CADA)
+// • CORRIGIDO: VALORES NOVOS
+//   - Individual: 19,90 (mensal) | 199,90 (anual)
+//   - Família: 14,90/mês por pet | 149,90/ano por pet (mínimo 2 pets)
 // • OTIMIZAÇÃO: Compressão agressiva de imagem para reduzir o payload Base64.
 // ===============================================================
 
@@ -38,6 +40,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const loading = document.getElementById("loading");
   const valorLabel = document.getElementById("valor_exibido");
   const botao = document.getElementById("botao-enviar");
+
+  // ==================================================
+  // 💰 TABELA DE PREÇOS (NOVA)
+  // ==================================================
+  const PRECOS = {
+    individual: { mensal: 19.9, anual: 199.9 },
+    familia: { mensal_por_pet: 14.9, anual_por_pet: 149.9 },
+  };
 
   // ==================================================
   // 📦 MEMÓRIA LOCAL (STATE)
@@ -106,15 +116,18 @@ document.addEventListener("DOMContentLoaded", () => {
   function atualizarBlocosPets() {
     const plano = tipoPlano.value;
     let qtd = 1;
+
     if (plano === "familia") {
       campoQtdPets.style.display = "block";
       qtd = parseInt(qtdPetsInput.value) || 2;
       if (qtd < 2) qtd = 2;
+      qtdPetsInput.value = qtd;
     } else {
       campoQtdPets.style.display = "none";
       qtd = 1;
       qtdPetsInput.value = 1;
     }
+
     areaPets.innerHTML = "";
     for (let i = 1; i <= qtd; i++) {
       areaPets.innerHTML += gerarBlocoPet(i);
@@ -123,7 +136,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // ==================================================
-  // 💰 ATUALIZAR VALOR  **(CORRIGIDO)**
+  // 💰 ATUALIZAR VALOR (NOVO)
   // ==================================================
   function atualizarValor() {
     const plano = tipoPlano.value;
@@ -138,37 +151,28 @@ document.addEventListener("DOMContentLoaded", () => {
     let valor = 0;
 
     if (plano === "individual") {
-      valor = per === "mensal" ? 24.9 : 249.9;
+      valor = per === "mensal" ? PRECOS.individual.mensal : PRECOS.individual.anual;
     } else {
-      // família
-      if (per === "mensal") {
-        // CORREÇÃO: 1 pet = 24,90 | 2+ pets = 19,90 cada
-        valor = qtd === 1 ? 24.9 : (qtd * 19.9);
-      } else {
-        // anual (já estava correto)
-        valor = qtd === 1 ? 249.9 : (qtd * 199.9);
-      }
+      const qtdFamilia = Math.max(qtd, 2);
+      valor = per === "mensal"
+        ? qtdFamilia * PRECOS.familia.mensal_por_pet
+        : qtdFamilia * PRECOS.familia.anual_por_pet;
     }
 
     valorLabel.textContent = `Valor total: R$ ${valor.toFixed(2).replace(".", ",")}`;
   }
 
   // ==================================================
-  // 🖼️ COMPRESSÃO AGRESSIVA DE IMAGEM (NOVA OTIMIZAÇÃO)
+  // 🖼️ COMPRESSÃO AGRESSIVA DE IMAGEM
   // ==================================================
-  /**
-   * Comprime o arquivo de imagem para Base64 com qualidade e tamanho reduzidos.
-   * @param {File} file O arquivo de imagem a ser comprimido.
-   * @returns {Promise<string>} A string Base64 da imagem comprimida.
-   */
   function comprimirImagem(file) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = (event) => {
         const img = new Image();
         img.onload = () => {
-          const canvas = document.createElement('canvas');
-          const MAX_WIDTH = 800; // Reduz para 800px de largura máxima
+          const canvas = document.createElement("canvas");
+          const MAX_WIDTH = 800;
           let width = img.width;
           let height = img.height;
 
@@ -180,11 +184,10 @@ document.addEventListener("DOMContentLoaded", () => {
           canvas.width = width;
           canvas.height = height;
 
-          const ctx = canvas.getContext('2d');
+          const ctx = canvas.getContext("2d");
           ctx.drawImage(img, 0, 0, width, height);
 
-          // Qualidade agressiva (0.6) para reduzir o tamanho do arquivo
-          const base64 = canvas.toDataURL('image/jpeg', 0.6); 
+          const base64 = canvas.toDataURL("image/jpeg", 0.6);
           resolve(base64);
         };
         img.onerror = reject;
@@ -227,12 +230,19 @@ document.addEventListener("DOMContentLoaded", () => {
         const per = periodo.value;
         const qtd = parseInt(qtdPetsInput.value) || 1;
 
+        // ============================
+        // 💰 VALOR TOTAL (NOVO)
+        // ============================
         let valor = 0;
         if (!temToken) {
-          if (plano === "individual") valor = per === "mensal" ? 24.9 : 249.9;
-          else valor = per === "mensal"
-            ? (qtd === 1 ? 24.9 : qtd * 19.9)
-            : (qtd === 1 ? 249.9 : qtd * 199.9);
+          if (plano === "individual") {
+            valor = per === "mensal" ? PRECOS.individual.mensal : PRECOS.individual.anual;
+          } else {
+            const qtdFamilia = Math.max(qtd, 2);
+            valor = per === "mensal"
+              ? qtdFamilia * PRECOS.familia.mensal_por_pet
+              : qtdFamilia * PRECOS.familia.anual_por_pet;
+          }
         }
 
         const pets = [];
@@ -248,7 +258,6 @@ document.addEventListener("DOMContentLoaded", () => {
             throw new Error(`A foto do Pet ${i} é obrigatória.`);
           }
 
-          // ⚠️ COMPRESSÃO E CONVERSÃO PARA BASE64 (REVERTIDO PARA O FLUXO ORIGINAL)
           msg.textContent = `⏳ Comprimindo foto do Pet ${i}...`;
           const foto_base64 = await comprimirImagem(file);
           msg.textContent = `⏳ Enviando dados...`;
@@ -259,7 +268,7 @@ document.addEventListener("DOMContentLoaded", () => {
             raca,
             sexo,
             ano_nascimento: ano,
-            foto_pet: foto_base64, // ⚠️ AGORA É O BASE64 COMPRIMIDO
+            foto_pet: foto_base64,
           });
         }
 
@@ -267,7 +276,7 @@ document.addEventListener("DOMContentLoaded", () => {
           ...tutor,
           plano: temToken ? "Free" : plano,
           periodo: temToken ? "" : per,
-          qtd_pets: qtd,
+          qtd_pets: plano === "familia" ? Math.max(qtd, 2) : 1,
           valor_total: temToken ? 0 : valor,
           origem_cadastro: temToken ? "free_site" : "assinatura_site",
           token_origem: tokenParam,
@@ -294,36 +303,31 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("📦 Retorno Fiqon (parseado):", json);
 
         if (!req.ok) {
-          throw new Error(json?.body?.link_pagamento || json?.message || json?.error || `Erro no servidor (HTTP ${req.status})`);
+          throw new Error(
+            json?.body?.link_pagamento ||
+              json?.message ||
+              json?.error ||
+              `Erro no servidor (HTTP ${req.status})`
+          );
         }
 
-        // ============================================================
-        // 🚀 REDIRECIONAMENTO AUTOMÁTICO AO ASAAS (PAGO)
-        // O código de redirecionamento estático foi removido para evitar a dupla criação de pagamentos.
-        // O fluxo Fiqon deve retornar o link de pagamento dinâmico ou a lógica de redirecionamento deve ser
-        // movida para o Fiqon.
-        // ============================================================
-        
         // Se o Fiqon retornar um link de pagamento, redirecionar para ele.
         if (json?.link_pagamento) {
-            window.location.href = json.link_pagamento;
-            return;
+          window.location.href = json.link_pagamento;
+          return;
         }
 
-        // ============================================================
-        // ✅ SUCESSO (FREE OU PAGO SEM REDIRECIONAMENTO)
-        // ============================================================
+        // ✅ SUCESSO
         msg.style.color = "green";
-        msg.textContent = "Cadastro concluído! Seu pet(s) está(ão) protegido(s)! Verifique seu e-mail para o link de pagamento.";
-        
-        // Limpar o formulário e o estado local
+        msg.textContent =
+          "Cadastro concluído! Seu pet(s) está(ão) protegido(s)! Verifique seu e-mail para o link de pagamento.";
+
         form.reset();
         localStorage.removeItem("form_state");
         tipoPlano.value = "individual";
         periodo.value = "mensal";
         qtdPetsInput.value = 1;
         atualizarBlocosPets();
-
       } catch (error) {
         console.error("Erro do envio:", error);
         msg.style.color = "red";
@@ -348,5 +352,3 @@ document.addEventListener("DOMContentLoaded", () => {
   carregarState();
   atualizarBlocosPets();
 });
-
-
