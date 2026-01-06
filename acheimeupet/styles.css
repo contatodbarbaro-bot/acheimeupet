@@ -53,3 +53,47 @@ h1,h2,h3 {color:#1E1811; font-weight:600;}
 .footer-content {display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:20px;}
 .footer-logo {height:60px; margin-bottom:10px;}
 .footer-bottom {text-align:center; margin-top:20px; font-size:0.9rem; color:#ccc;}
+
+/* ============================= */
+/* SESSÃO ONG – CHAMADA ESPECIAL */
+/* ============================= */
+
+.sessao-ong {
+  background: #ffffff;
+  padding: 80px 20px;
+}
+
+.sessao-ong .container {
+  max-width: 900px;
+}
+
+.sessao-ong h2 {
+  font-size: 2rem;
+  margin-bottom: 20px;
+  color: #1E1811;
+}
+
+.sessao-ong p {
+  font-size: 1.05rem;
+  color: #333;
+  margin-bottom: 14px;
+  line-height: 1.7;
+}
+
+.btn-ong {
+  display: inline-block;
+  margin-top: 26px;
+  padding: 14px 32px;
+  background: #C58B49;
+  color: #ffffff;
+  font-weight: 600;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.btn-ong:hover {
+  background: #1E1811;
+  color: #ffffff;
+  transform: translateY(-2px);
+}
