@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ONGs Parceiras | AcheiMeuPet</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    /* ===== VARIÁVEIS DE COR ===== */
+    :root {
+      --preto: #1E1811;
+      --branco: #FFFFFF;
+      --creme: #F8F7F5;
+      --caramelo: #C58B49;
+      --cinza-claro: #E8E6E1;
+      --texto-escuro: #333333;
+    }
+
+    /* ===== RESET E ESTILOS GLOBAIS ===== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--branco);
+      color: var(--texto-escuro);
+      line-height: 1.6;
+    }
+
+    /* ===== HEADER ===== */
+    header {
+      background-color: var(--preto);
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    header .logo {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--branco);
+      text-decoration: none;
+      letter-spacing: 0.5px;
+    }
+
+    header .voltar {
+      color: var(--caramelo);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    header .voltar:hover {
+      transform: translateX(-4px);
+    }
+
+    /* ===== HERO SECTION ===== */
+    .hero {
+      background-color: var(--creme);
+      padding: 60px 20px;
+      text-align: center;
+      border-bottom: 4px solid var(--caramelo);
+    }
+
+    .hero h1 {
+      font-size: 42px;
+      margin-bottom: 16px;
+      color: var(--preto);
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .hero .destaque {
+      color: var(--caramelo);
+    }
+
+    .hero p {
+      font-size: 18px;
+      color: var(--texto-escuro);
+      margin-bottom: 0;
+      font-weight: 300;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* ===== SEÇÕES PRINCIPAIS ===== */
+    section {
+      padding: 60px 20px;
+      max-width: 1000px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    section h2 {
+      font-size: 38px;
+      margin-bottom: 30px;
+      color: var(--preto);
+      font-weight: 700;
+    }
+
+    section p {
+      font-size: 16px;
+      color: var(--texto-escuro);
+      margin-bottom: 18px;
+      line-height: 1.8;
+      font-weight: 300;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
+      text-align: justify;
+    }
+
+    /* ===== SEÇÃO ALTERNADA ===== */
+    section:nth-child(even) {
+      background-color: var(--creme);
+    }
+
+    section:nth-child(odd) {
+      background-color: var(--branco);
+    }
+
+    /* ===== CARDS CONTAINER (FUNDO PRETO) ===== */
+    .cards-container {
+      background-color: var(--preto);
+      border-radius: 16px;
+      padding: 50px 30px;
+      margin-top: 40px;
+      max-width: 1100px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .cards-container h3 {
+      color: var(--branco);
+      font-size: 28px;
+      margin-bottom: 16px;
+      font-weight: 700;
+    }
+
+    .cards-container > p {
+      color: var(--cinza-claro);
+      font-size: 16px;
+      margin-bottom: 40px;
+      max-width: 900px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* ===== CARDS GRID ===== */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 24px;
+    }
+
+    .card {
+      background-color: var(--branco);
+      padding: 30px 24px;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 8px 24px rgba(197, 139, 73, 0.2);
+    }
+
+    .card-icon {
+      font-size: 40px;
+      margin-bottom: 16px;
+      color: var(--caramelo);
+    }
+
+    .card h4 {
+      margin-top: 0;
+      margin-bottom: 12px;
+      color: var(--preto);
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .card p {
+      margin-bottom: 0;
+      font-size: 14px;
+      line-height: 1.7;
+      text-align: center;
+      color: var(--texto-escuro);
+    }
+
+    /* ===== CTA SECTION ===== */
+    .cta {
+      background-color: var(--caramelo);
+      color: var(--preto);
+      text-align: center;
+      padding: 60px 20px;
+      margin-top: 40px;
+    }
+
+    .cta h2 {
+      font-size: 32px;
+      margin-bottom: 16px;
+      color: var(--preto);
+      font-weight: 700;
+    }
+
+    .cta p {
+      font-size: 18px;
+      margin-bottom: 28px;
+      color: var(--preto);
+      font-weight: 300;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .cta a {
+      background-color: var(--preto);
+      color: var(--caramelo);
+      padding: 14px 32px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 16px;
+      display: inline-block;
+      transition: all 0.3s ease;
+      border: 2px solid var(--preto);
+    }
+
+    .cta a:hover {
+      background-color: transparent;
+      color: var(--preto);
+    }
+
+    /* ===== FOOTER ===== */
+    footer {
+      background-color: var(--preto);
+      color: var(--branco);
+      text-align: center;
+      padding: 30px 20px;
+      font-size: 14px;
+    }
+
+    footer strong {
+      color: var(--caramelo);
+    }
+
+    /* ===== RESPONSIVIDADE ===== */
+    @media (max-width: 768px) {
+      .hero h1 {
+        font-size: 28px;
+      }
+
+      .hero p {
+        font-size: 16px;
+      }
+
+      section {
+        padding: 40px 20px;
+      }
+
+      section h2 {
+        font-size: 26px;
+      }
+
+      .cards {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+      }
+
+      .card {
+        padding: 24px 16px;
+      }
+
+      .cards-container {
+        padding: 30px 20px;
+      }
+
+      .cards-container h3 {
+        font-size: 22px;
+      }
+
+      .cta {
+        padding: 40px 20px;
+      }
+
+      .cta h2 {
+        font-size: 24px;
+      }
+
+      .cta p {
+        font-size: 16px;
+      }
+
+      header {
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      header .voltar {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .hero h1 {
+        font-size: 22px;
+        margin-bottom: 12px;
+      }
+
+      .hero p {
+        font-size: 14px;
+      }
+
+      section h2 {
+        font-size: 20px;
+        margin-bottom: 20px;
+      }
+
+      section p {
+        font-size: 14px;
+      }
+
+      .cards {
+        grid-template-columns: 1fr;
+      }
+
+      .card {
+        padding: 20px 16px;
+      }
+
+      .cta a {
+        width: 100%;
+        padding: 12px 20px;
+      }
+
+      .cards-container h3 {
+        font-size: 18px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- HEADER -->
+  <header>
+    <a href="index.html" class="logo">🐾 AcheiMeuPet</a>
+    <a href="index.html" class="voltar">← Voltar ao site</a>
+  </header>
+
+  <!-- HERO SECTION -->
+  <div class="hero">
+    <h1>ONGs Parceiras <span class="destaque">AcheiMeuPet</span></h1>
+    <p>Proteger pets vai além da tecnologia. É sobre responsabilidade, cuidado e dar uma nova chance a quem precisa.</p>
+  </div>
+
+  <!-- SEÇÃO 1: COMPROMISSO -->
+  <section>
+    <h2>Nosso compromisso com a causa animal</h2>
+    <p>O AcheiMeuPet nasceu para resolver um problema real e recorrente: pets se perdem todos os dias e, quando isso acontece, o tempo é decisivo para um reencontro seguro.</p>
+    
+    <p>A tecnologia que criamos existe para encurtar esse caminho, conectando rapidamente quem encontra o pet com quem mais se importa com ele. Mas desde o início ficou claro para nós que proteger pets vai além de um sistema, uma tag ou um QR Code.</p>
+    
+    <p>Por isso, nosso compromisso envolve a causa animal como um todo. ONGs e protetores independentes exercem um papel essencial no resgate, cuidado e adoção responsável de cães e gatos, muitas vezes com poucos recursos e grandes desafios diários.</p>
+    
+    <p>Aqui está uma das nossas maiores diferenças: o <strong>AcheiMeuPet oferece tags de identificação gratuitamente para pets de ONGs e protetores parceiros</strong>. Cada animal cadastrado já recebe sua tag e sai protegido para a adoção, sem custo e com proteção vitalícia.</p>
+    
+    <p>Isso significa que o pet já vai para a nova família com uma identidade digital ativa, reduzindo riscos de perda, aumentando a segurança e trazendo mais tranquilidade para adotantes e para a própria ONG. Não é uma ação promocional ou temporária. É um compromisso real com a causa animal.</p>
+    
+    <p>Nosso objetivo é ambicioso — e assumido: levar essa proteção a ONGs de todo o Brasil. Para isso, entendemos que o projeto precisa crescer como comunidade, com pessoas, empresas e parceiros que acreditem na causa e apostem na construção de algo maior.</p>
+    
+    <p>O AcheiMeuPet também é um negócio, e a venda para clientes pagantes é parte fundamental para sustentar e escalar essa missão. Mas a base de tudo não é apenas financeira. É propósito. É história. É a convicção de que tecnologia pode — e deve — ser usada para gerar impacto positivo na vida dos animais.</p>
+  </section>
+
+  <!-- SEÇÃO 2: COMO FUNCIONA -->
+  <section>
+    <h2>Como funciona a parceria</h2>
+    <p>A parceria entre o AcheiMeuPet e ONGs é pensada para ser simples, responsável e realmente útil para quem está na linha de frente da causa animal. Não trabalhamos com cadastros automáticos nem promessas genéricas. Cada parceria começa com conversa, alinhamento e propósito em comum.</p>
+    
+    <div class="cards-container">
+      <div class="cards">
+        <div class="card">
+          <div class="card-icon">🤝</div>
+          <h4>1. Conversa e avaliação</h4>
+          <p>ONGs e protetores entram em contato com o AcheiMeuPet para entender como funciona a parceria. Avaliamos o alinhamento com boas práticas de cuidado, adoção responsável e bem-estar animal.</p>
+        </div>
+        
+        <div class="card">
+          <div class="card-icon">📋</div>
+          <h4>2. Cadastro da ONG e dos pets</h4>
+          <p>Após a aprovação, realizamos o cadastro da ONG e dos pets que participarão do programa. Esse processo garante organização, controle e segurança para todos os envolvidos.</p>
+        </div>
+        
+        <div class="card">
+          <div class="card-icon">🎁</div>
+          <h4>3. Entrega da tag sem custo</h4>
+          <p>Cada pet cadastrado recebe gratuitamente a tag AcheiMeuPet, já ativa e com proteção vitalícia. A tag acompanha o animal no momento da adoção, sem qualquer custo para a ONG ou para o adotante.</p>
+        </div>
+        
+        <div class="card">
+          <div class="card-icon">🐾</div>
+          <h4>4. Pet adotado já protegido</h4>
+          <p>O pet sai para a nova família com uma identidade digital ativa, facilitando o reencontro em caso de perda e oferecendo mais segurança desde o primeiro dia.</p>
+        </div>
+        
+        <div class="card">
+          <div class="card-icon">💙</div>
+          <h4>5. Apoio contínuo</h4>
+          <p>O AcheiMeuPet mantém o compromisso com a parceria, oferecendo suporte, orientação e evolução do projeto, sempre com foco na proteção dos pets e no fortalecimento da causa animal.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SEÇÃO 3: QUEM PODE SER PARCEIRO -->
+  <section>
+    <h2>Quem pode ser parceiro</h2>
+    <p>Buscamos ONGs, protetores independentes e projetos sociais que atuem de forma responsável, ética e alinhada com boas práticas de cuidado e adoção consciente.</p>
+    
+    <p>Mais do que números ou estrutura formal, valorizamos o compromisso real com o bem-estar dos animais, a transparência no trabalho realizado e o respeito à vida em todas as etapas do processo.</p>
+    
+    <p>Cada parceria passa por uma conversa e avaliação. Esse cuidado é essencial para garantir que a proteção oferecida pelo AcheiMeuPet seja usada com propósito, seriedade e impacto positivo real.</p>
+    
+    <p>Se você representa uma ONG ou projeto comprometido com a causa animal, e acredita que tecnologia pode ser uma aliada na proteção e na adoção responsável, vamos conversar.</p>
+  </section>
+
+  <!-- CTA SECTION -->
+  <div class="cta">
+    <h2>É uma ONG ou protetor responsável?</h2>
+    <p>Vamos conversar e entender como podemos caminhar juntos em favor da causa animal.</p>
+    <a href="https://wa.me/5516992940922?text=Olá!%20Somos%20uma%20ONG%20e%20gostaríamos%20de%20entender%20como%20funciona%20a%20parceria%20com%20o%20AcheiMeuPet." target="_blank">
+      Sou uma ONG e quero conversar
+    </a>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    © <strong>AcheiMeuPet</strong> — Criado para proteger, movido pelo amor 🐾
+  </footer>
+</body>
+</html>
