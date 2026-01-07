@@ -1,10 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
-  // AJUSTE AQUI: Alterado de "form-cadastro-pet" para "form-cadastro-pet-ong" para bater com seu HTML
   const form = document.getElementById("form-cadastro-pet-ong");
-
   const WEBHOOK_URL = "https://webhook.fiqon.app/webhook/019b8f5b-778b-72c1-ad7e-02eed3440b68/2f08f502-d4d5-48fd-9e64-7092f0e37339";
 
-  // 🔎 Captura id_ong da URL
   const params = new URLSearchParams(window.location.search );
   const id_ong = params.get("id_ong");
 
@@ -18,22 +15,23 @@ document.addEventListener("DOMContentLoaded", () => {
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
 
-      const fotoInput = document.getElementById("pet_foto");
+      const btn = form.querySelector("button");
+      const loading = document.getElementById("loading");
+      const mensagem = document.getElementById("mensagem");
 
+      const fotoInput = document.getElementById("pet_foto");
       if (!fotoInput.files || !fotoInput.files[0]) {
         alert("A foto do pet é obrigatória.");
         return;
       }
 
-      const file = fotoInput.files[0];
-
-      // ⛔ valida tipo básico
-      if (!file.type.startsWith("image/")) {
-        alert("Envie um arquivo de imagem válido.");
-        return;
-      }
-
       try {
+        // Bloqueia o botão e mostra loading
+        btn.disabled = true;
+        loading.style.display = "block";
+        mensagem.textContent = "";
+
+        const file = fotoInput.files[0];
         const base64 = await converterParaBase64(file);
 
         const payload = {
@@ -49,27 +47,28 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const response = await fetch(WEBHOOK_URL, {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
         });
 
-        if (!response.ok) {
-          throw new Error("Erro ao enviar cadastro do pet");
-        }
+        if (!response.ok) throw new Error("Erro no servidor");
 
-        alert("Pet cadastrado com sucesso!");
+        // SUCESSO: Mensagem amigável e limpa o form
+        mensagem.style.color = "green";
+        mensagem.textContent = "✅ Pet cadastrado! O formulário já está pronto para o próximo.";
         form.reset();
 
       } catch (error) {
         console.error(error);
-        alert("Erro ao cadastrar o pet. Tente novamente.");
+        mensagem.style.color = "red";
+        mensagem.textContent = "❌ Erro ao cadastrar. Tente novamente.";
+      } finally {
+        btn.disabled = false;
+        loading.style.display = "none";
       }
     });
   }
 
-  // 🔁 utilitário Base64
   function converterParaBase64(file) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
