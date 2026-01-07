@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cadastro de Pet para Adoção | AcheiMeuPet</title>
+
+  <!-- Estilo base (pode ser o mesmo do cadastro.html depois) -->
+  <link rel="stylesheet" href="/styles.css">
+</head>
+
+<body>
+
+  <header>
+    🐾 AcheiMeuPet
+  </header>
+
+  <h1>Cadastro de Pet para Adoção</h1>
+
+  <form id="form-cadastro-pet-ong" enctype="multipart/form-data" novalidate>
+
+    <!-- ID da ONG (vem da URL depois) -->
+    <input type="hidden" id="id_ong" name="id_ong" />
+
+    <label>Nome do Pet *</label>
+    <input type="text" id="pet_nome" name="pet_nome" required />
+
+    <label>Espécie *</label>
+    <select id="pet_especie" name="pet_especie" required>
+      <option value="">Selecione</option>
+      <option value="Cachorro">Cachorro</option>
+      <option value="Gato">Gato</option>
+    </select>
+
+    <label>Raça *</label>
+    <input type="text" id="pet_raca" name="pet_raca" required />
+
+    <label>Idade *</label>
+    <input type="text" id="pet_idade" name="pet_idade" placeholder="Ex: 2 anos" required />
+
+    <label>Sexo *</label>
+    <select id="pet_sexo" name="pet_sexo" required>
+      <option value="">Selecione</option>
+      <option value="Macho">Macho</option>
+      <option value="Fêmea">Fêmea</option>
+    </select>
+
+    <!-- FOTO OBRIGATÓRIA (UPLOAD) -->
+    <label>Foto do Pet *</label>
+    <input
+      type="file"
+      id="pet_foto"
+      name="pet_foto"
+      accept="image/*"
+      required
+    />
+
+    <label>Observações (opcional)</label>
+    <textarea id="pet_obs" name="pet_obs" rows="4"></textarea>
+
+    <button type="submit">
+      🐾 Cadastrar Pet
+    </button>
+
+    <div id="loading" style="display:none;">⏳ Enviando dados...</div>
+    <div id="mensagem"></div>
+
+  </form>
+
+  <footer>
+    © AcheiMeuPet — Protegendo pets com responsabilidade.
+  </footer>
+
+  <!-- JS entra depois -->
+  <!-- <script src="/cadastro-pet-ong.js"></script> -->
+
+</body>
+</html>
