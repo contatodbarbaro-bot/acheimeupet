@@ -1,6 +1,11 @@
 document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("form-cadastro-ong");
 
+  if (!form) {
+    console.error("Formulário cadastro ONG não encontrado.");
+    return;
+  }
+
   const WEBHOOK_URL = "https://webhook.fiqon.app/webhook/019b95ae-6c9c-7016-8bd4-0079db450980/d368b2e6-9dd1-4d55-b0af-45d19c50a930";
 
   form.addEventListener("submit", async (e) => {
@@ -35,9 +40,8 @@ document.addEventListener("DOMContentLoaded", () => {
       form.reset();
 
     } catch (error) {
-      console.error(error);
+      console.error("Erro no envio do cadastro ONG:", error);
       alert("Erro ao enviar cadastro. Tente novamente.");
     }
   });
 });
-
