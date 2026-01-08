@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Transferência de Adoção | AcheiMeuPet</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --preto: #111111;
+      --caramelo: #c78b3a;
+      --cinza: #f5f5f5;
+      --texto: #333;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: var(--cinza);
+      color: var(--texto);
+    }
+
+    header {
+      background: var(--preto);
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    header strong {
+      color: var(--caramelo);
+    }
+
+    .container {
+      max-width: 720px;
+      margin: 40px auto;
+      background: white;
+      border-radius: 12px;
+      padding: 32px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    }
+
+    .intro {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .intro h1 {
+      font-size: 24px;
+      margin-bottom: 12px;
+      color: var(--preto);
+    }
+
+    .intro p {
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    form input,
+    form textarea {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+
+    form textarea {
+      grid-column: span 2;
+      resize: vertical;
+      min-height: 90px;
+    }
+
+    form button {
+      grid-column: span 2;
+      margin-top: 16px;
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      background: var(--caramelo);
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    form button:hover {
+      opacity: 0.9;
+    }
+
+    .sucesso {
+      display: none;
+      text-align: center;
+    }
+
+    .sucesso h2 {
+      color: var(--preto);
+      margin-bottom: 12px;
+    }
+
+    .sucesso p {
+      font-size: 16px;
+      margin-bottom: 20px;
+    }
+
+    .sucesso a {
+      display: inline-block;
+      padding: 12px 20px;
+      background: var(--caramelo);
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 13px;
+      margin: 40px 0;
+      color: #777;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  🐾 <strong>AcheiMeuPet</strong><br>
+  Protegendo histórias, reconectando vidas
+</header>
+
+<div class="container">
+
+  <div class="intro">
+    <h1>Esse pet está indo para um novo lar 💛</h1>
+    <p>
+      Cada adoção é um recomeço.<br>
+      Preencha os dados abaixo para que possamos atualizar o cadastro
+      e garantir que esse pet continue protegido em sua nova família.
+    </p>
+  </div>
+
+  <form id="form-transferencia">
+    <input type="hidden" name="id_pet" id="id_pet" />
+
+    <input type="text" name="tutor_nome" placeholder="Nome do novo tutor" required />
+    <input type="tel" name="tutor_whatsapp" placeholder="WhatsApp do tutor" required />
+
+    <input type="email" name="tutor_email" placeholder="E-mail" />
+    <input type="text" name="tutor_endereco" placeholder="Endereço" />
+
+    <input type="text" name="tutor_cidade" placeholder="Cidade" />
+    <input type="text" name="tutor_uf" placeholder="UF" maxlength="2" />
+
+    <textarea name="tutor_obs" placeholder="Observações sobre a adoção"></textarea>
+
+    <button type="submit">Confirmar Adoção</button>
+  </form>
+
+  <div class="sucesso" id="mensagem-sucesso">
+    <h2>Adoção registrada com sucesso 💚</h2>
+    <p>
+      Obrigado por fazer parte dessa história.<br>
+      Esse pet agora segue protegido em sua nova família.
+    </p>
+    <a href="https://projetoacheimeupet.com.br">Conhecer o AcheiMeuPet</a>
+  </div>
+
+</div>
+
+<footer>
+  AcheiMeuPet — em memória do Picolé 🖤
+</footer>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+  document.getElementById("id_pet").value = params.get("id_pet");
+
+  const form = document.getElementById("form-transferencia");
+  const sucesso = document.getElementById("mensagem-sucesso");
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const payload = Object.fromEntries(new FormData(form).entries());
+
+    await fetch("https://webhook.fiqon.app/webhook/019b8fb8-950c-734a-b589-a3209638ce25/d60218c7-128f-4428-b444-3d1c81b3f24f", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    form.style.display = "none";
+    sucesso.style.display = "block";
+  });
+</script>
+
+</body>
+</html>
