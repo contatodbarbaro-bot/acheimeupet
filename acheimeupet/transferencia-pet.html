@@ -143,7 +143,7 @@
 
 <div class="container">
 
-  <div class="intro">
+  <div class="intro" id="intro-bloco">
     <h1>Esse pet está indo para um novo lar 💛</h1>
     <p>
       Cada adoção é um recomeço.<br>
@@ -190,6 +190,7 @@
 
   const form = document.getElementById("form-transferencia");
   const sucesso = document.getElementById("mensagem-sucesso");
+  const intro = document.getElementById("intro-bloco");
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -202,6 +203,7 @@
       body: JSON.stringify(payload)
     });
 
+    intro.style.display = "none";
     form.style.display = "none";
     sucesso.style.display = "block";
   });
