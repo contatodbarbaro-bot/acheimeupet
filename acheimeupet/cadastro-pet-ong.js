@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const form = document.getElementById("form-cadastro-pet-ong");
   const WEBHOOK_URL = "https://webhook.fiqon.app/webhook/019b8f5b-778b-72c1-ad7e-02eed3440b68/2f08f502-d4d5-48fd-9e64-7092f0e37339";
 
-  const params = new URLSearchParams(window.location.search );
+  const params = new URLSearchParams(window.location.search  );
   const id_ong = params.get("id_ong");
 
   if (!id_ong) {
@@ -69,10 +69,15 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // Função ajustada para enviar apenas o código puro da imagem (sem o prefixo data:image/...)
   function converterParaBase64(file) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
+      reader.onload = () => {
+        // Divide a string na vírgula e pega apenas a segunda parte (o código base64 puro)
+        const base64Pura = reader.result.split(',')[1];
+        resolve(base64Pura);
+      };
       reader.onerror = reject;
       reader.readAsDataURL(file);
     });
