@@ -2,118 +2,192 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Cadastro de ONG | AcheiMeuPet</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- CSS principal do site -->
-  <link rel="stylesheet" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --preto: #111111;
+      --caramelo: #c78b3a;
+      --cinza: #f5f5f5;
+      --texto: #333;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: var(--cinza);
+      color: var(--texto);
+    }
+
+    header {
+      background: var(--preto);
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    header strong {
+      color: var(--caramelo);
+    }
+
+    header a {
+      color: white;
+      text-decoration: none;
+      font-size: 14px;
+      display: inline-block;
+      margin-top: 8px;
+    }
+
+    .container {
+      max-width: 720px;
+      margin: 40px auto;
+      background: white;
+      border-radius: 12px;
+      padding: 32px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    }
+
+    h1 {
+      color: var(--preto);
+      margin-bottom: 8px;
+      text-align: center;
+    }
+
+    .subtitle {
+      text-align: center;
+      margin-bottom: 32px;
+      font-size: 16px;
+    }
+
+    form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      font-size: 14px;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    input {
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+
+    .full {
+      grid-column: span 2;
+    }
+
+    button {
+      grid-column: span 2;
+      margin-top: 16px;
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      background: var(--caramelo);
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 13px;
+      margin: 40px 0;
+      color: #777;
+    }
+  </style>
 </head>
 
 <body>
 
-  <!-- Header padrão -->
-  <header class="header">
-    <div class="container header-content">
-      <div class="logo">
-        <a href="/">
-          🐾 <strong>AcheiMeuPet</strong>
-        </a>
-      </div>
-      <nav class="nav">
-        <a href="/ongs.html">← Voltar para ONGs</a>
-      </nav>
+<header>
+  🐾 <strong>AcheiMeuPet</strong><br>
+  Protegendo histórias, reconectando vidas<br>
+  <a href="/ongs.html">← Voltar para ONGs</a>
+</header>
+
+<div class="container">
+
+  <h1>Cadastro da ONG</h1>
+  <p class="subtitle">
+    Preencha os dados abaixo para iniciar a parceria com o AcheiMeuPet.
+  </p>
+
+  <form id="form-cadastro-ong">
+
+    <div class="form-group full">
+      <label>Nome da ONG *</label>
+      <input type="text" name="ong_nome" required />
     </div>
-  </header>
 
-  <!-- Conteúdo principal -->
-  <main class="container">
-
-    <section class="form-section">
-      <h1>Cadastro da ONG</h1>
-      <p class="subtitle">
-        Preencha os dados abaixo para iniciar a parceria com o AcheiMeuPet.
-      </p>
-
-      <form id="form-cadastro-ong">
-
-        <div class="form-group">
-          <label for="ong_nome">Nome da ONG *</label>
-          <input type="text" id="ong_nome" name="ong_nome" required />
-        </div>
-
-        <div class="form-group">
-          <label for="ong_cnpj">CNPJ *</label>
-          <input type="text" id="ong_cnpj" name="ong_cnpj" required />
-        </div>
-
-        <div class="form-group">
-          <label for="ong_endereco">Endereço completo *</label>
-          <input type="text" id="ong_endereco" name="ong_endereco" required />
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label for="ong_cidade">Cidade *</label>
-            <input type="text" id="ong_cidade" name="ong_cidade" required />
-          </div>
-
-          <div class="form-group">
-            <label for="ong_uf">UF *</label>
-            <input
-              type="text"
-              id="ong_uf"
-              name="ong_uf"
-              maxlength="2"
-              placeholder="SP"
-              required
-            />
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="ong_whatsapp">WhatsApp *</label>
-          <input
-            type="tel"
-            id="ong_whatsapp"
-            name="ong_whatsapp"
-            placeholder="(16) 99999-9999"
-            required
-          />
-        </div>
-
-        <div class="form-group">
-          <label for="ong_email">E-mail *</label>
-          <input type="email" id="ong_email" name="ong_email" required />
-        </div>
-
-        <div class="form-group">
-          <label for="ong_instagram">Instagram (opcional)</label>
-          <input
-            type="text"
-            id="ong_instagram"
-            name="ong_instagram"
-            placeholder="@nomedaong"
-          />
-        </div>
-
-        <button type="submit" class="btn-primary">
-          Cadastrar ONG
-        </button>
-
-      </form>
-    </section>
-
-  </main>
-
-  <!-- Rodapé simples -->
-  <footer class="footer">
-    <div class="container">
-      <p>© AcheiMeuPet — Protegendo pets com responsabilidade.</p>
+    <div class="form-group full">
+      <label>Documento (CPF ou CNPJ) *</label>
+      <input type="text" name="ong_cnpj" placeholder="CPF ou CNPJ" required />
     </div>
-  </footer>
 
-  <!-- JS do cadastro da ONG -->
-  <script src="cadastro-ong.js"></script>
+    <div class="form-group full">
+      <label>Endereço completo *</label>
+      <input type="text" name="ong_endereco" required />
+    </div>
+
+    <div class="form-group">
+      <label>Cidade *</label>
+      <input type="text" name="ong_cidade" required />
+    </div>
+
+    <div class="form-group">
+      <label>UF *</label>
+      <input type="text" name="ong_uf" maxlength="2" placeholder="SP" required />
+    </div>
+
+    <div class="form-group full">
+      <label>WhatsApp *</label>
+      <input type="tel" name="ong_whatsapp" placeholder="(16) 99999-9999" required />
+    </div>
+
+    <div class="form-group full">
+      <label>E-mail *</label>
+      <input type="email" name="ong_email" required />
+    </div>
+
+    <div class="form-group full">
+      <label>Instagram (opcional)</label>
+      <input type="text" name="ong_instagram" placeholder="@nomedaong" />
+    </div>
+
+    <button type="submit">Cadastrar ONG</button>
+
+  </form>
+
+</div>
+
+<footer>
+  AcheiMeuPet — em memória do Picolé 🖤
+</footer>
+
+<script src="cadastro-ong.js"></script>
 
 </body>
 </html>
