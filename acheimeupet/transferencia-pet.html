@@ -184,9 +184,11 @@
   AcheiMeuPet — em memória do Picolé 🖤
 </footer>
 
+<!-- ===================== JS ADICIONADO ===================== -->
 <script>
   const params = new URLSearchParams(window.location.search);
-  document.getElementById("id_pet").value = params.get("id_pet");
+  const idPet = params.get("id_pet");
+  document.getElementById("id_pet").value = idPet;
 
   const form = document.getElementById("form-transferencia");
   const sucesso = document.getElementById("mensagem-sucesso");
@@ -197,17 +199,24 @@
 
     const payload = Object.fromEntries(new FormData(form).entries());
 
-    await fetch("https://webhook.fiqon.app/webhook/019b8fb8-950c-734a-b589-a3209638ce25/d60218c7-128f-4428-b444-3d1c81b3f24f", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
-    });
+    try {
+      await fetch("https://webhook.fiqon.app/webhook/019b8fb8-950c-734a-b589-a3209638ce25/5b5fdcbe-67a7-453d-bdfc-9df3218a05ef", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
 
-    intro.style.display = "none";
-    form.style.display = "none";
-    sucesso.style.display = "block";
+      intro.style.display = "none";
+      form.style.display = "none";
+      sucesso.style.display = "block";
+
+    } catch (err) {
+      alert("Erro ao registrar adoção. Tente novamente.");
+      console.error(err);
+    }
   });
 </script>
+<!-- ========================================================= -->
 
 </body>
 </html>
