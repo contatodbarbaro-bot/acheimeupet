@@ -125,7 +125,7 @@
       font-weight: bold;
     }
 
-    /* ======== AJUSTES MOBILE ======== */
+    /* ======== AJUSTE MOBILE DEFINITIVO ======== */
     @media (max-width: 768px) {
       .container {
         margin: 16px;
@@ -133,15 +133,19 @@
       }
 
       form {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr !important;
       }
 
       .full {
-        grid-column: span 1;
+        grid-column: span 1 !important;
       }
 
       #loading, #mensagem {
-        grid-column: span 1;
+        grid-column: span 1 !important;
+      }
+
+      input, select, textarea, button {
+        width: 100% !important;
       }
     }
   </style>
