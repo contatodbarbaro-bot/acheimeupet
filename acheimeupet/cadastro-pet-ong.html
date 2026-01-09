@@ -125,24 +125,23 @@
       font-weight: bold;
     }
 
-    /* ======== AJUSTE MOBILE DEFINITIVO ======== */
+    /* ======== AJUSTE MOBILE BLINDADO ======== */
     @media (max-width: 768px) {
       .container {
-        margin: 16px;
-        padding: 20px;
-        width: auto; /* Garante que não ultrapasse a tela */
+        margin: 10px;
+        padding: 15px;
+        width: auto !important;
       }
 
       form {
-        grid-template-columns: 1fr !important; /* Força uma única coluna */
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 10px !important;
       }
 
-      .full {
+      .form-group, .full {
         grid-column: span 1 !important;
-      }
-
-      #loading, #mensagem {
-        grid-column: span 1 !important;
+        width: 100% !important;
       }
 
       input, select, textarea, button {
