@@ -131,6 +131,23 @@
       margin: 40px 0;
       color: #777;
     }
+
+    /* ======== AJUSTES MOBILE ======== */
+    @media (max-width: 768px) {
+      .container {
+        margin: 16px;
+        padding: 20px;
+      }
+
+      form {
+        grid-template-columns: 1fr;
+      }
+
+      form textarea,
+      form button {
+        grid-column: span 1;
+      }
+    }
   </style>
 </head>
 
@@ -184,7 +201,6 @@
   AcheiMeuPet — em memória do Picolé 🖤
 </footer>
 
-<!-- ===================== JS ADICIONADO ===================== -->
 <script>
   const params = new URLSearchParams(window.location.search);
   const idPet = params.get("id_pet");
@@ -216,7 +232,6 @@
     }
   });
 </script>
-<!-- ========================================================= -->
 
 </body>
 </html>
