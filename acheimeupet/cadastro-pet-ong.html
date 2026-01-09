@@ -2,97 +2,200 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Cadastro de Pet para Adoção | AcheiMeuPet</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <link rel="stylesheet" href="/styles.css">
-  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
   <style>
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #fdf8f5; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; min-height: 100vh; }
-    header { background: #D2691E; color: white; width: 100%; padding: 1.2rem; text-align: center; font-weight: bold; font-size: 1.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-    .container { background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 8px 16px rgba(0,0,0,0.08); width: 90%; max-width: 500px; margin: 2rem 0; border-top: 5px solid #D2691E; }
-    h1 { color: #444; font-size: 1.3rem; text-align: center; margin-bottom: 1.5rem; }
-    .form-group { margin-bottom: 1.2rem; display: flex; flex-direction: column; }
-    label { font-weight: 600; margin-bottom: 0.5rem; color: #555; font-size: 0.9rem; }
-    input, select, textarea { padding: 0.8rem; border: 1px solid #ddd; border-radius: 6px; font-size: 1rem; width: 100%; box-sizing: border-box; transition: border 0.3s; }
-    input:focus, select:focus, textarea:focus { border-color: #D2691E; outline: none; }
-    button { background: #D2691E; color: white; border: none; padding: 1rem; border-radius: 6px; font-size: 1.1rem; cursor: pointer; width: 100%; font-weight: bold; margin-top: 1rem; transition: background 0.3s; }
-    button:hover { background: #A0522D; }
-    footer { text-align: center; padding: 1.5rem; color: #888; font-size: 0.85rem; width: 100%; margin-top: auto; background: #f4f4f4; }
-    .tech-info { font-size: 0.75rem; color: #bbb; margin-top: 5px; display: block; }
+    :root {
+      --preto: #111111;
+      --caramelo: #c78b3a;
+      --cinza: #f5f5f5;
+      --texto: #333;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: var(--cinza);
+      color: var(--texto);
+    }
+
+    header {
+      background: var(--preto);
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    header strong {
+      color: var(--caramelo);
+    }
+
+    .container {
+      max-width: 720px;
+      margin: 40px auto;
+      background: white;
+      border-radius: 12px;
+      padding: 32px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    }
+
+    h1 {
+      color: var(--preto);
+      margin-bottom: 8px;
+      text-align: center;
+    }
+
+    .subtitle {
+      text-align: center;
+      margin-bottom: 32px;
+      font-size: 16px;
+    }
+
+    form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      font-size: 14px;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    input, select, textarea {
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 90px;
+    }
+
+    .full {
+      grid-column: span 2;
+    }
+
+    button {
+      grid-column: span 2;
+      margin-top: 16px;
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      background: var(--caramelo);
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    footer {
+      text-align: center;
+      font-size: 13px;
+      margin: 40px 0;
+      color: #777;
+    }
+
+    #loading, #mensagem {
+      grid-column: span 2;
+      text-align: center;
+      font-weight: bold;
+    }
   </style>
 </head>
 
 <body>
 
-  <header>
-    🐾 AcheiMeuPet
-  </header>
+<header>
+  🐾 <strong>AcheiMeuPet</strong><br>
+  Protegendo histórias, reconectando vidas
+</header>
 
-  <div class="container">
-    <h1>Cadastro de Pet para Adoção</h1>
+<div class="container">
 
-    <form id="form-cadastro-pet-ong" enctype="multipart/form-data" novalidate>
-      <input type="hidden" id="id_ong" name="id_ong" />
+  <h1>Cadastro de Pet para Adoção</h1>
+  <p class="subtitle">
+    Preencha os dados abaixo para cadastrar um pet disponível para adoção.
+  </p>
 
-      <div class="form-group">
-        <label>Nome do Pet *</label>
-        <input type="text" id="pet_nome" name="pet_nome" required />
-      </div>
+  <form id="form-cadastro-pet-ong" enctype="multipart/form-data" novalidate>
+    <input type="hidden" id="id_ong" name="id_ong" />
 
-      <div class="form-group">
-        <label>Espécie *</label>
-        <select id="pet_especie" name="pet_especie" required>
-          <option value="">Selecione</option>
-          <option value="Cachorro">Cachorro</option>
-          <option value="Gato">Gato</option>
-        </select>
-      </div>
+    <div class="form-group full">
+      <label>Nome do Pet *</label>
+      <input type="text" id="pet_nome" name="pet_nome" required />
+    </div>
 
-      <div class="form-group">
-        <label>Raça *</label>
-        <input type="text" id="pet_raca" name="pet_raca" required />
-      </div>
+    <div class="form-group">
+      <label>Espécie *</label>
+      <select id="pet_especie" name="pet_especie" required>
+        <option value="">Selecione</option>
+        <option value="Cachorro">Cachorro</option>
+        <option value="Gato">Gato</option>
+      </select>
+    </div>
 
-      <div class="form-group">
-        <label>Idade *</label>
-        <input type="text" id="pet_idade" name="pet_idade" placeholder="Ex: 2 anos" required />
-      </div>
+    <div class="form-group">
+      <label>Raça *</label>
+      <input type="text" id="pet_raca" name="pet_raca" required />
+    </div>
 
-      <div class="form-group">
-        <label>Sexo *</label>
-        <select id="pet_sexo" name="pet_sexo" required>
-          <option value="">Selecione</option>
-          <option value="Macho">Macho</option>
-          <option value="Fêmea">Fêmea</option>
-        </select>
-      </div>
+    <div class="form-group">
+      <label>Idade *</label>
+      <input type="text" id="pet_idade" name="pet_idade" placeholder="Ex: 2 anos" required />
+    </div>
 
-      <div class="form-group">
-        <label>Foto do Pet *</label>
-        <input type="file" id="pet_foto" name="pet_foto" accept="image/*" required />
-      </div>
+    <div class="form-group">
+      <label>Sexo *</label>
+      <select id="pet_sexo" name="pet_sexo" required>
+        <option value="">Selecione</option>
+        <option value="Macho">Macho</option>
+        <option value="Fêmea">Fêmea</option>
+      </select>
+    </div>
 
-      <div class="form-group">
-        <label>Observações (opcional)</label>
-        <textarea id="pet_obs" name="pet_obs" rows="3"></textarea>
-      </div>
+    <div class="form-group full">
+      <label>Foto do Pet *</label>
+      <input type="file" id="pet_foto" name="pet_foto" accept="image/*" required />
+    </div>
 
-      <button type="submit">
-        🐾 Cadastrar Pet
-      </button>
+    <div class="form-group full">
+      <label>Observações (opcional)</label>
+      <textarea id="pet_obs" name="pet_obs"></textarea>
+    </div>
 
-      <div id="loading" style="display:none; text-align: center; margin-top: 10px;">⏳ Processando envio...</div>
-      <div id="mensagem" style="text-align: center; margin-top: 10px; font-weight: bold;"></div>
-    </form>
-  </div>
+    <button type="submit">🐾 Cadastrar Pet</button>
 
-  <footer>
-    © AcheiMeuPet — Protegendo pets com responsabilidade.
-    <span class="tech-info">Status: Integrado via FiqOn & Supabase | v1.0.2</span>
-  </footer>
+    <div id="loading" style="display:none;">⏳ Processando envio...</div>
+    <div id="mensagem"></div>
+  </form>
 
-  <script src="/cadastro-pet-ong.js"></script>
+</div>
+
+<footer>
+  AcheiMeuPet — em memória do Picolé 🖤
+</footer>
+
+<script src="/cadastro-pet-ong.js"></script>
 
 </body>
 </html>
