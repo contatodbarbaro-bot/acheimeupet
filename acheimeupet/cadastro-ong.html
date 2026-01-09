@@ -122,20 +122,27 @@
       padding: 0 12px;
     }
 
-    /* ======== AJUSTES MOBILE ======== */
+    /* ======== AJUSTE MOBILE BLINDADO ======== */
     @media (max-width: 768px) {
       .container {
-        margin: 16px;
-        padding: 20px;
-        width: auto; /* Garante que não ultrapasse a tela */
+        margin: 10px;
+        padding: 15px;
+        width: auto !important;
       }
 
       form {
-        grid-template-columns: 1fr; /* Força uma única coluna */
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 10px !important;
       }
 
-      .full {
-        grid-column: span 1;
+      .form-group, .full {
+        grid-column: span 1 !important;
+        width: 100% !important;
+      }
+
+      input, select, textarea {
+        width: 100% !important;
       }
     }
   </style>
@@ -160,42 +167,42 @@
 
     <div class="form-group full">
       <label>Nome da ONG *</label>
-      <input type="text" name="ong_nome" required />
+      <input type="text" id="ong_nome" name="ong_nome" required />
     </div>
 
     <div class="form-group full">
       <label>Documento (CPF ou CNPJ) *</label>
-      <input type="text" name="ong_cnpj" placeholder="CPF ou CNPJ" required />
+      <input type="text" id="ong_cnpj" name="ong_cnpj" placeholder="CPF ou CNPJ" required />
     </div>
 
     <div class="form-group full">
       <label>Endereço completo *</label>
-      <input type="text" name="ong_endereco" required />
+      <input type="text" id="ong_endereco" name="ong_endereco" required />
     </div>
 
     <div class="form-group">
       <label>Cidade *</label>
-      <input type="text" name="ong_cidade" required />
+      <input type="text" id="ong_cidade" name="ong_cidade" required />
     </div>
 
     <div class="form-group">
       <label>UF *</label>
-      <input type="text" name="ong_uf" maxlength="2" placeholder="SP" required />
+      <input type="text" id="ong_uf" maxlength="2" placeholder="SP" required />
     </div>
 
     <div class="form-group full">
       <label>WhatsApp *</label>
-      <input type="tel" name="ong_whatsapp" placeholder="(16) 99999-9999" required />
+      <input type="tel" id="ong_whatsapp" placeholder="(16) 99999-9999" required />
     </div>
 
     <div class="form-group full">
       <label>E-mail *</label>
-      <input type="email" name="ong_email" required />
+      <input type="email" id="ong_email" name="ong_email" required />
     </div>
 
     <div class="form-group full">
       <label>Instagram (opcional)</label>
-      <input type="text" name="ong_instagram" placeholder="@nomedaong" />
+      <input type="text" id="ong_instagram" name="ong_instagram" placeholder="@nomedaong" />
     </div>
 
     <button type="submit">Cadastrar ONG</button>
