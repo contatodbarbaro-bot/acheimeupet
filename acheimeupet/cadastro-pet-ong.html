@@ -39,11 +39,12 @@
 
     .container {
       max-width: 720px;
-      margin: 40px auto;
+      margin: 20px auto;
       background: white;
       border-radius: 12px;
-      padding: 32px;
+      padding: 24px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      width: 100%;
     }
 
     h1 {
@@ -80,6 +81,7 @@
       border-radius: 8px;
       border: 1px solid #ccc;
       font-size: 14px;
+      width: 100%;
     }
 
     textarea {
@@ -102,6 +104,7 @@
       font-size: 16px;
       font-weight: 600;
       cursor: pointer;
+      width: 100%;
     }
 
     button:hover {
@@ -113,12 +116,33 @@
       font-size: 13px;
       margin: 40px 0;
       color: #777;
+      padding: 0 12px;
     }
 
     #loading, #mensagem {
       grid-column: span 2;
       text-align: center;
       font-weight: bold;
+    }
+
+    /* ======== AJUSTES MOBILE ======== */
+    @media (max-width: 600px) {
+      .container {
+        margin: 16px;
+        padding: 20px;
+      }
+
+      form {
+        grid-template-columns: 1fr;
+      }
+
+      .full {
+        grid-column: span 1;
+      }
+
+      #loading, #mensagem {
+        grid-column: span 1;
+      }
     }
   </style>
 </head>
