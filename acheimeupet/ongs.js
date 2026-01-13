@@ -27,7 +27,7 @@ async function load() {
   const { data, error } = await supabase
     .from("ongs_cadastro")
     .select("*")
-    .eq("status", "aprovada")   // <-- bate com seu banco
+    .eq("status", "aprovada")
     .order("created_at", { ascending: false });
 
   if (error) {
