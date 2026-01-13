@@ -141,13 +141,14 @@
       font-size: 0.9em;
       display: none;
     }
-
+    
+    /* Estilo para as mensagens de erro/aviso adicionadas no JS */
     .erro {
-      font-weight: 600;
-      padding: 15px;
-      border-radius: 8px;
-      background-color: #ffe0e0;
-      border: 1px solid #ff9999;
+        font-weight: 600;
+        padding: 15px;
+        border-radius: 8px;
+        background-color: #ffe0e0; /* Fundo levemente vermelho para erro */
+        border: 1px solid #ff9999;
     }
 
     footer {
@@ -230,10 +231,9 @@
     <span>❤️</span> Equipe AcheiMeuPet
   </footer>
 
-  <!-- ✅ SDK DO SUPABASE -->
+  <!-- ✅ SDK do Supabase (tem que vir ANTES do seu pet.js) -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <!-- SEU SCRIPT -->
   <script src="pet.js"></script>
 </body>
 </html>
