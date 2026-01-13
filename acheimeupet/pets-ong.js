@@ -1,31 +1,12 @@
-const grid = document.getElementById("grid");
+const container = document.querySelector(".container");
 
-// Pega o ID da ONG pela URL
+// Pega o ID da ONG da URL
 const params = new URLSearchParams(window.location.search);
 const idOng = params.get("id");
 
 if (!idOng) {
-  grid.innerHTML = `<div class="empty">ONG não identificada.</div>`;
+  container.innerHTML = "<p>ONG não informada.</p>";
   throw new Error("ID da ONG não encontrado na URL");
-}
-
-function renderPets(pets) {
-  if (!pets.length) {
-    grid.innerHTML = `<div class="empty">Nenhum pet disponível para adoção.</div>`;
-    return;
-  }
-
-  grid.innerHTML = pets.map(pet => `
-    <div class="card">
-      <img src="${pet.foto_pet || 'https://via.placeholder.com/300x220?text=Sem+Foto'}">
-      <h3>${pet.pet_nome || "Sem nome"}</h3>
-      <p><strong>Espécie:</strong> ${pet.pet_especie || "-"}</p>
-      <p><strong>Raça:</strong> ${pet.pet_raca || "-"}</p>
-      <p><strong>Idade:</strong> ${pet.pet_idade || "-"}</p>
-      <p><strong>Sexo:</strong> ${pet.pet_sexo || "-"}</p>
-      <p>${pet.pet_obs || ""}</p>
-    </div>
-  `).join("");
 }
 
 async function loadPets() {
@@ -33,16 +14,30 @@ async function loadPets() {
     .from("pets_ong_cadastro")
     .select("*")
     .eq("id_ong", idOng)
-    .eq("status", "disponivel")
+    .eq("status", "ativo para adoção")
     .order("created_at", { ascending: false });
 
   if (error) {
     console.error(error);
-    grid.innerHTML = `<div class="empty">Erro ao carregar os pets.</div>`;
+    container.innerHTML = "<p>Erro ao carregar pets.</p>";
     return;
   }
 
-  renderPets(data);
+  if (!data || data.length === 0) {
+    container.innerHTML = "<p>Nenhum pet disponível para adoção.</p>";
+    return;
+  }
+
+  container.innerHTML = data.map(pet => `
+    <div class="card">
+      <img src="${pet.foto_pet || 'https://via.placeholder.com/300'}" alt="${pet.pet_nome}">
+      <h3>${pet.pet_nome}</h3>
+      <p>${pet.pet_especie} • ${pet.pet_raca || 'SRD'}</p>
+      <p>Idade: ${pet.pet_idade || 'Não informada'}</p>
+      <p>${pet.pet_obs || ''}</p>
+      <a href="https://wa.me/55${pet.link_pet?.replace(/\D/g,'') || ''}" target="_blank">Falar com a ONG</a>
+    </div>
+  `).join("");
 }
 
 loadPets();
