@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>ONGs Parceiras | Projeto AcheiMeuPet</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --preto: #1E1811;
+      --branco: #FFFFFF;
+      --creme: #F8F7F5;
+      --caramelo: #C58B49;
+      --cinza: #666;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: var(--creme);
+      color: var(--preto);
+    }
+
+    header {
+      background: var(--preto);
+      color: var(--branco);
+      padding: 16px;
+      text-align: center;
+      font-weight: 700;
+    }
+
+    .search-box {
+      max-width: 400px;
+      margin: 20px auto;
+      text-align: center;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+    }
+
+    .count {
+      text-align: center;
+      color: var(--cinza);
+      margin-bottom: 10px;
+    }
+
+    .cards-grid {
+      max-width: 1100px;
+      margin: auto;
+      padding: 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--branco);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+
+    .card h3 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .card p {
+      margin: 6px 0;
+      color: var(--cinza);
+      font-size: 14px;
+    }
+
+    .card .links {
+      margin-top: 12px;
+      display: flex;
+      gap: 10px;
+    }
+
+    .card .links a {
+      text-decoration: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      background: var(--caramelo);
+      color: var(--branco);
+      font-size: 13px;
+      transition: 0.2s;
+    }
+
+    .card .links a:hover {
+      background: #b0762f;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 40px;
+      color: var(--cinza);
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>ONGs Parceiras</header>
+
+  <div class="search-box">
+    <input id="search" placeholder="Buscar ONG por nome ou cidade..." />
+  </div>
+
+  <div class="count" id="count"></div>
+
+  <div class="cards-grid" id="grid"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="ongs.js"></script>
+
+</body>
+</html>
