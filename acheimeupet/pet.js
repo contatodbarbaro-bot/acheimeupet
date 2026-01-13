@@ -1,5 +1,5 @@
 // =============================================
-// AcheiMeuPet — pet.js (versão corrigida 19/11)
+// AcheiMeuPet — pet.js (versão corrigida)
 // Agora consulta dados direto no SUPABASE
 // Envia aviso completo ao FiQon (Encontro_Pet_fluxo)
 // =============================================
@@ -11,13 +11,13 @@ const SUPABASE_ANON_KEY = "sb_publishable_dtre25HhmJXpPCSKOyKjIw_-AaiL_Vs";
 const supabase = window.supabase.createClient(
   SUPABASE_URL,
   SUPABASE_ANON_KEY
-);
+ );
 
 // ===== WEBHOOK AVISO =====
 const WEBHOOK_AVISO = "https://webhook.fiqon.app/webhook/a02b8e45-cd21-44e0-a619-be0e64fd9a4b/b9ae07d8-e7af-4b1f-9b1c-a22cc15fb9cd";
 
 // =========================================================
-// Localização robusta (GPS -> IP -> vazio)
+// Localização robusta (GPS -> IP -> vazio )
 // =========================================================
 async function obterLocalizacaoRobusta() {
   const resultado = {
@@ -30,7 +30,7 @@ async function obterLocalizacaoRobusta() {
 
   const tentarIP = async () => {
     try {
-      const ipRes = await fetch("https://ipapi.co/json/");
+      const ipRes = await fetch("https://ipapi.co/json/" );
       const ipData = await ipRes.json();
       if (ipData?.latitude && ipData?.longitude) {
         resultado.latitude = Number(ipData.latitude).toFixed(6);
@@ -83,38 +83,38 @@ function obterIdPet() {
   return params.get("id");
 }
 
-// ===== Buscar dados do pet (SUPABASE) =====
+// ===== Buscar dados do pet (SUPABASE) - CORRIGIDO =====
 async function buscarDadosPet(id_pet) {
-  try {
-    const tabelas = [
-      "Cadastro_pets",
-      "Cadastro_free",
-      "pets_ong_cadastro",
-      "pets_ong_adotados"
-    ];
+  const tabelas = [
+    "Cadastro_pets",
+    "Cadastro_free",
+    "pets_ong_cadastro",
+    "pets_ong_adotados"
+  ];
 
-    for (const tabela of tabelas) {
+  for (const tabela of tabelas) {
+    try {
+      // Usamos maybeSingle() para evitar que o erro de "não encontrado" trave o código
       const { data, error } = await supabase
         .from(tabela)
         .select("*")
         .eq("id_pet", id_pet)
-        .single();
+        .maybeSingle();
 
-      if (data) return data;
-
-      if (error && error.code !== "PGRST116") {
-        console.warn(`Erro na tabela ${tabela}:`, error.message);
+      if (data) {
+        console.log(`Pet encontrado na tabela: ${tabela}`);
+        return data;
       }
+
+      if (error) {
+        console.warn(`Aviso na tabela ${tabela}:`, error.message);
+      }
+    } catch (err) {
+      console.error(`Erro crítico ao acessar tabela ${tabela}:`, err);
     }
-
-    exibirErro("Pet não encontrado. Verifique o ID.");
-    return null;
-
-  } catch (error) {
-    console.error("Erro ao buscar dados do pet:", error);
-    exibirErro("Erro ao buscar dados do pet.");
-    return null;
   }
+
+  return null;
 }
 
 // ===== Preencher dados =====
@@ -122,15 +122,16 @@ function preencherDadosPet(pet) {
   if (!pet) return;
 
   const imgPet = document.getElementById("foto_pet");
-  imgPet.src = pet.foto_pet || "placeholder.png";
+  // Ajuste para garantir que a foto carregue se o campo for foto_pet ou pet_foto
+  imgPet.src = pet.foto_pet || pet.pet_foto || "https://cdn-icons-png.flaticon.com/512/616/616408.png";
 
-  document.getElementById("nome_pet").textContent = pet.nome_pet || "Pet";
+  document.getElementById("nome_pet" ).textContent = pet.nome_pet || "Pet";
   document.getElementById("nome_pet_label").textContent = pet.nome_pet || "-";
-  document.getElementById("especie_pet").textContent = pet.especie || "-";
-  document.getElementById("raca_pet").textContent = pet.raca || "-";
-  document.getElementById("sexo_pet").textContent = pet.sexo || "-";
+  document.getElementById("especie_pet").textContent = pet.especie || pet.pet_especie || "-";
+  document.getElementById("raca_pet").textContent = pet.raca || pet.pet_raca || "-";
+  document.getElementById("sexo_pet").textContent = pet.sexo || pet.pet_sexo || "-";
 
-  const cidade = pet.cidade && pet.uf ? `${pet.cidade} - ${pet.uf}` : "-";
+  const cidade = pet.cidade && pet.uf ? `${pet.cidade} - ${pet.uf}` : (pet.cidade || "-");
   document.getElementById("cidade_pet").textContent = cidade;
 
   document.getElementById("nome_tutor").textContent = pet.nome_tutor || "-";
@@ -138,8 +139,8 @@ function preencherDadosPet(pet) {
 
   const btn = document.getElementById("btn_contato");
   if (pet.whatsapp_tutor) {
-    btn.href = `https://wa.me/55${pet.whatsapp_tutor.replace(/\D/g, '')}`;
-    btn.classList.remove("d-none");
+    btn.href = `https://wa.me/55${pet.whatsapp_tutor.replace(/\D/g, '' )}`;
+    btn.style.display = "inline-block"; // Garante que o botão apareça
   }
 
   const formAviso = document.getElementById("formAviso");
@@ -190,12 +191,23 @@ function preencherDadosPet(pet) {
 async function init() {
   const id_pet = obterIdPet();
   if (!id_pet) {
-    exibirErro("ID do pet não encontrado.");
+    exibirErro("ID do pet não encontrado na URL.");
+    document.getElementById("nome_pet").textContent = "ID não encontrado";
     return;
   }
 
-  const pet = await buscarDadosPet(id_pet);
-  if (pet) preencherDadosPet(pet);
+  try {
+    const pet = await buscarDadosPet(id_pet);
+    if (pet) {
+      preencherDadosPet(pet);
+    } else {
+      document.getElementById("nome_pet").textContent = "Pet não encontrado";
+      exibirErro("Pet não encontrado. Verifique o ID.");
+    }
+  } catch (err) {
+    console.error("Erro na inicialização:", err);
+    document.getElementById("nome_pet").textContent = "Erro ao carregar";
+  }
 }
 
 document.addEventListener("DOMContentLoaded", init);
