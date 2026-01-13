@@ -1,5 +1,5 @@
 // =============================================
-// AcheiMeuPet — pet.js (versão corrigida)
+// AcheiMeuPet — pet.js (versão corrigida 19/11)
 // Agora consulta dados direto no SUPABASE
 // Envia aviso completo ao FiQon (Encontro_Pet_fluxo)
 // =============================================
@@ -8,16 +8,18 @@
 const SUPABASE_URL = "https://rhazoefykocooyjtcqen.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_dtre25HhmJXpPCSKOyKjIw_-AaiL_Vs";
 
-const supabase = window.supabase.createClient(
+// ✅ CORREÇÃO: não declare "const supabase = ...", porque o SDK já cria o global "supabase"
+// Crie seu client com outro nome para evitar conflito.
+const sb = window.supabase.createClient(
   SUPABASE_URL,
   SUPABASE_ANON_KEY
- );
+);
 
 // ===== WEBHOOK AVISO =====
 const WEBHOOK_AVISO = "https://webhook.fiqon.app/webhook/a02b8e45-cd21-44e0-a619-be0e64fd9a4b/b9ae07d8-e7af-4b1f-9b1c-a22cc15fb9cd";
 
 // =========================================================
-// Localização robusta (GPS -> IP -> vazio )
+// ✅ MELHORIA: Localização robusta (GPS -> IP -> vazio)
 // =========================================================
 async function obterLocalizacaoRobusta() {
   const resultado = {
@@ -30,7 +32,7 @@ async function obterLocalizacaoRobusta() {
 
   const tentarIP = async () => {
     try {
-      const ipRes = await fetch("https://ipapi.co/json/" );
+      const ipRes = await fetch("https://ipapi.co/json/");
       const ipData = await ipRes.json();
       if (ipData?.latitude && ipData?.longitude) {
         resultado.latitude = Number(ipData.latitude).toFixed(6);
@@ -44,6 +46,12 @@ async function obterLocalizacaoRobusta() {
     }
     return resultado;
   };
+
+  console.log("GPS debug:", {
+    protocol: location.protocol,
+    isSecureContext: window.isSecureContext,
+    hasGeo: "geolocation" in navigator
+  });
 
   if ("geolocation" in navigator) {
     try {
@@ -83,108 +91,150 @@ function obterIdPet() {
   return params.get("id");
 }
 
-// ===== Buscar dados do pet (SUPABASE) - CORRIGIDO =====
+// ===== Buscar dados do pet (SUPABASE) =====
 async function buscarDadosPet(id_pet) {
-  const tabelas = [
-    "Cadastro_pets",
-    "Cadastro_free",
-    "pets_ong_cadastro",
-    "pets_ong_adotados"
-  ];
+  try {
+    console.log("Buscando pet no Supabase:", id_pet);
 
-  for (const tabela of tabelas) {
-    try {
-      // Usamos maybeSingle() para evitar que o erro de "não encontrado" trave o código
-      const { data, error } = await supabase
+    // Tentativa nas tabelas possíveis (na mesma ordem que você usava no Sheets)
+    const tabelas = [
+      "Cadastro_pets",
+      "Cadastro_free",
+      "pets_ong_cadastro",
+      "pets_ong_adotados"
+    ];
+
+    for (const tabela of tabelas) {
+      const { data, error } = await sb
         .from(tabela)
         .select("*")
         .eq("id_pet", id_pet)
-        .maybeSingle();
+        .single();
 
       if (data) {
-        console.log(`Pet encontrado na tabela: ${tabela}`);
+        console.log(`Pet encontrado na tabela: ${tabela}`, data);
         return data;
       }
 
-      if (error) {
-        console.warn(`Aviso na tabela ${tabela}:`, error.message);
+      if (error && error.code !== "PGRST116") {
+        console.warn(`Erro na tabela ${tabela}:`, error.message);
       }
-    } catch (err) {
-      console.error(`Erro crítico ao acessar tabela ${tabela}:`, err);
     }
-  }
 
-  return null;
+    exibirErro("Pet não encontrado. Verifique o ID.");
+    return null;
+
+  } catch (error) {
+    console.error("Erro ao buscar dados do pet:", error);
+    exibirErro("Erro ao buscar dados do pet. Tente novamente.");
+    return null;
+  }
 }
 
-// ===== Preencher dados =====
+// ===== Preencher dados na página =====
 function preencherDadosPet(pet) {
   if (!pet) return;
 
   const imgPet = document.getElementById("foto_pet");
-  // Ajuste para garantir que a foto carregue se o campo for foto_pet ou pet_foto
-  imgPet.src = pet.foto_pet || pet.pet_foto || "https://cdn-icons-png.flaticon.com/512/616/616408.png";
-
-  document.getElementById("nome_pet" ).textContent = pet.nome_pet || "Pet";
-  document.getElementById("nome_pet_label").textContent = pet.nome_pet || "-";
-  document.getElementById("especie_pet").textContent = pet.especie || pet.pet_especie || "-";
-  document.getElementById("raca_pet").textContent = pet.raca || pet.pet_raca || "-";
-  document.getElementById("sexo_pet").textContent = pet.sexo || pet.pet_sexo || "-";
-
-  const cidade = pet.cidade && pet.uf ? `${pet.cidade} - ${pet.uf}` : (pet.cidade || "-");
-  document.getElementById("cidade_pet").textContent = cidade;
-
-  document.getElementById("nome_tutor").textContent = pet.nome_tutor || "-";
-  document.getElementById("whatsapp_tutor").textContent = pet.whatsapp_tutor || "-";
-
-  const btn = document.getElementById("btn_contato");
-  if (pet.whatsapp_tutor) {
-    btn.href = `https://wa.me/55${pet.whatsapp_tutor.replace(/\D/g, '' )}`;
-    btn.style.display = "inline-block"; // Garante que o botão apareça
+  // ✅ CORREÇÃO: seu fluxo traz "foto_link" (não "foto_pet")
+  if (pet.foto_link) {
+    imgPet.src = pet.foto_link;
+    imgPet.alt = `Foto de ${pet.nome_pet}`;
+  } else {
+    imgPet.src = "placeholder.png";
+    imgPet.alt = "Foto não disponível";
   }
 
+  const titulo = document.getElementById("nome_pet");
+  if (titulo) titulo.textContent = pet.nome_pet || "Pet não cadastrado";
+
+  document.getElementById("nome_pet_label").textContent = pet.nome_pet || "Pet não cadastrado";
+  document.getElementById("especie_pet").textContent = pet.especie || "Não informado";
+  document.getElementById("raca_pet").textContent = pet.raca || "Não informado";
+  document.getElementById("sexo_pet").textContent = pet.sexo || "Não informado";
+
+  const anoEl = document.getElementById("ano_nascimento_pet");
+  if (anoEl) anoEl.textContent = pet.ano_nascimento || "Não informado";
+
+  const nomeTutor = pet.nome_tutor || "Tutor não informado";
+  const whatsappTutor = pet.whatsapp_tutor || "";
+  const emailTutor = pet.email_tutor || "";
+  const ufTutor = pet.uf || "";
+  const cidadeTutor = pet.cidade || "";
+
+  document.getElementById("nome_tutor").textContent = nomeTutor;
+  document.getElementById("whatsapp_tutor").textContent = whatsappTutor || "Não informado";
+
+  let localizacao = "";
+  if (cidadeTutor && ufTutor) localizacao = `${cidadeTutor} - ${ufTutor}`;
+  else if (ufTutor) localizacao = ufTutor;
+  else if (cidadeTutor) localizacao = cidadeTutor;
+
+  document.getElementById("cidade_pet").textContent = localizacao || "Localização não informada";
+
+  const btnContato = document.getElementById("btn_contato");
+  if (whatsappTutor) {
+    const whatsappString = String(whatsappTutor);
+    btnContato.href = `https://wa.me/55${whatsappString.replace(/[\D]/g, '')}?text=Olá%20Encontrei%20o%20seu%20pet%20${pet.nome_pet}!`;
+    btnContato.classList.remove("d-none");
+  } else {
+    btnContato.classList.add("d-none");
+  }
+
+  document.getElementById("conteudo-pet")?.classList.remove("d-none");
+
   const formAviso = document.getElementById("formAviso");
-  formAviso.addEventListener("submit", async (e) => {
-    e.preventDefault();
+  if (formAviso) {
+    formAviso.addEventListener("submit", async (e) => {
+      e.preventDefault();
 
-    const nome = document.getElementById("nome_encontrador").value.trim();
-    const tel = document.getElementById("telefone_encontrador").value.trim();
-    const obs = document.getElementById("observacoes").value.trim();
+      const nomeEncontrador = document.getElementById("nome_encontrador")?.value?.trim();
+      const telefoneEncontrador = document.getElementById("telefone_encontrador")?.value?.trim();
+      const observacoes = document.getElementById("observacoes")?.value?.trim();
 
-    if (!nome || !tel) {
-      alert("Preencha nome e telefone.");
-      return;
-    }
+      if (!nomeEncontrador || !telefoneEncontrador) {
+        alert("Por favor, preencha nome e telefone.");
+        return;
+      }
 
-    const loc = await obterLocalizacaoRobusta();
+      const loc = await obterLocalizacaoRobusta();
 
-    const dadosAviso = {
-      id_pet: pet.id_pet,
-      nome_pet: pet.nome_pet,
-      nome_tutor: pet.nome_tutor,
-      whatsapp_tutor: pet.whatsapp_tutor,
-      email_tutor: pet.email_tutor,
-      nome_encontrador: nome,
-      telefone_encontrador: tel,
-      mensagem: obs || "",
-      link_pet: window.location.href,
-      latitude: loc.latitude,
-      longitude: loc.longitude,
-      loc_source: loc.source,
-      loc_accuracy: loc.accuracy,
-      loc_error: loc.error
-    };
+      const dadosAviso = {
+        id_pet: pet.id_pet,
+        nome_pet: pet.nome_pet,
+        nome_tutor: pet.nome_tutor,
+        whatsapp_tutor: pet.whatsapp_tutor,
+        email_tutor: pet.email_tutor,
+        nome_encontrador: nomeEncontrador,
+        telefone_encontrador: telefoneEncontrador,
+        mensagem: observacoes || "",
+        link_pet: window.location.href,
+        latitude: loc.latitude,
+        longitude: loc.longitude,
+        loc_source: loc.source,
+        loc_accuracy: loc.accuracy,
+        loc_error: loc.error
+      };
 
-    await fetch(WEBHOOK_AVISO, {
-      method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(dadosAviso)
+      try {
+        await fetch(WEBHOOK_AVISO, {
+          method: "POST",
+          mode: "no-cors",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(dadosAviso)
+        });
+
+        const ok = document.getElementById("mensagem_sucesso");
+        if (ok) ok.style.display = "block";
+
+        formAviso.reset();
+
+      } catch (error) {
+        console.error("Erro ao enviar aviso:", error);
+        alert("Ocorreu um erro ao tentar enviar o aviso.");
+      }
     });
-
-    document.getElementById("mensagem_sucesso").style.display = "block";
-    formAviso.reset();
-  });
+  }
 }
 
 // ===== Inicialização =====
@@ -192,27 +242,16 @@ async function init() {
   const id_pet = obterIdPet();
   if (!id_pet) {
     exibirErro("ID do pet não encontrado na URL.");
-    document.getElementById("nome_pet").textContent = "ID não encontrado";
     return;
   }
 
-  try {
-    const pet = await buscarDadosPet(id_pet);
-    if (pet) {
-      preencherDadosPet(pet);
-    } else {
-      document.getElementById("nome_pet").textContent = "Pet não encontrado";
-      exibirErro("Pet não encontrado. Verifique o ID.");
-    }
-  } catch (err) {
-    console.error("Erro na inicialização:", err);
-    document.getElementById("nome_pet").textContent = "Erro ao carregar";
-  }
+  const pet = await buscarDadosPet(id_pet);
+  if (pet) preencherDadosPet(pet);
 }
 
 document.addEventListener("DOMContentLoaded", init);
 
-function exibirErro(msg) {
-  console.error(msg);
-  alert(msg);
+function exibirErro(mensagem) {
+  console.error("Erro:", mensagem);
+  alert(mensagem);
 }
