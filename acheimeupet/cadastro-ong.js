@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return;
   }
 
-  const WEBHOOK_URL = "https://webhook.fiqon.app/webhook/019b95ae-6c9c-7016-8bd4-0079db450980/d368b2e6-9dd1-4d55-b0af-45d19c50a930";
+  const WEBHOOK_URL = "https://webhook.fiqon.app/webhook/019bb94d-abfb-73f7-9368-267540f58a0f/2a8d0829-939e-4b42-85d1-7f02844a4b61";
 
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -45,3 +45,4 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 });
+
