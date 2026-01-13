@@ -1,7 +1,5 @@
-const SUPABASE_URL = "https://rhazoefykocooyjtcqen.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_dtre25HhmJXpPCSKOyKjIw_-AaiL_Vs";
-
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// NÃO criar o cliente Supabase aqui
+// Ele já vem do supabase-config.js
 
 const grid = document.getElementById("grid");
 const search = document.getElementById("search");
@@ -32,10 +30,11 @@ async function load() {
   const { data, error } = await supabase
     .from("ongs_cadastro")
     .select("*")
-    .eq("status", "ativo")
+    .neq("status", "inativo")   // aceita "aprovada"
     .order("created_at", { ascending: false });
 
   if (error) {
+    console.error(error);
     grid.innerHTML = `<div class="empty">Erro ao carregar ONGs.</div>`;
     return;
   }
