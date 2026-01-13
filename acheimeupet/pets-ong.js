@@ -1,43 +1,58 @@
-const container = document.querySelector(".container");
+// pets-ong.js - Versão corrigida com WhatsApp funcional
 
-// Pega o ID da ONG da URL
-const params = new URLSearchParams(window.location.search);
-const idOng = params.get("id");
+const urlParams = new URLSearchParams(window.location.search);
+const ongId = urlParams.get("id");
 
-if (!idOng) {
-  container.innerHTML = "<p>ONG não informada.</p>";
-  throw new Error("ID da ONG não encontrado na URL");
+if (!ongId) {
+  document.querySelector(".container").innerHTML =
+    "<p>ONG não encontrada.</p>";
+  throw new Error("ID da ONG não informado");
 }
 
-async function loadPets() {
+async function carregarPets() {
   const { data, error } = await supabase
     .from("pets_ong_cadastro")
     .select("*")
-    .eq("id_ong", idOng)
-    .eq("status", "ativo para adoção")
-    .order("created_at", { ascending: false });
+    .eq("id_ong", ongId)
+    .eq("status", "ativo para adoção");
 
   if (error) {
-    console.error(error);
-    container.innerHTML = "<p>Erro ao carregar pets.</p>";
+    console.error("Erro ao buscar pets:", error);
+    document.querySelector(".container").innerHTML =
+      "<p>Erro ao carregar pets.</p>";
     return;
   }
 
   if (!data || data.length === 0) {
-    container.innerHTML = "<p>Nenhum pet disponível para adoção.</p>";
+    document.querySelector(".container").innerHTML =
+      "<p>Nenhum pet disponível para adoção.</p>";
     return;
   }
 
-  container.innerHTML = data.map(pet => `
-    <div class="card">
-      <img src="${pet.foto_pet || 'https://via.placeholder.com/300'}" alt="${pet.pet_nome}">
-      <h3>${pet.pet_nome}</h3>
-      <p>${pet.pet_especie} • ${pet.pet_raca || 'SRD'}</p>
-      <p>Idade: ${pet.pet_idade || 'Não informada'}</p>
-      <p>${pet.pet_obs || ''}</p>
-      <a href="https://wa.me/55${pet.link_pet?.replace(/\D/g,'') || ''}" target="_blank">Falar com a ONG</a>
-    </div>
-  `).join("");
+  const container = document.querySelector(".container");
+  container.innerHTML = "";
+
+  data.forEach((pet) => {
+    const numero = (pet.ong_whatsapp || "").replace(/\D/g, ""); 
+    const whatsappLink = numero
+      ? `https://wa.me/${numero}`
+      : "#";
+
+    const card = `
+      <div class="pet-card">
+        <img src="${pet.foto_pet || 'https://via.placeholder.com/400'}" alt="${pet.pet_nome}">
+        <div class="pet-info">
+          <h3>${pet.pet_nome || "Pet sem nome"}</h3>
+          <p>${pet.pet_especie || ""} • ${pet.pet_raca || ""}</p>
+          <p>Idade: ${pet.pet_idade || "?"}</p>
+          <p>${pet.pet_obs || ""}</p>
+          <a href="${whatsappLink}" target="_blank">Falar com a ONG</a>
+        </div>
+      </div>
+    `;
+
+    container.innerHTML += card;
+  });
 }
 
-loadPets();
+carregarPets();
