@@ -9,7 +9,6 @@ const SUPABASE_URL = "https://rhazoefykocooyjtcqen.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_dtre25HhmJXpPCSKOyKjIw_-AaiL_Vs";
 
 // ✅ CORREÇÃO: não declare "const supabase = ...", porque o SDK já cria o global "supabase"
-// Crie seu client com outro nome para evitar conflito.
 const sb = window.supabase.createClient(
   SUPABASE_URL,
   SUPABASE_ANON_KEY
@@ -19,7 +18,7 @@ const sb = window.supabase.createClient(
 const WEBHOOK_AVISO = "https://webhook.fiqon.app/webhook/a02b8e45-cd21-44e0-a619-be0e64fd9a4b/b9ae07d8-e7af-4b1f-9b1c-a22cc15fb9cd";
 
 // =========================================================
-// ✅ MELHORIA: Localização robusta (GPS -> IP -> vazio)
+// Localização robusta (GPS -> IP -> vazio)
 // =========================================================
 async function obterLocalizacaoRobusta() {
   const resultado = {
@@ -96,7 +95,6 @@ async function buscarDadosPet(id_pet) {
   try {
     console.log("Buscando pet no Supabase:", id_pet);
 
-    // Tentativa nas tabelas possíveis (na mesma ordem que você usava no Sheets)
     const tabelas = [
       "Cadastro_pets",
       "Cadastro_free",
@@ -136,9 +134,10 @@ function preencherDadosPet(pet) {
   if (!pet) return;
 
   const imgPet = document.getElementById("foto_pet");
-  // ✅ CORREÇÃO: seu fluxo traz "foto_link" (não "foto_pet")
-  if (pet.foto_link) {
-    imgPet.src = pet.foto_link;
+
+  // ✅ CORREÇÃO REAL: agora usa foto_pet
+  if (pet.foto_pet) {
+    imgPet.src = pet.foto_pet;
     imgPet.alt = `Foto de ${pet.nome_pet}`;
   } else {
     imgPet.src = "placeholder.png";
