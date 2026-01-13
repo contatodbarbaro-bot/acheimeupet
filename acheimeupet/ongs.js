@@ -1,6 +1,3 @@
-// NÃO criar o cliente Supabase aqui
-// Ele já vem do supabase-config.js
-
 const grid = document.getElementById("grid");
 const search = document.getElementById("search");
 const count = document.getElementById("count");
@@ -17,10 +14,10 @@ function render(list) {
     <div class="card">
       <h3>${ong.ong_nome}</h3>
       <p>${ong.ong_cidade} - ${ong.ong_uf}</p>
-      <p>Contato: ${ong.ong_whatsapp}</p>
+      <p>Contato: ${ong.ong_whatsapp || "Não informado"}</p>
       <div class="links">
         <a href="/pets-ong.html?id=${ong.id_ong}">Ver Pets</a>
-        <a href="https://wa.me/55${ong.ong_whatsapp.replace(/\D/g,'')}" target="_blank">WhatsApp</a>
+        <a href="https://wa.me/55${(ong.ong_whatsapp || "").replace(/\D/g,'')}" target="_blank">WhatsApp</a>
       </div>
     </div>
   `).join("");
@@ -30,7 +27,7 @@ async function load() {
   const { data, error } = await supabase
     .from("ongs_cadastro")
     .select("*")
-    .neq("status", "inativo")   // aceita "aprovada"
+    .eq("status", "aprovada")   // <-- bate com seu banco
     .order("created_at", { ascending: false });
 
   if (error) {
