@@ -135,31 +135,27 @@ function preencherDadosPet(pet) {
 
   const imgPet = document.getElementById("foto_pet");
 
-  // ✅ CORREÇÃO REAL: agora usa foto_pet
   if (pet.foto_pet) {
     imgPet.src = pet.foto_pet;
-    imgPet.alt = `Foto de ${pet.nome_pet}`;
+    imgPet.alt = `Foto de ${pet.pet_nome}`;
   } else {
     imgPet.src = "placeholder.png";
     imgPet.alt = "Foto não disponível";
   }
 
   const titulo = document.getElementById("nome_pet");
-  if (titulo) titulo.textContent = pet.nome_pet || "Pet não cadastrado";
+  if (titulo) titulo.textContent = pet.pet_nome || "Pet não cadastrado";
 
-  document.getElementById("nome_pet_label").textContent = pet.nome_pet || "Pet não cadastrado";
-  document.getElementById("especie_pet").textContent = pet.especie || "Não informado";
-  document.getElementById("raca_pet").textContent = pet.raca || "Não informado";
-  document.getElementById("sexo_pet").textContent = pet.sexo || "Não informado";
+  document.getElementById("nome_pet_label").textContent = pet.pet_nome || "Pet não cadastrado";
+  document.getElementById("especie_pet").textContent = pet.pet_especie || "Não informado";
+  document.getElementById("raca_pet").textContent = pet.pet_raca || "Não informado";
+  document.getElementById("sexo_pet").textContent = pet.pet_sexo || "Não informado";
 
-  const anoEl = document.getElementById("ano_nascimento_pet");
-  if (anoEl) anoEl.textContent = pet.ano_nascimento || "Não informado";
-
-  const nomeTutor = pet.nome_tutor || "Tutor não informado";
-  const whatsappTutor = pet.whatsapp_tutor || "";
-  const emailTutor = pet.email_tutor || "";
-  const ufTutor = pet.uf || "";
-  const cidadeTutor = pet.cidade || "";
+  const nomeTutor = pet.tutor_nome || "Tutor não informado";
+  const whatsappTutor = pet.tutor_whatsapp || "";
+  const emailTutor = pet.tutor_email || "";
+  const ufTutor = pet.tutor_uf || "";
+  const cidadeTutor = pet.tutor_cidade || "";
 
   document.getElementById("nome_tutor").textContent = nomeTutor;
   document.getElementById("whatsapp_tutor").textContent = whatsappTutor || "Não informado";
@@ -174,7 +170,7 @@ function preencherDadosPet(pet) {
   const btnContato = document.getElementById("btn_contato");
   if (whatsappTutor) {
     const whatsappString = String(whatsappTutor);
-    btnContato.href = `https://wa.me/55${whatsappString.replace(/[\D]/g, '')}?text=Olá%20Encontrei%20o%20seu%20pet%20${pet.nome_pet}!`;
+    btnContato.href = `https://wa.me/55${whatsappString.replace(/[\D]/g, '')}?text=Olá%20Encontrei%20o%20seu%20pet%20${pet.pet_nome}!`;
     btnContato.classList.remove("d-none");
   } else {
     btnContato.classList.add("d-none");
@@ -200,10 +196,10 @@ function preencherDadosPet(pet) {
 
       const dadosAviso = {
         id_pet: pet.id_pet,
-        nome_pet: pet.nome_pet,
-        nome_tutor: pet.nome_tutor,
-        whatsapp_tutor: pet.whatsapp_tutor,
-        email_tutor: pet.email_tutor,
+        nome_pet: pet.pet_nome,
+        nome_tutor: pet.tutor_nome,
+        whatsapp_tutor: pet.tutor_whatsapp,
+        email_tutor: pet.tutor_email,
         nome_encontrador: nomeEncontrador,
         telefone_encontrador: telefoneEncontrador,
         mensagem: observacoes || "",
