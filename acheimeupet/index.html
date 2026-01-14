@@ -123,12 +123,48 @@ section {
   color: var(--escuro);
 }
 
-/* Contador */
-.counter {
-  font-size: 18px;
-  color: var(--escuro);
-  margin-top: 30px;
-  font-weight: 500;
+/* Contador - PADRONIZADO COM FUNDO PRETO */
+.contador-impacto {
+  padding: 40px 20px;
+  text-align: center;
+  background: transparent; /* Deixa o fundo da seção limpo */
+  max-width: 800px;
+  margin: 20px auto;
+}
+
+.impacto-container {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  flex-wrap: wrap;
+}
+
+.impacto-badge {
+  background: #000; /* Fundo Preto solicitado */
+  padding: 20px 30px;
+  border-radius: 16px;
+  font-weight: 600;
+  color: #fff; /* Texto Branco para contraste */
+  border: 1px solid #333;
+  min-width: 220px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.impacto-badge:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+}
+
+.impacto-badge strong {
+  display: block;
+  font-size: 28px;
+  color: var(--caramelo-exato); /* Mantém o caramelo nos números */
+  margin-top: 8px;
+}
+
+.impacto-badge.adotados strong {
+  color: #ff4d4d; /* Vermelho vibrante para os adotados */
 }
 
 /* Texto introdutório de seção */
@@ -652,11 +688,17 @@ footer a { color: #fff; }
   </div>
 </section>
 
-<!-- SEÇÃO DE IMPACTO EM TEMPO REAL -->
+<!-- SEÇÃO DE IMPACTO EM TEMPO REAL - PADRONIZADA COM FUNDO PRETO -->
 <section class="contador-impacto">
   <div class="impacto-container">
-    <div class="impacto-badge">🐾 Pets para adoção <strong id="qtd-adocao">0</strong></div>
-    <div class="impacto-badge adotados">❤️ Pets já adotados <strong id="qtd-adotados">0</strong></div>
+    <div class="impacto-badge">
+      🐾 Pets para adoção
+      <strong id="qtd-adocao">0</strong>
+    </div>
+    <div class="impacto-badge adotados">
+      ❤️ Pets já adotados
+      <strong id="qtd-adotados">0</strong>
+    </div>
   </div>
 </section>
   
