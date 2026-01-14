@@ -1,85 +1,134 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <title>Pets da ONG | AcheiMeuPet</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8" />
+    <title>Pets para Adoção | AcheiMeuPet</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
 
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- CONFIGURAÇÕES GERAIS --- */
+        body {
+            margin: 0;
+            font-family: "Poppins", sans-serif;
+            background-color: #f5f5f5; /* Cinza claro do seu padrão */
+            color: #333333; /* Cor de texto do seu padrão */
+        }
 
-  <style>
-    body {
-      margin: 0;
-      font-family: "Poppins", sans-serif;
-      background: #F8F7F5;
-      color: #1E1811;
-    }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
 
-    header {
-      background: #1E1811;
-      color: #fff;
-      padding: 16px;
-      text-align: center;
-      font-weight: 700;
-    }
+        header {
+            background-color: #111111; /* Preto do seu padrão */
+            color: white;
+            padding: 20px;
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 30px;
+        }
 
-    .container {
-      max-width: 1100px;
-      margin: auto;
-      padding: 20px;
-    }
+        /* --- GRADE DE PETS RESPONSIVA --- */
+        .pets-grid {
+            display: grid;
+            /* Cria colunas flexíveis. Mínimo de 280px, máximo de 1fr (fração do espaço ) */
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px; /* Espaço entre os cards */
+        }
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 20px;
-    }
+        /* --- CARD DO PET (NOVO DESIGN) --- */
+        .pet-card {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            overflow: hidden; /* Garante que a imagem não "vaze" das bordas arredondadas */
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
 
-    .card {
-      background: #fff;
-      border-radius: 12px;
-      padding: 16px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-    }
+        .pet-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
 
-    .card img {
-      width: 100%;
-      height: 220px;
-      object-fit: cover;
-      border-radius: 10px;
-    }
+        .pet-card img {
+            width: 100%;
+            height: 250px; /* Altura da imagem */
+            object-fit: cover; /* Garante que a imagem cubra o espaço sem distorcer */
+        }
 
-    .card h3 {
-      margin: 10px 0 4px;
-      font-size: 18px;
-    }
+        .pet-info {
+            padding: 20px;
+            flex-grow: 1; /* Faz esta área crescer para empurrar o botão para baixo */
+            display: flex;
+            flex-direction: column;
+        }
 
-    .card p {
-      margin: 4px 0;
-      font-size: 14px;
-      color: #666;
-    }
+        .pet-info h3 {
+            margin: 0 0 5px 0;
+            font-size: 1.4em;
+            color: #111111; /* Preto */
+        }
 
-    .empty {
-      text-align: center;
-      padding: 40px;
-      color: #666;
-    }
-  </style>
+        .pet-info .details {
+            margin: 0 0 15px 0;
+            font-size: 0.95em;
+            color: #555;
+        }
+        
+        .pet-info .obs {
+            font-size: 0.9em;
+            color: #666;
+            flex-grow: 1; /* Ocupa o espaço disponível, empurrando o botão */
+            margin-bottom: 20px;
+        }
+
+        /* --- BOTÃO DE AÇÃO --- */
+        .cta-button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: #c78b3a; /* Caramelo do seu padrão */
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            font-weight: 600;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+            box-sizing: border-box; /* Garante que o padding não altere a largura */
+        }
+
+        .cta-button:hover {
+            background-color: #a97430; /* Um tom mais escuro de caramelo */
+        }
+        
+        /* --- MENSAGENS DE STATUS --- */
+        .status-message {
+            text-align: center;
+            padding: 50px 20px;
+            font-size: 1.1em;
+            color: #666;
+        }
+
+    </style>
 </head>
 
 <body>
+    <header>Pets disponíveis para adoção</header>
 
-  <header>Pets disponíveis para adoção</header>
+    <div class="container">
+        <!-- O JavaScript vai inserir os cards aqui -->
+        <div id="pets-grid" class="pets-grid"></div>
+    </div>
 
-  <div class="container">
-    <div id="grid" class="grid"></div>
-  </div>
-
-  <!-- SCRIPTS -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="supabase-config.js"></script>
-  <script src="pets-ong.js"></script>
-
+    <!-- SCRIPTS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="pets-ong.js"></script>
 </body>
 </html>
