@@ -45,7 +45,6 @@
 
     h2 { margin: 10px 0; color: #222; }
 
-    /* Frase adicionada */
     #mensagemInicial {
       font-size: 1em;
       color: #444;
@@ -126,9 +125,9 @@
     <img id="fotoPet" src="https://cdn-icons-png.flaticon.com/512/616/616408.png" alt="Foto do Pet">
     <h2 id="nomePet">Carregando...</h2>
 
-    <!-- Frase adicionada -->
     <p id="mensagemInicial">
-      🐾 Você encontrou um pet que pode estar perdido.<br>
+      🐾 Você encontrou um pet que pode estar perdido.  
+
       Aja agora mesmo e entre em contato com o tutor!
     </p>
 
@@ -153,7 +152,7 @@
       <input type="text" id="nomeEncontrador" placeholder="Ex: João da Silva" required>
 
       <label>Seu telefone:</label>
-      <input type="tel" id="telefoneEncontrador" placeholder="Ex: (16) 99999-0000" required>
+      <input type="tel" id="telefoneEncontrador" placeholder="Ex: (16 ) 99999-0000" required>
 
       <label>Mensagem (opcional):</label>
       <textarea id="mensagem" rows="3" placeholder="Ex: Encontrei seu pet próximo à Av. Paulista"></textarea>
@@ -170,6 +169,13 @@
       Sistema automático AcheiMeuPet 🐶 — em memória do Picolé ❤️
     </footer>
   </div>
+
+  <!-- INÍCIO: Bloco de Feedback de Localização -->
+  <div id="location-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); color: white; z-index: 1000; display: none; justify-content: center; align-items: center; text-align: center; flex-direction: column; padding: 20px; box-sizing: border-box;">
+      <p id="location-message" style="font-size: 1.2em; margin-bottom: 20px;">Estamos registrando o local onde o pet foi encontrado. Por favor, aguarde...</p>
+      <button id="retry-location" style="display: none; padding: 12px 25px; font-size: 1em; cursor: pointer; border: none; border-radius: 5px; background-color: #4CAF50; color: white;">Tentar Novamente</button>
+  </div>
+  <!-- FIM: Bloco de Feedback de Localização -->
 
   <script src="encontro.js"></script>
 </body>
