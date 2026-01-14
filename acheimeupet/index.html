@@ -12,6 +12,7 @@
 <style>
 :root {
   --caramelo: #C58B49;
+  --caramelo-exato: #c78b3a; /* Tom exato solicitado pelo usuário */
   --azul: #5CD6E0;
   --escuro: #1E1811;
   --claro: #F8F7F5;
@@ -414,6 +415,58 @@ footer a { color: #fff; }
   font-weight: 600;
   margin-top: 20px;
 }
+
+/* Seção de Pets para Adoção - CORRIGIDA PARA CARAMELO EXATO (#c78b3a) */
+.sessao-pets-adocao {
+  background: var(--caramelo-exato); /* Cor Caramelo solicitada */
+  padding: 80px 20px;
+  text-align: center;
+  border-radius: 20px; /* Bordas arredondadas */
+  margin: 40px auto;
+  max-width: 1100px;
+}
+
+.sessao-pets-adocao .container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.sessao-pets-adocao h2 {
+  color: #fff; /* Letras Brancas */
+  font-size: 2.2rem;
+  margin-bottom: 20px;
+}
+
+.sessao-pets-adocao p {
+  color: #fff; /* Letras Brancas */
+  font-size: 1.1rem;
+  margin-bottom: 15px;
+}
+
+.btn-ong-estilizado {
+  display: inline-block;
+  background: #000; /* Botão Preto */
+  color: #fff; /* Escrito em Branco */
+  padding: 15px 35px;
+  border-radius: 50px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1.1rem;
+  margin-top: 30px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.btn-ong-estilizado:hover {
+  background: #222;
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.btn-ong-estilizado i {
+  margin-right: 8px;
+  vertical-align: middle;
+}
 </style>
 </head>
 
@@ -477,8 +530,6 @@ footer a { color: #fff; }
 
   </div>
 </section>
-
-<!-- RESTO DO ARQUIVO CONTINUA IGUAL (SEM ALTERAÇÕES) -->
 
 <section id="como-funciona">
   <h2>Como Funciona</h2>
@@ -601,7 +652,8 @@ footer a { color: #fff; }
   </div>
 </section>
   
-<section class="sessao-ong">
+<!-- SEÇÃO CORRIGIDA: Pets para Adoção (CARAMELO #c78b3a) -->
+<section class="sessao-pets-adocao">
   <div class="container">
 
     <h2>Pets para Adoção</h2>
@@ -616,37 +668,12 @@ footer a { color: #fff; }
       segurança desde o primeiro dia no novo lar.
     </p>
 
-    <a href="ongs-parceiras.html" class="btn-ong">
-      Ver ONGs Parceiras
-    </a>
-
-  </div>
-  </section>  <!-- Fim da seção Proteção que vai além do pet -->
-
-<section class="sessao-ong">
-  <div class="container">
-
-    <h2>Pets para Adoção</h2>
-
-    <p>
-      Aqui você encontra os pets disponíveis para adoção por meio das
-      ONGs parceiras do AcheiMeuPet.
-    </p>
-
-    <p>
-      Cada animal já recebe a nossa tag de proteção, garantindo mais
-      segurança desde o primeiro dia no novo lar.
-    </p>
-
-    <a href="ongs-parceiras.html" class="btn-ong">
-      Ver ONGs Parceiras
+    <a href="ongs-parceiras.html" class="btn-ong-estilizado">
+      <i class="ri-search-line"></i> Ver ONGs Parceiras
     </a>
 
   </div>
 </section>
-
-<!-- Depois continua o resto do site (Planos, FAQ, etc.) -->
-
 
 <!-- NOVA SEÇÃO: PLANOS E VALORES -->
 <section id="planos">
@@ -754,8 +781,5 @@ footer a { color: #fff; }
   <p>© 2025 AcheiMeuPet — Em memória do Picolé 💙</p>
 </footer>
 
-
-
 </body>
 </html>
-
