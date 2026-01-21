@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AcheiMeuPet — Cadastro Gratuito</title>
+
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(rgba(255,255,255,0.9), rgba(255,255,255,0.9)),
+                  url("https://images.unsplash.com/photo-1558944351-c6a8caa7070b?q=80&w=1200&auto=format&fit=crop")
+                  no-repeat center center fixed;
+      background-size: cover;
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background-color: #000;
+      color: #fff;
+      text-align: center;
+      padding: 18px 0;
+      font-size: 1.3em;
+      letter-spacing: 1px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-top: 25px;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+
+    form {
+      max-width: 600px;
+      background: rgba(255, 255, 255, 0.95);
+      margin: 20px auto;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+      backdrop-filter: blur(8px);
+    }
+
+    label {
+      font-weight: 600;
+      color: #444;
+      display: block;
+      margin-top: 10px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0 16px 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 14px;
+      background: #fff;
+      box-sizing: border-box;
+    }
+
+    button {
+      background-color: #c69353;
+      color: white;
+      padding: 15px 0;
+      border: none;
+      border-radius: 8px;
+      font-size: 18px;
+      width: 100%;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.3s ease, transform 0.2s ease;
+      margin-top: 20px;
+    }
+
+    button:hover:not(:disabled) {
+      background-color: #a87632;
+      transform: scale(1.02);
+    }
+
+    button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+
+    .badge-free {
+      background-color: #28a745;
+      color: white;
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-size: 0.8em;
+      display: inline-block;
+      margin-bottom: 10px;
+    }
+
+    #loading {
+      display: none;
+      text-align: center;
+      color: #a87632;
+      font-weight: 600;
+      margin-top: 10px;
+    }
+
+    .pet-group {
+      background: #fafafa;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      border: 1px solid #ddd;
+    }
+
+    .pet-group h4 {
+      color: #a87632;
+      margin-top: 0;
+    }
+
+    footer {
+      background-color: #000;
+      color: #fff;
+      text-align: center;
+      padding: 15px;
+      margin-top: 40px;
+      font-size: 0.9em;
+    }
+
+    #mensagem {
+      margin-top: 15px;
+      text-align: center;
+      font-weight: 600;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>🐾 Projeto AcheiMeuPet</header>
+  
+  <div style="text-align: center; margin-top: 20px;">
+    <span class="badge-free">MODO PROTEÇÃO FREE</span>
+  </div>
+  <h1>Ativar Proteção Gratuita</h1>
+
+  <form id="form-cadastro-free">
+    <!-- INFO IMPORTANTE -->
+    <p style="font-size: 0.9em; color: #666; text-align: center; margin-bottom: 20px;">
+      Preencha todos os dados corretamente para garantir a segurança do seu pet.
+    </p>
+
+    <!-- PET -->
+    <h3>🐾 Dados do Pet</h3>
+    <div class="pet-group">
+      <label>Nome do pet *</label>
+      <input type="text" name="nome_pet_1" placeholder="Ex: Picolé" required />
+
+      <label>Espécie *</label>
+      <select name="especie_1" required>
+        <option value="">Selecione</option>
+        <option value="Cachorro">Cachorro</option>
+        <option value="Gato">Gato</option>
+        <option value="Outros">Outros</option>
+      </select>
+
+      <label>Raça *</label>
+      <input type="text" name="raca_1" placeholder="Ex: SRD, Poodle..." required />
+
+      <label>Sexo *</label>
+      <select name="sexo_1" required>
+        <option value="">Selecione</option>
+        <option value="Macho">Macho</option>
+        <option value="Fêmea">Fêmea</option>
+      </select>
+
+      <label>Ano de nascimento *</label>
+      <input type="text" name="ano_nasc_1" maxlength="4" placeholder="Ex: 2020" required />
+
+      <label>Foto do pet *</label>
+      <input type="file" name="foto_pet_1" accept="image/*" required />
+    </div>
+
+    <hr>
+
+    <!-- TUTOR -->
+    <h3>👤 Dados do Tutor (Responsável)</h3>
+
+    <label>Nome completo *</label>
+    <input type="text" name="nome_tutor" required />
+
+    <label>CPF *</label>
+    <input type="text" name="cpf_tutor" id="cpf_tutor" placeholder="000.000.000-00" required />
+
+    <label>Email *</label>
+    <input type="email" name="email_tutor" placeholder="seu@email.com" required />
+
+    <label>WhatsApp *</label>
+    <input type="tel" name="whatsapp_tutor" id="whatsapp_tutor" placeholder="(00) 00000-0000" required />
+
+    <label>Cidade *</label>
+    <input type="text" name="cidade" required />
+
+    <label>UF *</label>
+    <input type="text" name="uf" maxlength="2" placeholder="Ex: SP" required />
+
+    <label>Endereço completo *</label>
+    <input type="text" name="endereco" placeholder="Rua, número, bairro..." required />
+
+    <label>CEP *</label>
+    <input type="text" name="cep" id="cep" maxlength="9" placeholder="00000-000" required />
+
+    <label>Informações Médicas/Observações *</label>
+    <textarea name="obs" rows="3" placeholder="Ex: Alérgico a tal remédio, possui chip..." required></textarea>
+
+    <button type="submit" id="botao-enviar">🐾 Finalizar Cadastro Gratuito</button>
+    
+    <div id="loading">⏳ Processando dados e comprimindo foto...</div>
+    <div id="mensagem"></div>
+
+  </form>
+
+  <footer>© 2025 AcheiMeuPet — Proteção e Tecnologia 🐾</footer>
+
+  <script src="/cadastro-free.js"></script>
+</body>
+</html>
