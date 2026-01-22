@@ -1,9 +1,8 @@
-// ongs.js - Versão Corrigida V2 (Sem erro de ordenação)
+// ongs.js - Versão Final Corrigida (Tabela: ongs_cadastro)
 const grid = document.getElementById("grid");
 const search = document.getElementById("search");
 const count = document.getElementById("count");
 
-// Função para renderizar os cards das ONGs
 function render(list) {
     if (count) count.textContent = `${list.length} ONGs cadastradas`;
 
@@ -34,24 +33,19 @@ function render(list) {
     }).join("");
 }
 
-// Função para carregar os dados do Supabase
 async function load() {
     try {
-        // Tenta pegar o cliente de diferentes formas comuns no seu projeto
         const client = window.supabaseClient || window.supabase || (typeof supabase !== 'undefined' ? supabase : null);
 
-        if (!client) {
-            throw new Error("Cliente Supabase não encontrado.");
-        }
+        if (!client) throw new Error("Cliente Supabase não encontrado.");
 
-        // REMOVIDO .order("ong_nome") para evitar erro 404 se a coluna tiver outro nome
+        // CORREÇÃO: Nome da tabela alterado para ongs_cadastro
         const { data, error } = await client
-            .from("ongs")
+            .from("ongs_cadastro")
             .select("*");
 
         if (error) throw error;
 
-        // Filtro de busca
         if (search) {
             search.addEventListener("input", (e) => {
                 const term = e.target.value.toLowerCase();
