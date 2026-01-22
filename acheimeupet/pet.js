@@ -1,5 +1,5 @@
 // =============================================
-// AcheiMeuPet — pet.js (versão compatível com todas as abas)
+// AcheiMeuPet — pet.js (VERSÃO CORRIGIDA - TUTOR + ONG)
 // =============================================
 
 // ===== SUPABASE CONFIG =====
@@ -86,16 +86,14 @@ async function buscarDadosPet(id_pet) {
       .eq("id_pet", id_pet)
       .single();
 
-    if (data) {
-      return data;
-    }
+    if (data) return data;
   }
 
   exibirErro("Pet não encontrado.");
   return null;
 }
 
-// ===== Função que aceita diferentes nomes de colunas =====
+// ===== Campo flexível =====
 function pegarCampo(pet, possibilidades, fallback = "") {
   for (const campo of possibilidades) {
     if (pet[campo] && String(pet[campo]).trim() !== "") {
@@ -105,7 +103,7 @@ function pegarCampo(pet, possibilidades, fallback = "") {
   return fallback;
 }
 
-// ===== Preencher dados na página =====
+// ===== Preencher dados =====
 function preencherDadosPet(pet) {
   if (!pet) return;
 
@@ -115,13 +113,21 @@ function preencherDadosPet(pet) {
   const sexo = pegarCampo(pet, ["sexo", "pet_sexo"]);
   const foto = pegarCampo(pet, ["foto_pet", "foto", "imagem"]);
 
-  const nomeTutor = pegarCampo(pet, ["nome_tutor", "tutor_nome"]);
-  const whatsappTutor = pegarCampo(pet, ["whatsapp_tutor", "tutor_whatsapp", "whatsapp"]);
+  // 👉 RESPONSÁVEL (TUTOR OU ONG)
+  const responsavelNome = pegarCampo(
+    pet,
+    ["nome_tutor", "tutor_nome", "ong_nome"]
+  );
+
+  const responsavelWhatsapp = pegarCampo(
+    pet,
+    ["whatsapp_tutor", "tutor_whatsapp", "ong_whatsapp", "whatsapp"]
+  );
+
   const cidade = pegarCampo(pet, ["cidade", "tutor_cidade", "cidade_tutor"]);
   const uf = pegarCampo(pet, ["uf", "tutor_uf"]);
 
-  const imgPet = document.getElementById("foto_pet");
-  if (foto) imgPet.src = foto;
+  if (foto) document.getElementById("foto_pet").src = foto;
 
   document.getElementById("nome_pet").textContent = nomePet || "Pet não cadastrado";
   document.getElementById("nome_pet_label").textContent = nomePet || "Pet não cadastrado";
@@ -129,21 +135,25 @@ function preencherDadosPet(pet) {
   document.getElementById("raca_pet").textContent = raca || "Não informado";
   document.getElementById("sexo_pet").textContent = sexo || "Não informado";
 
-  document.getElementById("nome_tutor").textContent = nomeTutor || "Tutor não informado";
-  document.getElementById("whatsapp_tutor").textContent = whatsappTutor || "Não informado";
+  document.getElementById("nome_tutor").textContent =
+    responsavelNome || "Responsável não informado";
+
+  document.getElementById("whatsapp_tutor").textContent =
+    responsavelWhatsapp || "Não informado";
 
   let localizacao = "";
   if (cidade && uf) localizacao = `${cidade} - ${uf}`;
   else if (cidade) localizacao = cidade;
   else if (uf) localizacao = uf;
 
-  document.getElementById("cidade_pet").textContent = localizacao || "Localização não informada";
+  document.getElementById("cidade_pet").textContent =
+    localizacao || "Localização não informada";
 
   const btnContato = document.getElementById("btn_contato");
 
-  if (whatsappTutor) {
-    const whatsappString = String(whatsappTutor);
-    btnContato.href = `https://wa.me/55${whatsappString.replace(/[\D]/g, '')}?text=Olá%20encontrei%20o%20pet%20${nomePet}!`;
+  if (responsavelWhatsapp) {
+    const zap = String(responsavelWhatsapp).replace(/\D/g, "");
+    btnContato.href = `https://wa.me/55${zap}?text=Olá%20encontrei%20o%20pet%20${nomePet}!`;
   } else {
     btnContato.style.display = "none";
   }
@@ -168,8 +178,8 @@ function preencherDadosPet(pet) {
       const dadosAviso = {
         id_pet: pet.id_pet || pet.id,
         nome_pet: nomePet,
-        nome_tutor: nomeTutor,
-        whatsapp_tutor: whatsappTutor,
+        responsavel_nome: responsavelNome,
+        responsavel_whatsapp: responsavelWhatsapp,
         nome_encontrador: nomeEncontrador,
         telefone_encontrador: telefoneEncontrador,
         mensagem: observacoes || "",
@@ -191,7 +201,7 @@ function preencherDadosPet(pet) {
   }
 }
 
-// ===== Inicialização =====
+// ===== Init =====
 async function init() {
   const id_pet = obterIdPet();
   if (!id_pet) {
