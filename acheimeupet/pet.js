@@ -1,5 +1,5 @@
 // =============================================
-// AcheiMeuPet — pet.js (VERSÃO CORRIGIDA - TUTOR + ONG)
+// AcheiMeuPet — pet.js (VERSÃO FINAL - TUTOR + ONG)
 // =============================================
 
 // ===== SUPABASE CONFIG =====
@@ -124,8 +124,16 @@ function preencherDadosPet(pet) {
     ["whatsapp_tutor", "tutor_whatsapp", "ong_whatsapp", "whatsapp"]
   );
 
-  const cidade = pegarCampo(pet, ["cidade", "tutor_cidade", "cidade_tutor"]);
-  const uf = pegarCampo(pet, ["uf", "tutor_uf"]);
+  // ✅ LOCALIZAÇÃO (TUTOR OU ONG)
+  const cidade = pegarCampo(
+    pet,
+    ["cidade", "tutor_cidade", "cidade_tutor", "ong_cidade"]
+  );
+
+  const uf = pegarCampo(
+    pet,
+    ["uf", "tutor_uf", "ong_uf"]
+  );
 
   if (foto) document.getElementById("foto_pet").src = foto;
 
