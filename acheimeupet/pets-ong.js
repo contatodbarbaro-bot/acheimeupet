@@ -1,4 +1,4 @@
-// pets-ong.js - Versão Corrigida V2
+// pets-ong.js - Versão Final Corrigida (Com link_pet)
 document.addEventListener("DOMContentLoaded", () => {
     const urlParams = new URLSearchParams(window.location.search);
     const ongId = urlParams.get("id");
@@ -35,10 +35,13 @@ document.addEventListener("DOMContentLoaded", () => {
             data.forEach((pet) => {
                 const numeroLimpo = (pet.ong_whatsapp || "").replace(/\D/g, "");
                 
+                // MELHORIA: Usando o campo link_pet que você confirmou que existe na tabela
+                const linkReferencia = pet.link_pet || pet.foto_pet || 'Não disponível';
+
                 const mensagem = encodeURIComponent(
                     `Olá! Tenho interesse em adotar o(a) *${pet.pet_nome}*.\n\n` +
                     `Vi o perfil no site AcheiMeuPet.\n` +
-                    `Link da foto: ${pet.foto_pet || 'Não disponível'}`
+                    `Link do Pet: ${linkReferencia}`
                 );
 
                 const temWhatsapp = numeroLimpo.length >= 10;
