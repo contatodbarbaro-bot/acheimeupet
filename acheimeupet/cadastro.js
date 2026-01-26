@@ -179,7 +179,13 @@ document.addEventListener("DOMContentLoaded", () => {
                     body: JSON.stringify(payload)
                 });
 
-                const json = await req.json();
+                let json = {};
+                try {
+                    json = await req.json();
+                } catch (e) {
+                    json = {};
+                }
+
                 if (json?.link_pagamento) {
                     window.location.href = json.link_pagamento;
                     return;
