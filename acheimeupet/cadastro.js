@@ -184,8 +184,27 @@ document.addEventListener("DOMContentLoaded", () => {
                     body: JSON.stringify(payload)
                 });
 
+                // ✅ NOVO: ler a resposta e redirecionar pro Asaas
+                let resposta = {};
+                try {
+                    resposta = await req.json();
+                } catch (e) {
+                    resposta = {};
+                }
+
+                if (resposta?.link_pagamento) {
+                    window.location.href = resposta.link_pagamento;
+                    return;
+                }
+
+                if (!req.ok) {
+                    throw new Error(resposta?.mensagem || "Falha ao processar o cadastro.");
+                }
+
                 msg.style.color = "green";
                 msg.textContent = "✅ Cadastro enviado!";
+
+                botao.disabled = false;
 
             } catch (error) {
                 msg.style.color = "red";
