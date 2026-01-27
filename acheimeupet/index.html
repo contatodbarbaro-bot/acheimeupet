@@ -12,7 +12,7 @@
 <style>
 :root {
   --caramelo: #C58B49;
-  --caramelo-exato: #c78b3a; /* Tom exato solicitado pelo usuário */
+  --caramelo-exato: #c78b3a; 
   --azul: #5CD6E0;
   --escuro: #1E1811;
   --claro: #F8F7F5;
@@ -123,11 +123,146 @@ section {
   color: var(--escuro);
 }
 
+/* Bloco 1 - Antes da Imagem Grande */
+.intro-pet {
+  text-align: center;
+  margin-bottom: 30px;
+  padding: 40px 20px 0;
+}
+.intro-pet h1 {
+  font-size: 2.2rem;
+  color: var(--escuro);
+  margin-bottom: 10px;
+}
+.intro-pet p {
+  font-size: 1.1rem;
+  color: #555;
+  margin-bottom: 20px;
+}
+
+/* Bloco 2 - Duas Camadas */
+.duas-camadas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  margin-top: 40px;
+  margin-bottom: 60px;
+  max-width: 1100px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 20px;
+}
+.camada-card {
+  background: #1E1811;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+  text-align: center;
+  border: 1px solid #333;
+}
+.camada-card h3 {
+  color: var(--caramelo-exato);
+  font-size: 1.5rem;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.camada-card p {
+  color: #ddd;
+  font-size: 1rem;
+}
+
+@media (max-width: 768px) {
+  .duas-camadas { grid-template-columns: 1fr; }
+}
+
+/* Carrossel de Pets Reais */
+.carrossel-pets {
+  background: #fff;
+  padding: 80px 0;
+  overflow: hidden;
+}
+.carrossel-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+.carrossel-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+.carrossel-header h2 {
+  font-size: 2rem;
+  color: var(--escuro);
+  margin-bottom: 10px;
+}
+.carrossel-header p {
+  color: #777;
+}
+
+.carrossel-track-container {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+.carrossel-track {
+  display: flex;
+  gap: 20px;
+  animation: scroll 40s linear infinite;
+  width: max-content;
+}
+.carrossel-track:hover {
+  animation-play-state: paused;
+}
+
+.pet-card {
+  width: 250px;
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  flex-shrink: 0;
+}
+.pet-card img {
+  width: 100%;
+  aspect-ratio: 1/1;
+  object-fit: cover;
+}
+.pet-info {
+  padding: 15px;
+  text-align: center;
+}
+.pet-info h4 {
+  margin: 0;
+  color: var(--escuro);
+  font-size: 1.1rem;
+}
+
+@keyframes scroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(calc(-270px * 12)); } 
+}
+
+@media (max-width: 768px) {
+  .pet-card { width: calc(50vw - 30px); }
+  @keyframes scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(calc(-1 * (50vw - 10px) * 12)); }
+  }
+}
+
+.carrossel-footer {
+  text-align: center;
+  margin-top: 40px;
+}
+
 /* Contador - PADRONIZADO COM FUNDO PRETO */
 .contador-impacto {
   padding: 40px 20px;
   text-align: center;
-  background: transparent; /* Deixa o fundo da seção limpo */
+  background: transparent; 
   max-width: 800px;
   margin: 20px auto;
 }
@@ -140,11 +275,11 @@ section {
 }
 
 .impacto-badge {
-  background: #000; /* Fundo Preto solicitado */
+  background: #000; 
   padding: 20px 30px;
   border-radius: 16px;
   font-weight: 600;
-  color: #fff; /* Texto Branco para contraste */
+  color: #fff; 
   border: 1px solid #333;
   min-width: 220px;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -159,12 +294,12 @@ section {
 .impacto-badge strong {
   display: block;
   font-size: 28px;
-  color: var(--caramelo-exato); /* Mantém o caramelo nos números */
+  color: var(--caramelo-exato); 
   margin-top: 8px;
 }
 
 .impacto-badge.adotados strong {
-  color: #ff4d4d; /* Vermelho vibrante para os adotados */
+  color: #ff4d4d; 
 }
 
 /* Texto introdutório de seção */
@@ -331,7 +466,7 @@ footer a { color: #fff; }
 }
 
 .p-card p {
-  color: #555; /* Cinza escuro para melhor contraste */
+  color: #555; 
   font-size: 14px;
 }
 
@@ -454,10 +589,10 @@ footer a { color: #fff; }
 
 /* Seção de Pets para Adoção - CORRIGIDA PARA CARAMELO EXATO (#c78b3a) */
 .sessao-pets-adocao {
-  background: var(--caramelo-exato); /* Cor Caramelo solicitada */
+  background: var(--caramelo-exato); 
   padding: 80px 20px;
   text-align: center;
-  border-radius: 20px; /* Bordas arredondadas */
+  border-radius: 20px; 
   margin: 40px auto;
   max-width: 1100px;
 }
@@ -468,21 +603,21 @@ footer a { color: #fff; }
 }
 
 .sessao-pets-adocao h2 {
-  color: #fff; /* Letras Brancas */
+  color: #fff; 
   font-size: 2.2rem;
   margin-bottom: 20px;
 }
 
 .sessao-pets-adocao p {
-  color: #fff; /* Letras Brancas */
+  color: #fff; 
   font-size: 1.1rem;
   margin-bottom: 15px;
 }
 
 .btn-ong-estilizado {
   display: inline-block;
-  background: #000; /* Botão Preto */
-  color: #fff; /* Escrito em Branco */
+  background: #000; 
+  color: #fff; 
   padding: 15px 35px;
   border-radius: 50px;
   text-decoration: none;
@@ -514,27 +649,44 @@ footer a { color: #fff; }
     </a>
     <nav>
       <a href="#como-funciona">Como Funciona</a>
-      <a href="#por-que-proteger">Por que Proteger</a>
+      <a href="#protecao-pet">Proteção Pet</a>
       <a href="#nossa-historia">Nossa História</a>
-      <a href="/ongs.html">ONGs</a>
+      <a href="#ongs">ONGs</a>
       <a href="#planos">Planos e Valores</a>
       <a href="#faq">FAQ</a>
       <a href="#contato">Contato</a>
-      <a href="cadastro.html" class="btn"><b>Cadastrar Pet</b></a>
+      <a href="cadastro.html" class="btn"><b>Proteger Pet</b></a>
     </nav>
   </div>
 </header>
 
+<section class="intro-pet">
+  <h1>Proteção pet e identidade virtual</h1>
+  <p>Criamos uma identidade virtual para seu pet que facilita o contato imediato caso ele se perca.</p>
+  <a href="cadastro.html" class="btn">Proteger Pet</a>
+</section>
+
 <section class="main-banner">
   <img src="banner-acheimeupet.jpg" alt="Banner AcheiMeuPet" class="banner-img">
+</section>
+
+<section class="duas-camadas">
+  <div class="camada-card">
+    <h3><i class="ri-shield-user-line"></i> Proteção Pet</h3>
+    <p>Ajuda a aumentar as chances de reencontro do seu pet.</p>
+  </div>
+  <div class="camada-card">
+    <h3><i class="ri-qr-code-line"></i> Identidade Virtual</h3>
+    <p>Perfil digital com os dados do pet e do tutor acessado via QR Code.</p>
+  </div>
 </section>
 
 <div class="transicao-frase">
   <p><strong>Mais do que uma tag, um sistema de proteção inteligente que trabalha 24h pelo seu pet.</strong></p>
 </div>
 
-<!-- NOVA SEÇÃO INSERIDA APÓS HERO -->
-<section class="protecao-box">
+<!-- SEÇÃO PROTEÇÃO PET -->
+<section id="protecao-pet" class="protecao-box">
   <h2>🛡️ Proteção completa para o seu pet</h2>
   <p>Muito além de uma tag — uma proteção inteligente que trabalha 24 horas pelo seu pet.</p>
 
@@ -567,6 +719,92 @@ footer a { color: #fff; }
   </div>
 </section>
 
+<!-- SEÇÃO CARROSSEL DE PETS REAIS -->
+<section class="carrossel-pets">
+  <div class="carrossel-container">
+    <div class="carrossel-header">
+      <h2>Pets protegidos com AcheiMeuPet</h2>
+      <p>Pets protegidos com identidade virtual</p>
+    </div>
+    
+    <div class="carrossel-track-container">
+      <div class="carrossel-track">
+        <!-- Card 1 -->
+        <div class="pet-card">
+          <img src="chokito.jpg" alt="Chokito">
+          <div class="pet-info"><h4>Chokito</h4></div>
+        </div>
+        <!-- Card 2 -->
+        <div class="pet-card">
+          <img src="cirilo.jpg" alt="Cirilo">
+          <div class="pet-info"><h4>Cirilo</h4></div>
+        </div>
+        <!-- Card 3 -->
+        <div class="pet-card">
+          <img src="nina.jpg" alt="Nina">
+          <div class="pet-info"><h4>Nina</h4></div>
+        </div>
+        <!-- Card 4 -->
+        <div class="pet-card">
+          <img src="lilica.jpg" alt="Lilica">
+          <div class="pet-info"><h4>Lilica</h4></div>
+        </div>
+        <!-- Card 5 -->
+        <div class="pet-card">
+          <img src="noradrenalina.jpg" alt="Noradrenalina">
+          <div class="pet-info"><h4>Noradrenalina</h4></div>
+        </div>
+        <!-- Card 6 -->
+        <div class="pet-card">
+          <img src="fiona.jpg" alt="Fiona">
+          <div class="pet-info"><h4>Fiona</h4></div>
+        </div>
+        <!-- Card 7 -->
+        <div class="pet-card">
+          <img src="whisky.jpg" alt="Whisky">
+          <div class="pet-info"><h4>Whisky</h4></div>
+        </div>
+        <!-- Card 8 -->
+        <div class="pet-card">
+          <img src="bella.jpg" alt="Bella">
+          <div class="pet-info"><h4>Bella</h4></div>
+        </div>
+        <!-- Card 9 -->
+        <div class="pet-card">
+          <img src="cleo.jpg" alt="Cleo">
+          <div class="pet-info"><h4>Cleo</h4></div>
+        </div>
+        <!-- Card 10 -->
+        <div class="pet-card">
+          <img src="wisk.jpg" alt="Wisk">
+          <div class="pet-info"><h4>Wisk</h4></div>
+        </div>
+        <!-- Card 11 -->
+        <div class="pet-card">
+          <img src="catarina.jpg" alt="Catarina">
+          <div class="pet-info"><h4>Catarina</h4></div>
+        </div>
+        <!-- Card 12 -->
+        <div class="pet-card">
+          <img src="nina2.jpg" alt="Nina">
+          <div class="pet-info"><h4>Nina</h4></div>
+        </div>
+
+        <!-- Duplicatas para o loop infinito -->
+        <div class="pet-card"><img src="chokito.jpg" alt="Chokito"><div class="pet-info"><h4>Chokito</h4></div></div>
+        <div class="pet-card"><img src="cirilo.jpg" alt="Cirilo"><div class="pet-info"><h4>Cirilo</h4></div></div>
+        <div class="pet-card"><img src="nina.jpg" alt="Nina"><div class="pet-info"><h4>Nina</h4></div></div>
+        <div class="pet-card"><img src="lilica.jpg" alt="Lilica"><div class="pet-info"><h4>Lilica</h4></div></div>
+      </div>
+    </div>
+
+    <div class="carrossel-footer">
+      <p>Pets que já fazem parte do AcheiMeuPet e receberam nossa tag de proteção.</p>
+      <a href="cadastro.html" class="btn">Quero Proteger Pet</a>
+    </div>
+  </div>
+</section>
+
 <section id="como-funciona">
   <h2>Como Funciona</h2>
   <p class="section-intro">
@@ -577,7 +815,7 @@ footer a { color: #fff; }
     <div class="step">
       <i class="ri-hand-heart-line"></i>
       <h3>1. Cadastre seu pet</h3>
-      <p>Informe seus dados e os do seu pet, escolha o plano e ative a proteção em poucos minutos.</p>
+      <p>Informe seus dados e os do seu pet, escolha the plano e ative a proteção em poucos minutos.</p>
     </div>
     <div class="step">
       <i class="ri-qr-scan-2-line"></i>
@@ -592,7 +830,7 @@ footer a { color: #fff; }
   </div>
 </section>
 
-<!-- 🔹 NOVA SEÇÃO: Por que Proteger -->
+<!-- 🔹 SEÇÃO: Por que Proteger -->
 <section id="por-que-proteger">
   <h2>Por que essa proteção é tão necessária?</h2>
   <p class="section-intro">
@@ -662,7 +900,7 @@ footer a { color: #fff; }
   </div>
 </section>
 
-<section class="secao-ong">
+<section id="ongs" class="secao-ong">
   <div class="secao-ong-container">
     
     <h2>Proteção que vai além do pet</h2>
@@ -688,7 +926,7 @@ footer a { color: #fff; }
   </div>
 </section>
 
-<!-- SEÇÃO DE IMPACTO EM TEMPO REAL - PADRONIZADA COM FUNDO PRETO -->
+<!-- SEÇÃO DE IMPACTO EM TEMPO REAL -->
 <section class="contador-impacto">
   <div class="impacto-container">
     <div class="impacto-badge">
@@ -702,7 +940,7 @@ footer a { color: #fff; }
   </div>
 </section>
   
-<!-- SEÇÃO CORRIGIDA: Pets para Adoção (CARAMELO #c78b3a) -->
+<!-- SEÇÃO: Pets para Adoção -->
 <section class="sessao-pets-adocao">
   <div class="container">
 
@@ -725,7 +963,7 @@ footer a { color: #fff; }
   </div>
 </section>
 
-<!-- NOVA SEÇÃO: PLANOS E VALORES -->
+<!-- SEÇÃO: PLANOS E VALORES -->
 <section id="planos">
   <div class="planos-dark">
     <h2 class="planos-dark-titulo">Planos e Valores</h2>
@@ -791,8 +1029,6 @@ footer a { color: #fff; }
     </div>
   </div>
 </section>
-<!-- FIM NOVA SEÇÃO: PLANOS E VALORES -->
-
 
 <section id="faq">
   <h2>Perguntas Frequentes</h2>
@@ -834,4 +1070,3 @@ footer a { color: #fff; }
 <script type="module" src="contador.js"></script>
 </body>
 </html>
-
